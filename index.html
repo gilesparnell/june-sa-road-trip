@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>June SA Road Trip — Kenton to Hoedspruit</title>
+<style>
+  :root {
+    --navy: #1f3a5f;
+    --rust: #aa4400;
+    --warn: #fff2cc;
+    --warn-border: #e6c700;
+    --soft: #f5f1ea;
+    --card: #ffffff;
+    --bg: #faf7f2;
+    --text: #2a2a2a;
+    --muted: #6b6b6b;
+    --accent: #c8703f;
+    --link: #1155cc;
+    --shadow: 0 2px 12px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 32px rgba(31,58,95,0.12);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--bg);
+    margin: 0;
+    padding: 0;
+  }
+  .container {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #1f3a5f 0%, #2c5282 50%, #aa4400 100%);
+    color: white;
+    padding: 80px 24px 60px;
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    margin: 0 0 12px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .hero .subtitle {
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    font-weight: 400;
+    opacity: 0.95;
+    margin: 0 0 24px;
+    font-style: italic;
+  }
+  .hero .meta {
+    font-size: 1rem;
+    opacity: 0.85;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .hero .meta strong { font-weight: 600; }
+  /* Sections */
+  section {
+    margin-bottom: 56px;
+  }
+  h2 {
+    font-size: 1.8rem;
+    color: var(--navy);
+    border-bottom: 3px solid var(--navy);
+    padding-bottom: 8px;
+    margin-bottom: 24px;
+    font-weight: 700;
+  }
+  h3 {
+    font-size: 1.3rem;
+    color: var(--rust);
+    margin: 28px 0 10px;
+    font-weight: 700;
+  }
+  h4 {
+    font-size: 1.1rem;
+    color: var(--navy);
+    margin: 20px 0 8px;
+    font-weight: 600;
+  }
+  p { margin: 0 0 14px; }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 16px 0 24px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    font-size: 0.95rem;
+  }
+  th {
+    background: var(--navy);
+    color: white;
+    padding: 14px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+  }
+  td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) { background: #fafafa; }
+  td.center { text-align: center; }
+  td.warn { background: var(--warn); font-weight: 600; }
+  /* Day cards */
+  .day-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow-lg);
+    border-left: 6px solid var(--navy);
+  }
+  .day-card.long-day {
+    border-left-color: var(--rust);
+  }
+  .day-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 8px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--soft);
+  }
+  .day-num {
+    background: var(--navy);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 24px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .day-card.long-day .day-num { background: var(--rust); }
+  .day-date {
+    font-size: 1.05rem;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .day-card h2 {
+    font-size: 1.6rem;
+    border: none;
+    padding: 0;
+    margin: 0 0 4px;
+    color: var(--navy);
+  }
+  .day-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0 24px;
+  }
+  .stat {
+    background: var(--soft);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+  .stat strong { color: var(--navy); }
+  .stat.warn {
+    background: var(--warn);
+    border: 1px solid var(--warn-border);
+  }
+  .stay-card {
+    background: var(--soft);
+    padding: 18px 22px;
+    border-radius: 8px;
+    margin: 14px 0;
+    border-left: 4px solid var(--accent);
+  }
+  .stay-card.top-pick {
+    background: linear-gradient(to right, #fff8ec, #faf7f2);
+    border-left-color: var(--rust);
+  }
+  .stay-card h4 {
+    margin-top: 0;
+    margin-bottom: 6px;
+    color: var(--rust);
+  }
+  .stay-card.top-pick h4::before {
+    content: "★ ";
+    color: #d4a017;
+  }
+  .stay-card p { margin-bottom: 8px; font-size: 0.96rem; }
+  .stay-card .stay-link {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  ul { margin: 8px 0 16px; padding-left: 22px; }
+  li { margin-bottom: 6px; }
+  .callout {
+    background: #fff8ec;
+    border-left: 4px solid var(--accent);
+    padding: 16px 20px;
+    border-radius: 4px;
+    margin: 16px 0;
+  }
+  .callout.warn {
+    background: var(--warn);
+    border-left-color: var(--warn-border);
+  }
+  .callout strong { color: var(--rust); }
+  /* TOC */
+  .toc {
+    background: var(--card);
+    padding: 20px 28px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    margin-bottom: 48px;
+  }
+  .toc h3 { color: var(--navy); margin-top: 0; }
+  .toc ol { padding-left: 22px; }
+  .toc li { margin-bottom: 4px; }
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 48px 24px 32px;
+    color: var(--muted);
+    font-style: italic;
+    border-top: 1px solid #ddd;
+    margin-top: 48px;
+  }
+  @media (max-width: 600px) {
+    .hero { padding: 60px 20px 40px; }
+    .day-card { padding: 22px; }
+    th, td { padding: 10px 8px; font-size: 0.85rem; }
+    section { margin-bottom: 40px; }
+  }
+  @media print {
+    .hero { background: var(--navy); print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .day-card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+    a { color: var(--text); text-decoration: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>June South Africa Road Trip</h1>
+  <p class="subtitle">Kenton-on-Sea → Hoedspruit</p>
+  <p class="meta"><strong>Sat 20 June → Tue 23 June 2026</strong> &nbsp;•&nbsp; 4 days &nbsp;•&nbsp; ~1,770 km</p>
+</header>
+
+<div class="container">
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>What's inside</h3>
+    <ol>
+      <li><a href="#overview">Trip overview</a></li>
+      <li><a href="#travelers">The travelers</a></li>
+      <li><a href="#route">Route at a glance</a></li>
+      <li><a href="#day1">Day 1 — Hogsback</a></li>
+      <li><a href="#day2">Day 2 — Clarens (Eastern Free State)</a></li>
+      <li><a href="#day3">Day 3 — Dullstroom</a></li>
+      <li><a href="#day4">Day 4 — Hoedspruit via Panorama Route</a></li>
+      <li><a href="#alt">Alternative: easier days, Panorama as a Hoedspruit day-trip</a></li>
+      <li><a href="#practical">Practical notes — packing, food, fuel</a></li>
+      <li><a href="#links">Useful links</a></li>
+    </ol>
+  </div>
+
+  <!-- OVERVIEW -->
+  <section id="overview">
+    <h2>Trip overview</h2>
+    <p>This is a 4-day road trip from the Eastern Cape coast up to Hoedspruit, designed around rural farm stays, kid-friendly outdoor adventure, and avoiding Johannesburg entirely. The route hand-picks four very different landscapes: mistbelt forest, Free State sandstone country, the highveld trout meccas, and the Panorama Route's spectacular cliffs.</p>
+
+    <div class="callout warn">
+      <p><strong>Three trade-offs to know going in:</strong></p>
+      <ul>
+        <li><strong>Days 2 and 3 are 7–8 hours of driving</strong> — unavoidable given the distance and the no-Joburg constraint. Best mitigated with a 7am start, in-car movies, and snack supplies.</li>
+        <li><strong>June nights inland are COLD</strong> (often below freezing in the Berg, Free State, and Mpumalanga highlands). Every recommended stay has a working fireplace — bring beanies, gloves, and a thermos.</li>
+        <li><strong>Self-catering throughout</strong> means you can leave at dawn without waiting for breakfast. Pre-pack travel mugs, fruit, and rusks for the road.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- TRAVELERS -->
+  <section id="travelers">
+    <h2>The travelers</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Age / Role</th><th>Bedroom needs</th></tr></thead>
+        <tbody>
+          <tr><td>Gilo + Jackie</td><td>Couple</td><td>1 double room</td></tr>
+          <tr><td>Julia (sister)</td><td>56</td><td>1 single/double room</td></tr>
+          <tr><td>Matty</td><td>24, Jackie's son</td><td>1 single room (or sleeper-couch / loft)</td></tr>
+          <tr><td>Griff &amp; Connor</td><td>Twins, 10</td><td>Twin or bunk room</td></tr>
+          <tr style="background:#f0ece4;"><td><strong>Minimum</strong></td><td><strong>6 sleepers</strong></td><td><strong>3 bedrooms minimum (4 ideal)</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ROUTE -->
+  <section id="route">
+    <h2>Route at a glance</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Day</th>
+            <th>Route</th>
+            <th>Km</th>
+            <th>Drive</th>
+            <th>Why this stop</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Sat 20 Jun</strong></td>
+            <td>Kenton-on-Sea → Hogsback</td>
+            <td class="center">280</td>
+            <td class="center">3.5h</td>
+            <td>Magical mistbelt forest village. Gentle first day, full afternoon to settle in</td>
+          </tr>
+          <tr>
+            <td><strong>Sun 21 Jun</strong></td>
+            <td>Hogsback → Clarens (E. Free State)</td>
+            <td class="center">~600</td>
+            <td class="center warn">7–8h</td>
+            <td>Sandstone cliffs &amp; Golden Gate country. Long day — leave by 7am</td>
+          </tr>
+          <tr>
+            <td><strong>Mon 22 Jun</strong></td>
+            <td>Clarens → Dullstroom (via Vrede / Volksrust / Ermelo)</td>
+            <td class="center">~620</td>
+            <td class="center warn">7–8h</td>
+            <td>Trout-fishing village in Mpumalanga highlands. Avoids Joburg entirely</td>
+          </tr>
+          <tr>
+            <td><strong>Tue 23 Jun</strong></td>
+            <td>Dullstroom → Hoedspruit via Panorama Route</td>
+            <td class="center">~270</td>
+            <td class="center">6–7h with stops</td>
+            <td>Long Tom Pass, God's Window, Bourke's Luck, Three Rondavels — the spectacular finale</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- DAY 1 -->
+  <!-- ============================================================ -->
+  <section id="day1">
+    <article class="day-card">
+      <div class="day-header">
+        <span class="day-num">Day 1</span>
+        <span class="day-date">Saturday 20 June</span>
+      </div>
+      <h2>Kenton-on-Sea → Hogsback</h2>
+      <div class="day-stats">
+        <span class="stat"><strong>~280 km</strong></span>
+        <span class="stat"><strong>3.5 hours</strong> driving</span>
+        <span class="stat">Easy first day</span>
+      </div>
+
+      <h3>The drive</h3>
+      <p>Pick up the hire car in Grahamstown around 8am. Easy run via the N2 / R67 / R63 through Fort Beaufort and Alice, then the steep climb up to the Hogsback escarpment. Arrive by lunchtime with a full afternoon in the village.</p>
+      <h4>Route waypoints</h4>
+      <ul>
+        <li>Kenton-on-Sea → Grahamstown (Makhanda) — 50 km, 45 min</li>
+        <li>Grahamstown → Fort Beaufort — 90 km, 1 hr</li>
+        <li>Fort Beaufort → Alice → Hogsback — 80 km, 1.5 hrs (final 30 km is winding mountain pass)</li>
+      </ul>
+
+      <h3>Where to stay (3 farm-stay options for 6)</h3>
+
+      <div class="stay-card top-pick">
+        <h4>The Edge Mountain Retreat <em style="font-size:0.85rem;color:var(--muted);">(top pick)</em></h4>
+        <p>15 acres of cool-climate gardens perched on the cliff edge with Afromontane forest views. Self-catering cottages — some literally on the cliff edge. On-site restaurant and bar if you don't feel like cooking the first night. Mountain biking, archery, abseiling all bookable on the property.</p>
+        <a class="stay-link" href="https://www.theedge-hogsback.co.za/" target="_blank">theedge-hogsback.co.za →</a>
+      </div>
+
+      <div class="stay-card">
+        <h4>Maylodge Self Catering Village — Heron House</h4>
+        <p>Three double bedrooms, each en-suite. Upstairs has two extra single beds (sleeps up to 8). Open-plan lounge with a large fireplace — perfect for the 6 of you to spread out. In Hogsback village proper.</p>
+        <a class="stay-link" href="https://visithogsback.co.za/site/places/south-africa/eastern-cape/hogsback/accommodation-1/maylodge-self-catering-village/" target="_blank">Visit Hogsback — Maylodge →</a>
+      </div>
+
+      <div class="stay-card">
+        <h4>Back o' the Moon</h4>
+        <p>Thatched cottage with three bedrooms, two bathrooms, sleeps 6. More secluded, cottage-on-the-farm feel.</p>
+        <a class="stay-link" href="https://visithogsback.co.za/site/places/category/self-catering-1/" target="_blank">Hogsback self-catering directory →</a>
+      </div>
+
+      <h3>Afternoon adventure for the boys</h3>
+      <ul>
+        <li>Madonna &amp; Child Waterfall walk — easy hike to a swimmable pool</li>
+        <li>Eco Shrine and the fairy-garden trails (Tolkien-esque magical forest)</li>
+        <li><a href="https://www.hogsback.com/activities" target="_blank">Hogsback Adventures</a> — book ahead for the abseil down the 35m waterfall combo (bike + abseil) for tomorrow morning before leaving, OR archery on arrival</li>
+      </ul>
+    </article>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- DAY 2 -->
+  <!-- ============================================================ -->
+  <section id="day2">
+    <article class="day-card long-day">
+      <div class="day-header">
+        <span class="day-num">Day 2</span>
+        <span class="day-date">Sunday 21 June</span>
+      </div>
+      <h2>Hogsback → Clarens (Eastern Free State)</h2>
+      <div class="day-stats">
+        <span class="stat"><strong>~600 km</strong></span>
+        <span class="stat warn"><strong>7–8 hours</strong> driving</span>
+        <span class="stat warn">⚠ Long day — 7am start</span>
+      </div>
+
+      <h3>The drive</h3>
+      <p>This is the toughest day. Aim to leave Hogsback by 7am — the road off the escarpment is best done in daylight. Coffee in Cathcart, fuel and bathroom break in Aliwal North (river crossing into Free State), lunch around Bethlehem. Arrive Clarens by 3–4pm.</p>
+      <h4>Route waypoints</h4>
+      <ul>
+        <li>Hogsback → Cathcart — 90 km, 1.25 hrs</li>
+        <li>Cathcart → Queenstown (Komani) — 80 km, 1 hr (good fuel/coffee stop)</li>
+        <li>Queenstown → Aliwal North — 215 km, 2.5 hrs</li>
+        <li>Aliwal North → Zastron → Wepener → Excelsior → Bethlehem — 200 km, 2.25 hrs</li>
+        <li>Bethlehem → Clarens — 30 km, 25 min</li>
+      </ul>
+
+      <h3>Where to stay (3 farm-stay options for 6)</h3>
+
+      <div class="stay-card top-pick">
+        <h4>The Rose House on Schaapplaats Farm <em style="font-size:0.85rem;color:var(--muted);">(top pick)</em></h4>
+        <p>On a 580-hectare working farm between Fouriesburg and Clarens. The main sandstone house dates to 1923 and is built from local Free State sandstone. Genuine farm setting, mountain views, fireplaces. Just out of town so the boys have space to run wild.</p>
+        <a class="stay-link" href="https://clarens.co.za/self-catering/" target="_blank">Clarens self-catering directory →</a>
+      </div>
+
+      <div class="stay-card">
+        <h4>Ongeag</h4>
+        <p>Spacious, fully-equipped double-storey sandstone house with wide balconies and 360° mountain views. Sleeps 6 comfortably.</p>
+      </div>
+
+      <div class="stay-card">
+        <h4>Wedge-Wood Cottage</h4>
+        <p>Three bedrooms, two bathrooms, sleeps 6. Cosy and centrally located — easy walk into Clarens village for a Sunday evening pizza if no-one wants to cook.</p>
+        <a class="stay-link" href="https://www.wheretostay.co.za/town/clarens/self-catering" target="_blank">Where to Stay — Clarens →</a>
+      </div>
+
+      <h3>If you arrive with energy</h3>
+      <ul>
+        <li>Spruit Walk (Lake Clarens) — easy 30–45 min family trail, perfect leg-stretcher</li>
+        <li>Sunset on the koppies behind the village — bring a flask of hot chocolate</li>
+        <li>Clarens Brewery for the adults, ice cream at the square for the boys</li>
+      </ul>
+    </article>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- DAY 3 -->
+  <!-- ============================================================ -->
+  <section id="day3">
+    <article class="day-card long-day">
+      <div class="day-header">
+        <span class="day-num">Day 3</span>
+        <span class="day-date">Monday 22 June</span>
+      </div>
+      <h2>Clarens → Dullstroom</h2>
+      <div class="day-stats">
+        <span class="stat"><strong>~620 km</strong></span>
+        <span class="stat warn"><strong>7–8 hours</strong> driving</span>
+        <span class="stat warn">⚠ Long day — 7am start</span>
+      </div>
+
+      <h3>The drive — the no-Joburg route</h3>
+      <p>This is the day you skirt above Joburg. Route runs <strong>Clarens → Bethlehem → Vrede → Volksrust</strong> (KZN/Mpumalanga border) <strong>→ Standerton → Ermelo → Carolina → Belfast → Dullstroom</strong>. All tar, mostly quiet roads through farmland. Leave by 7am, lunch in Volksrust or Standerton, arrive Dullstroom mid-afternoon.</p>
+      <h4>Route waypoints</h4>
+      <ul>
+        <li>Clarens → Bethlehem → Vrede — 200 km, 2.5 hrs</li>
+        <li>Vrede → Volksrust — 175 km, 2 hrs (lunch &amp; fuel)</li>
+        <li>Volksrust → Ermelo → Carolina — 200 km, 2.5 hrs</li>
+        <li>Carolina → Belfast → Dullstroom — 110 km, 1.25 hrs</li>
+      </ul>
+
+      <h3>Where to stay (3 farm-stay options for 6)</h3>
+
+      <div class="stay-card top-pick">
+        <h4>Blue Crane Farm <em style="font-size:0.85rem;color:var(--muted);">(top pick — boys will love it)</em></h4>
+        <p>Three 6-sleeper units (Otters Cove, Misty Waters, Weavers Nest) just 50m from the water's edge of a 9-hectare trout dam. Multiple fishing jetties, beginner-friendly fly fishing, full self-catering with fireplaces. The boys can fish off the jetty while you cook supper.</p>
+        <a class="stay-link" href="https://www.bluecranefarm.co.za/" target="_blank">bluecranefarm.co.za →</a>
+      </div>
+
+      <div class="stay-card">
+        <h4>Millstream Farm</h4>
+        <p>3 km from Dullstroom village. Spacious double-storey cottages sleeping up to 10, each with full kitchen, lounge with fireplace, private patio with braai overlooking the trout dams. South Africa's premier fly-fishing destination.</p>
+        <a class="stay-link" href="https://www.millstreamfarm.co.za/" target="_blank">millstreamfarm.co.za →</a>
+      </div>
+
+      <div class="stay-card">
+        <h4>Schaefer's Halt</h4>
+        <p>Historic country cottages on a working guest farm. Fishing, hiking, big skies. More rustic feel.</p>
+        <a class="stay-link" href="https://www.schaefershalt.com/" target="_blank">schaefershalt.com →</a>
+      </div>
+
+      <h3>Afternoon for the boys</h3>
+      <ul>
+        <li>Beginner fly-fishing lesson on the dam — most farms hire out rods + offer a quick coaching session</li>
+        <li>Anvil Ale brewery in Dullstroom (kid-safe garden, parents get a beer)</li>
+        <li>Walk the dam wall, build a fire by 4pm — dark by 5:30pm in June</li>
+      </ul>
+    </article>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- DAY 4 -->
+  <!-- ============================================================ -->
+  <section id="day4">
+    <article class="day-card">
+      <div class="day-header">
+        <span class="day-num">Day 4</span>
+        <span class="day-date">Tuesday 23 June</span>
+      </div>
+      <h2>Dullstroom → Hoedspruit via Panorama Route</h2>
+      <div class="day-stats">
+        <span class="stat"><strong>~270 km</strong></span>
+        <span class="stat"><strong>6–7 hours</strong> with sightseeing stops</span>
+        <span class="stat">The grand finale</span>
+      </div>
+
+      <h3>The grand finale</h3>
+      <p>Modest distance, big day of sightseeing. Leave Dullstroom at 7am, climb Long Tom Pass, drop into Sabie for an early lunch, then the Panorama Route's greatest hits: God's Window, Bourke's Luck Potholes, the Three Rondavels viewpoint over the Blyde River Canyon. Drop down through the Strijdom Tunnel into the Lowveld and into Hoedspruit by early evening.</p>
+
+      <h3>Stops, in order</h3>
+
+      <h4>1. Long Tom Pass (Lydenburg → Sabie) — ~1 hr</h4>
+      <p>R37 climbs over 2,150m. Stop at the cannon replica viewpoint. Look for cyclists you can wave at.</p>
+
+      <h4>2. Sabie — early lunch (11am-ish)</h4>
+      <p>The Wild Fig Tree or Woodsman are reliable. Quick stop, then push on.</p>
+
+      <h4>3. Mac Mac Falls — 20 min</h4>
+      <p>Roadside viewpoint, no hiking needed. 65m double waterfall.</p>
+
+      <h4>4. God's Window — 30 min</h4>
+      <p>700m sheer drop over the Lowveld escarpment. Short walk from car park. Spectacular if it's not misted in (June is generally clear).</p>
+
+      <h4>5. Bourke's Luck Potholes — 1 hr</h4>
+      <p>Cylindrical river-carved potholes where the Blyde meets the Treur. Bridge walks, picnic lawns. R55/adult entry, payable on arrival.</p>
+
+      <h4>6. Three Rondavels viewpoint — 30 min</h4>
+      <p>The big one. View over Blyde River Canyon (third-largest canyon in the world). Stop at the lookout, take the photos, get back in the car.</p>
+
+      <h4>7. Strijdom Tunnel → Hoedspruit — 1 hr</h4>
+      <p>Drop ~1,000m down the escarpment through the tunnel. Look for baboons. Arrive Hoedspruit ~5–6pm.</p>
+
+      <div class="callout">
+        <p><strong>Tactical timing:</strong></p>
+        <ul>
+          <li>Hard rule: be on the road by <strong>7am</strong> from Dullstroom</li>
+          <li>If running late, the easiest cuts are Mac Mac Falls and God's Window — keep Bourke's Luck and Three Rondavels</li>
+          <li>Sunset in June is ~5:30pm. Don't try to do the Panorama viewpoints in dusk</li>
+          <li><a href="https://www.sa-venues.com/maps/mpumalanga-panorama-route.htm" target="_blank">Panorama Route map (SA Venues) →</a></li>
+        </ul>
+      </div>
+    </article>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- ALTERNATIVE -->
+  <!-- ============================================================ -->
+  <section id="alt">
+    <h2>Alternative: easier days, Panorama as a Hoedspruit day-trip</h2>
+    <p>If you'd prefer to honour the 14:00-stop rule and skip the long Days 2 and 3, here's a softer version. Trade-off: you arrive in Hoedspruit on Day 4 without seeing the Panorama Route, then do it as a separate day-trip from Hoedspruit later in your stay (it's a 2-hour drive each way from Hoedspruit to Graskop).</p>
+
+    <h3>Softened route</h3>
+    <ul>
+      <li><strong>Day 1 (Sat):</strong> Kenton → Hogsback — 280 km, 3.5h ✓</li>
+      <li><strong>Day 2 (Sun):</strong> Hogsback → Clarens — 600 km, 7.5h (still long, no easy alternative)</li>
+      <li><strong>Day 3 (Mon):</strong> Clarens → Wakkerstroom — 360 km, 4.5h ✓ EASY</li>
+      <li><strong>Day 4 (Tue):</strong> Wakkerstroom → Hoedspruit (direct via Belfast/Lydenburg/Strijdom Tunnel) — 480 km, 6h</li>
+    </ul>
+
+    <h3>Wakkerstroom farm-stay options (Day 3 in this version)</h3>
+
+    <div class="stay-card">
+      <h4>Wakkerstroom Farm Lodge (Saxony Farm)</h4>
+      <p>6 km from town on the Newcastle / Zaaihoek dam road. ~8 km of dam frontage. Birding, walking, mountain biking and bass fishing on site, kayaks for the dam.</p>
+      <a class="stay-link" href="https://wakkerstroom.co.za/wakkerstroom-farm-lodge/" target="_blank">wakkerstroom.co.za →</a>
+    </div>
+
+    <div class="stay-card">
+      <h4>Forellenhof Guest Farm</h4>
+      <p>6 km out of town. Genuine farm feel, trout fishing access.</p>
+      <a class="stay-link" href="https://wakkerstroom.co.za/category/accommodation/self-catering/" target="_blank">Wakkerstroom self-catering directory →</a>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- PRACTICAL -->
+  <!-- ============================================================ -->
+  <section id="practical">
+    <h2>Practical notes</h2>
+
+    <h3>Pack for cold (this is the big one)</h3>
+    <p>June nights inland in SA are properly cold — Clarens, Dullstroom, Wakkerstroom all routinely drop below 0°C overnight. Daytime is gorgeous (15–22°C, sunny) but the moment the sun drops, it bites.</p>
+    <ul>
+      <li>Beanies, gloves, thermal layers for everyone (the boys will need them at Bourke's Luck and Three Rondavels)</li>
+      <li>Hot water bottles or a thermos for the car</li>
+      <li>Down jacket or warm fleece each — fires take a while to warm a stone cottage</li>
+      <li>Closed shoes for Hogsback forest mud and the cliff viewpoints</li>
+    </ul>
+
+    <h3>Self-catering food strategy</h3>
+    <ul>
+      <li>Big shop in Grahamstown before leaving Day 1 — stock up on breakfast (rusks, fruit, yoghurt), snacks, lunch supplies, two dinners</li>
+      <li>Top-up shop in Clarens or Bethlehem on Day 2 evening for the rest</li>
+      <li>Coffee/tea, sugar, salt, oil — most farm stays don't supply pantry basics, double-check at booking</li>
+      <li>Boys love road-trip snack boxes pre-packed (jelly babies, biltong, naartjies)</li>
+    </ul>
+
+    <h3>Fuel strategy</h3>
+    <ul>
+      <li>Fill in Grahamstown at car pickup</li>
+      <li><strong>Day 2:</strong> Aliwal North (good Total/Engen with toilets and food)</li>
+      <li><strong>Day 3:</strong> Volksrust (bigger town, better stops than Vrede)</li>
+      <li><strong>Day 4:</strong> Top up in Lydenburg before Long Tom Pass, then Sabie if needed</li>
+    </ul>
+
+    <h3>Car prep</h3>
+    <ul>
+      <li>Twin boys + two adults in the back: agree on a screen-time / book / nap schedule before Day 2</li>
+      <li>USB chargers + power inverter — long days will drain devices</li>
+      <li>Snack tub between the front seats so kids don't have to ask</li>
+      <li>Good road playlist — Spotify offline downloads (parts of the Free State have no signal)</li>
+    </ul>
+
+    <div class="callout">
+      <p><strong>Booking ASAP:</strong> June is mid-winter so it's quieter than summer holidays, but Clarens books up for school-holiday weekends and Dullstroom is busy with anglers year-round. Lock in stays at least 4–6 weeks ahead.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- LINKS -->
+  <!-- ============================================================ -->
+  <section id="links">
+    <h2>Useful links</h2>
+    <ul>
+      <li>Hogsback activities &amp; farm stays: <a href="https://visithogsback.co.za/" target="_blank">visithogsback.co.za</a></li>
+      <li>The Edge Mountain Retreat: <a href="https://www.theedge-hogsback.co.za/" target="_blank">theedge-hogsback.co.za</a></li>
+      <li>Clarens accommodation portal: <a href="https://clarens.co.za/" target="_blank">clarens.co.za</a></li>
+      <li>Blue Crane Farm (Dullstroom): <a href="https://www.bluecranefarm.co.za/" target="_blank">bluecranefarm.co.za</a></li>
+      <li>Millstream Farm (Dullstroom): <a href="https://www.millstreamfarm.co.za/" target="_blank">millstreamfarm.co.za</a></li>
+      <li>Wakkerstroom Tourism: <a href="https://wakkerstroom.co.za/" target="_blank">wakkerstroom.co.za</a></li>
+      <li>Panorama Route map: <a href="https://www.sa-venues.com/maps/mpumalanga-panorama-route.htm" target="_blank">sa-venues.com</a></li>
+    </ul>
+  </section>
+
+</div>
+
+<footer>
+  Safe travels — and may June give you frost-clear mornings and golden afternoons.
+</footer>
+
+</body>
+</html>
