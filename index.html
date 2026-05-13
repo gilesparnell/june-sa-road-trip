@@ -124,6 +124,33 @@
   tr.alt-route { background: #f0f7ee; }
   tr.alt-route td { border-top: 1px dashed #7ab87a; border-bottom: 1px dashed #7ab87a; color: var(--muted); }
   tr.alt-route td:first-child { border-left: 4px solid #7ab87a; }
+  .maps-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #4285f4;
+    color: white !important;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none !important;
+    margin: 14px 0 6px;
+    box-shadow: 0 2px 6px rgba(66,133,244,0.3);
+  }
+  .maps-link:hover { background: #3070d6; text-decoration: none !important; }
+  .maps-link.alt { background: #34a853; box-shadow: 0 2px 6px rgba(52,168,83,0.3); }
+  .maps-link.alt:hover { background: #2d9248; }
+  .road-warn {
+    background: #fff3cd;
+    border: 1px solid #e6c700;
+    border-left: 4px solid #e6a817;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 14px 0;
+    font-size: 0.95rem;
+  }
+  .road-warn strong { color: #7a4a00; }
   .alt-badge {
     display: inline-block;
     background: #7ab87a;
@@ -533,21 +560,29 @@
         <span class="day-num">Day 1</span>
         <span class="day-date">Friday 19 June</span>
       </div>
-      <h2>Kenton-on-Sea → Barkly East (Funny Stone) <span style="font-weight:normal;color:var(--muted)">[~440 km]</span></h2>
+      <h2>Kenton-on-Sea → Barkly East (Funny Stone) <span style="font-weight:normal;color:var(--muted)">[~450 km]</span></h2>
       <div class="day-stats">
-        <span class="stat"><strong>~440 km</strong></span>
-        <span class="stat"><strong>5.5 hours</strong> driving</span>
+        <span class="stat"><strong>~450 km</strong></span>
+        <span class="stat"><strong>5.5–6 hours</strong> driving</span>
         <span class="stat">Into the Berg foothills</span>
       </div>
 
       <h3>The drive</h3>
-      <p>Pick up the hire car in Grahamstown around 8am. Head inland through the Eastern Cape — Fort Beaufort, Queenstown, then south-east through Sterkstroom and Dordrecht as the road climbs steadily into the Berg foothills. Barkly East sits at 1,700m in a spectacular highland valley. Aim to arrive by early-mid afternoon.</p>
-      <h4>Route waypoints</h4>
+      <p>Pick up the hire car in Grahamstown around 8am. Head north-west on the R67 to Fort Beaufort, then north through Adelaide to Queenstown, then south-east through Sterkstroom and Dordrecht as the road climbs steadily into the Berg foothills. Barkly East sits at 1,700m in a spectacular highland valley. Aim to arrive by early-mid afternoon.</p>
+
+      <div class="road-warn">
+        ⚠️ <strong>Do NOT take the Bedford road (R350).</strong> The road between Grahamstown and Bedford is chronically in poor condition — widely reported as undrivable. Take the R67 to Fort Beaufort instead. It was fully resurfaced in a R226 million SANRAL project (completed 2020): 70 km of new tar, widened shoulders. Adds ~30 min vs Bedford but is a completely different driving experience.
+      </div>
+
+      <a class="maps-link" href="https://www.google.com/maps/dir/Kenton-on-Sea,+Eastern+Cape,+South+Africa/Makhanda,+Eastern+Cape,+South+Africa/Fort+Beaufort,+Eastern+Cape,+South+Africa/Komani,+Eastern+Cape,+South+Africa/Lady+Grey,+Eastern+Cape,+South+Africa/Barkly+East,+Eastern+Cape,+South+Africa" target="_blank">📍 Open Day 1 route in Google Maps</a>
+
+      <h4>Route waypoints — take Fort Beaufort, not Bedford</h4>
       <ul>
-        <li>Kenton-on-Sea → Grahamstown (Makhanda) — 50 km, 45 min (pick up hire car, fill tank, big shop)</li>
-        <li>Grahamstown → Queenstown (Komani) — 200 km, 2.25 hrs (via Bedford or Fort Beaufort — good fuel &amp; coffee stop in Queenstown)</li>
-        <li>Queenstown → Dordrecht — 100 km, 1.25 hrs (road climbs into the foothills)</li>
-        <li>Dordrecht → Barkly East — 90 km, 1.25 hrs (increasingly scenic as you enter the highlands)</li>
+        <li><strong>Kenton-on-Sea → Grahamstown (Makhanda)</strong> — ~80 km, 1 hr — pick up hire car, fill the tank, big shop for Funny Stone days</li>
+        <li><strong>Grahamstown → Fort Beaufort</strong> — 70 km, 1 hr — <em>R67 only. Do not take the Bedford road.</em> The R67 is well-maintained resurfaced tar through the Ecca Pass</li>
+        <li><strong>Fort Beaufort → Queenstown (Komani)</strong> — 140 km, 1.75 hrs — good fuel &amp; coffee stop in Queenstown before heading into the highlands</li>
+        <li><strong>Queenstown → Dordrecht</strong> — 100 km, 1.25 hrs — road begins to climb into the Berg foothills; landscape changes noticeably</li>
+        <li><strong>Dordrecht → Barkly East</strong> — 60 km, 1 hr — increasingly spectacular as you enter the highlands at 1,700m</li>
       </ul>
 
       <h3>Where you're staying — Funny Stone</h3>
@@ -619,13 +654,16 @@
 
       <h3>The drive</h3>
       <p>The road from Barkly East to Clarens is genuinely beautiful. Head north-west through the Klein Drakensberg foothills via Lady Grey, cross the Orange River into the Free State at Aliwal North, then track north through sandstone Free State farmland to Clarens. Leave after a slow breakfast — no need for a dawn start today.</p>
+
+      <a class="maps-link" href="https://www.google.com/maps/dir/Barkly+East,+Eastern+Cape,+South+Africa/Lady+Grey,+Eastern+Cape,+South+Africa/Aliwal+North,+Eastern+Cape,+South+Africa/Wepener,+Free+State,+South+Africa/Clarens,+Free+State,+South+Africa" target="_blank">📍 Open Day 3 route in Google Maps</a>
+
       <h4>Route waypoints</h4>
       <ul>
-        <li>Barkly East → Lady Grey — 60 km, 1 hr (lovely foothills road)</li>
-        <li>Lady Grey → Aliwal North — 80 km, 1 hr (crosses into Free State at the Orange River — good fuel stop)</li>
-        <li>Aliwal North → Zastron → Wepener — 130 km, 1.5 hrs</li>
-        <li>Wepener → Bethlehem — 100 km, 1.25 hrs</li>
-        <li>Bethlehem → Clarens — 30 km, 25 min</li>
+        <li><strong>Barkly East → Lady Grey</strong> — 60 km, 1 hr — lovely foothills road, one of the prettier stretches of the trip</li>
+        <li><strong>Lady Grey → Aliwal North</strong> — 80 km, 1 hr — crosses into the Free State at the Orange River; good fuel stop here</li>
+        <li><strong>Aliwal North → Zastron → Wepener</strong> — 130 km, 1.5 hrs — flat Free State farmland, easy driving</li>
+        <li><strong>Wepener → Bethlehem</strong> — 100 km, 1.25 hrs</li>
+        <li><strong>Bethlehem → Clarens</strong> — 30 km, 25 min — sandstone cliffs begin appearing as you approach</li>
       </ul>
 
       <h3>Where to stay (2 farm-stay options for 6)</h3>
@@ -672,13 +710,16 @@
 
       <h3>The drive</h3>
       <p>Head north-west from Barkly East as usual via Lady Grey and Aliwal North, then swing north-east into KZN — Ladysmith, Newcastle, Volksrust — and drop 35 km south-east to Wakkerstroom. All tar, quiet roads, progressively more open highveld as you climb.</p>
+
+      <a class="maps-link alt" href="https://www.google.com/maps/dir/Barkly+East,+Eastern+Cape,+South+Africa/Lady+Grey,+Eastern+Cape,+South+Africa/Aliwal+North,+Eastern+Cape,+South+Africa/Ladysmith,+KwaZulu-Natal,+South+Africa/Newcastle,+KwaZulu-Natal,+South+Africa/Volksrust,+Mpumalanga,+South+Africa/Wakkerstroom,+Mpumalanga,+South+Africa" target="_blank">📍 Open Day 3 Alt route in Google Maps</a>
+
       <h4>Route waypoints</h4>
       <ul>
-        <li>Barkly East → Aliwal North — 140 km, 1.5 hrs (via Lady Grey — fuel &amp; coffee stop)</li>
-        <li>Aliwal North → Ladysmith — 140 km, 1.5 hrs (enters KZN)</li>
-        <li>Ladysmith → Newcastle — 100 km, 1 hr</li>
-        <li>Newcastle → Volksrust — 40 km, 30 min</li>
-        <li>Volksrust → Wakkerstroom — 35 km, 30 min</li>
+        <li><strong>Barkly East → Lady Grey → Aliwal North</strong> — 140 km, 1.5 hrs — fuel &amp; coffee stop in Aliwal North</li>
+        <li><strong>Aliwal North → Ladysmith</strong> — 140 km, 1.5 hrs — enters KZN; landscape opens up onto the highveld</li>
+        <li><strong>Ladysmith → Newcastle</strong> — 100 km, 1 hr — lunch stop in Newcastle if needed</li>
+        <li><strong>Newcastle → Volksrust</strong> — 40 km, 30 min</li>
+        <li><strong>Volksrust → Wakkerstroom</strong> — 35 km, 30 min — drop south-east off the highway into the village</li>
       </ul>
 
       <div class="callout warn">
@@ -723,12 +764,16 @@
 
       <h3>The drive — the no-Joburg route</h3>
       <p>This is the day you skirt above Joburg. Route runs <strong>Clarens → Bethlehem → Vrede → Volksrust</strong> (KZN/Mpumalanga border) <strong>→ Standerton → Ermelo → Carolina → Belfast → Dullstroom</strong>. All tar, mostly quiet roads through farmland. Leave by 7am, lunch in Volksrust or Standerton, arrive Dullstroom mid-afternoon.</p>
+
+      <a class="maps-link" href="https://www.google.com/maps/dir/Clarens,+Free+State,+South+Africa/Vrede,+Free+State,+South+Africa/Volksrust,+Mpumalanga,+South+Africa/Ermelo,+Mpumalanga,+South+Africa/Dullstroom,+Mpumalanga,+South+Africa" target="_blank">📍 Open Day 4 route in Google Maps</a>
+      <br><small style="color:var(--muted)">If coming from Wakkerstroom (alt route): <a href="https://www.google.com/maps/dir/Wakkerstroom,+Mpumalanga,+South+Africa/Ermelo,+Mpumalanga,+South+Africa/Carolina,+Mpumalanga,+South+Africa/Dullstroom,+Mpumalanga,+South+Africa" target="_blank">Wakkerstroom → Dullstroom in Google Maps</a> (~300 km, 3.5 hrs)</small>
+
       <h4>Route waypoints</h4>
       <ul>
-        <li>Clarens → Bethlehem → Vrede — 200 km, 2.5 hrs</li>
-        <li>Vrede → Volksrust — 175 km, 2 hrs (lunch &amp; fuel)</li>
-        <li>Volksrust → Ermelo → Carolina — 200 km, 2.5 hrs</li>
-        <li>Carolina → Belfast → Dullstroom — 110 km, 1.25 hrs</li>
+        <li><strong>Clarens → Bethlehem → Vrede</strong> — 200 km, 2.5 hrs — flat Free State farming country, good early morning driving</li>
+        <li><strong>Vrede → Volksrust</strong> — 175 km, 2 hrs — <em>lunch &amp; fuel stop in Volksrust</em>; this is the KZN/Mpumalanga border crossing, decent shops</li>
+        <li><strong>Volksrust → Ermelo → Carolina</strong> — 200 km, 2.5 hrs — highveld grassland, progressively more scenic as Carolina approaches</li>
+        <li><strong>Carolina → Belfast → Dullstroom</strong> — 110 km, 1.25 hrs — final push into the Mpumalanga highlands; Dullstroom visible from the R540 descent</li>
       </ul>
 
       <h3>Where to stay (2 farm-stay options for 6)</h3>
@@ -772,6 +817,8 @@
 
       <h3>The grand finale</h3>
       <p>Modest distance, big day of sightseeing. Leave Dullstroom at 7am, climb Long Tom Pass, drop into Sabie for an early lunch, then the Panorama Route's greatest hits: God's Window, Bourke's Luck Potholes, the Three Rondavels viewpoint over the Blyde River Canyon. Drop down through the Strijdom Tunnel into the Lowveld and into Hoedspruit by early evening.</p>
+
+      <a class="maps-link" href="https://www.google.com/maps/dir/Dullstroom,+Mpumalanga,+South+Africa/Sabie,+Mpumalanga,+South+Africa/Graskop,+Mpumalanga,+South+Africa/Bourke's+Luck+Potholes,+Mpumalanga,+South+Africa/Three+Rondavels+Viewpoint,+Mpumalanga,+South+Africa/Hoedspruit,+Limpopo,+South+Africa" target="_blank">📍 Open Day 5 Panorama Route in Google Maps</a>
 
       <h3>Stops, in order</h3>
 
