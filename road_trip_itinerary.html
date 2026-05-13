@@ -121,6 +121,22 @@
   tr:nth-child(even) { background: #fafafa; }
   td.center { text-align: center; }
   td.warn { background: var(--warn); font-weight: 600; }
+  tr.alt-route { background: #f0f7ee; }
+  tr.alt-route td { border-top: 1px dashed #7ab87a; border-bottom: 1px dashed #7ab87a; color: var(--muted); }
+  tr.alt-route td:first-child { border-left: 4px solid #7ab87a; }
+  .alt-badge {
+    display: inline-block;
+    background: #7ab87a;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
   /* Day cards */
   .day-card {
     background: var(--card);
@@ -467,6 +483,18 @@
               <small style="color:var(--muted)">Alt route: Wakkerstroom Farm Lodge</small>
             </td>
           </tr>
+          <tr class="alt-route">
+            <td><span class="alt-badge">Alt</span><strong>Sun 21 Jun</strong></td>
+            <td><a href="#day3-alt">Barkly East → Wakkerstroom</a> (via Lady Grey, Aliwal North, KZN highlands)</td>
+            <td class="center">~455</td>
+            <td class="center">5.5h</td>
+            <td>Skip Clarens; gain a humane Day 4 — Wakkerstroom→Dullstroom shrinks to just 3.5h. Cold, birdy, big-sky highveld.</td>
+            <td>
+              <strong>Wakkerstroom Farm Lodge</strong><br>
+              <small>Thatched farmhouse, open fires — self-catering</small><br>
+              <small><a href="#day3-alt">↓ See full alternative route detail</a></small>
+            </td>
+          </tr>
           <tr>
             <td><strong>Mon 22 Jun</strong></td>
             <td>Clarens → Dullstroom (via Vrede / Volksrust / Ermelo)</td>
@@ -486,8 +514,8 @@
             <td class="center">6–7h with stops</td>
             <td>Long Tom Pass, God's Window, Bourke's Luck, Three Rondavels — the spectacular finale</td>
             <td>
-              <strong>⭐ Lodge 54</strong><br>
-              <small>Hoedspruit Wildlife Estate — from ~R2,550/night</small><br>
+              <strong>⭐ Lodge 603</strong><br>
+              <small>Thatched, stone fireplace, sleeps 6 — wildlife estate</small><br>
               <small style="color:var(--muted)">Transfer to Lissataba Wed 11:30am</small>
             </td>
           </tr>
