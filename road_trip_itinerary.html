@@ -894,18 +894,34 @@
 </footer>
 
 <script>
-  // Persist action item checkbox state in localStorage
+  var API = '/api/actions';
+
+  function applyState(state) {
+    document.querySelectorAll('.checklist input[type="checkbox"]').forEach(function(cb) {
+      cb.checked = !!state[cb.id];
+    });
+  }
+
+  function loadActions() {
+    fetch(API)
+      .then(function(r) { return r.json(); })
+      .then(applyState)
+      .catch(function(e) { console.warn('Could not load actions', e); });
+  }
+
   document.querySelectorAll('.checklist input[type="checkbox"]').forEach(function(cb) {
-    var key = 'trip-action-' + cb.id;
-    // Restore saved state
-    if (localStorage.getItem(key) === 'true') {
-      cb.checked = true;
-    }
-    // Save on change
     cb.addEventListener('change', function() {
-      localStorage.setItem(key, cb.checked);
+      fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: cb.id, checked: cb.checked }),
+      }).catch(function(e) { console.warn('Could not save action', e); });
     });
   });
+
+  // Load on start, then sync every 30 seconds so both of you stay in lockstep
+  loadActions();
+  setInterval(loadActions, 30000);
 </script>
 
 </body>
