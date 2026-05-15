@@ -68,7 +68,59 @@
     </div>
 
     <div class="cta-row">
-      <a class="maps-link" href="https://www.google.com/maps/dir/Lissataba+Private+Reserve,+Hoedspruit,+Limpopo/Hoedspruit+Eastgate+Airport,+Limpopo/Hazyview,+Mpumalanga/Kruger+Park+Lodge,+Hazyview,+Mpumalanga" target="_blank">📍 Lissataba → HDS → Kruger Park Lodge</a>
+      <a class="route-map-link" href="https://www.google.com/maps/dir/Lissataba+Private+Reserve,+Hoedspruit,+Limpopo/Hoedspruit+Eastgate+Airport,+Limpopo/Hazyview,+Mpumalanga/Kruger+Park+Lodge,+Hazyview,+Mpumalanga" target="_blank" aria-label="Day 10 route — open in Google Maps">
+      <svg class="route-map" data-day="8" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+        <!-- Soft SA-ish land shape (eastern focus where the trip happens) -->
+        <path class="land" d="M 110,90 C 130,55 200,40 320,42 C 460,42 555,75 545,160 C 540,225 545,290 470,315 C 380,340 230,355 165,325 C 105,300 80,250 90,190 C 85,140 95,105 110,90 Z" />
+        <!-- Lesotho enclave -->
+        <ellipse class="lesotho" cx="265" cy="200" rx="40" ry="26" />
+        <text x="245" y="204" class="label" fill="#9a8d6e" style="font-size:10px;">Lesotho</text>
+
+        <!-- All trip segments -->
+        <g>
+          <path id="seg-d1"  class="seg" d="M 175,321 C 195,295 210,275 234,239" />
+          <path id="seg-d3"  class="seg" d="M 234,239 C 240,215 255,190 286,165" />
+          <path id="seg-d4"  class="seg" d="M 286,165 C 310,130 360,95 397,72" />
+          <path id="seg-d5"  class="seg" d="M 397,72  C 415,65 432,60 445,58" />
+          <path id="seg-d6"  class="seg" d="M 445,58  C 450,50 451,45 452,40" />
+          <path id="seg-d8"  class="seg" d="M 452,40  C 460,48 462,54 463,61" />
+          <path id="seg-d10" class="seg" d="M 463,61  C 380,75 300,90 263,96" />
+        </g>
+
+        <!-- Waypoints + labels -->
+        <g>
+          <circle class="dot dot-kenton"     cx="175" cy="321" r="4" />
+          <text   class="label label-kenton" x="115" y="338">Kenton-on-Sea</text>
+
+          <circle class="dot dot-funnystone"     cx="234" cy="239" r="4" />
+          <text   class="label label-funnystone" x="242" y="243">Funny Stone</text>
+
+          <circle class="dot dot-clarens"     cx="286" cy="165" r="4" />
+          <text   class="label label-clarens" x="294" y="169">Clarens</text>
+
+          <circle class="dot dot-dullstroom"     cx="397" cy="72" r="4" />
+          <text   class="label label-dullstroom" x="338" y="68">Dullstroom</text>
+
+          <circle class="dot dot-graskop"     cx="445" cy="58" r="4" />
+          <text   class="label label-graskop" x="453" y="55">Graskop</text>
+
+          <circle class="dot dot-hoedspruit"     cx="452" cy="40" r="4" />
+          <text   class="label label-hoedspruit" x="460" y="38">Hoedspruit / Lissataba</text>
+
+          <circle class="dot dot-kpl"     cx="463" cy="61" r="4" />
+          <text   class="label label-kpl" x="471" y="76">Kruger Park Lodge</text>
+
+          <circle class="dot dot-jhb"     cx="263" cy="96" r="4" />
+          <text   class="label label-jhb" x="220" y="92">Johannesburg</text>
+        </g>
+
+        <!-- Title -->
+        <text x="22" y="32" class="subtitle">Day 10</text>
+        <text x="22" y="55" class="title">Lissataba → Kruger Park Lodge</text>
+        <text x="22" y="73" class="label" style="fill:#7a7163;">180 km · 2.5 hours · via HDS family pickup</text>
+      </svg>
+      <span class="route-map-overlay">📍 Open in Google Maps →</span>
+    </a>
       <button class="photos-btn" data-day="day8" data-day-label="Day 10 — Lissataba → Kruger Park Lodge">📷 Photos of Day 8</button>
     </div>
   </div>
