@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>June SA Road Trip — Kenton to Hoedspruit</title>
+<title>June SA Road Trip — Kenton to Hoedspruit Airport</title>
 <style>
   :root {
     --navy: #1f3a5f;
@@ -566,64 +566,145 @@
   section.section-collapsed .day-card > *:not(h2) { display: none; }
   section.section-collapsed .day-card { padding-bottom: 22px; }
   section.section-collapsed { margin-bottom: 18px; }
-  /* Route switcher */
-  .route-switcher {
-    background: var(--soft);
-    border-bottom: 1px solid #e0d9ce;
-    padding: 14px 16px;
+
+  /* Photos button (matches maps-link, accent colour) */
+  .photos-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: white !important;
+    padding: 10px 18px;
+    border: 0;
+    border-radius: 6px;
+    font: inherit;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none !important;
+    margin: 14px 0 6px 10px;
+    box-shadow: 0 2px 6px rgba(200,112,63,0.3);
+    cursor: pointer;
+  }
+  .photos-btn:hover { background: #ad5e30; }
+  .photos-btn:focus { outline: 2px solid var(--navy); outline-offset: 2px; }
+
+  /* Photo modal */
+  .photo-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
     display: flex;
-    gap: 12px;
+    align-items: center;
     justify-content: center;
-    flex-wrap: wrap;
+    padding: 24px;
   }
-  .route-switcher-label {
-    align-self: center;
-    font-size: 0.78rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-right: 4px;
+  .photo-modal[hidden] { display: none !important; }
+  .photo-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(20,16,12,0.78);
+    backdrop-filter: blur(2px);
   }
-  .route-switch {
+  .photo-modal-content {
+    position: relative;
+    background: var(--card);
+    border-radius: 14px;
+    max-width: 760px;
+    width: 100%;
+    max-height: 92vh;
     display: flex;
     flex-direction: column;
-    text-decoration: none;
-    background: #fff;
-    border: 1px solid #d9d2c2;
-    border-radius: 8px;
-    padding: 10px 18px;
-    color: var(--text);
-    min-width: 240px;
-    transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+    overflow: hidden;
   }
-  .route-switch:hover {
-    border-color: var(--navy);
-    text-decoration: none;
-    transform: translateY(-1px);
+  .photo-modal-header {
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid #ece6d8;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
   }
-  .route-switch.active {
-    background: var(--navy);
-    color: #fff;
-    border-color: var(--navy);
-    box-shadow: 0 2px 8px rgba(31,58,95,0.2);
-    cursor: default;
-  }
-  .route-switch.active:hover { transform: none; }
-  .route-switch.active .route-switch-meta { color: #d4ddea; }
-  .route-switch-label {
-    font-weight: 700;
-    font-size: 0.95rem;
-    line-height: 1.2;
-  }
-  .route-switch-meta {
-    font-size: 0.78rem;
-    color: var(--muted);
-    margin-top: 3px;
+  .photo-modal-title {
+    margin: 0;
+    color: var(--navy);
+    font-size: 1.15rem;
     line-height: 1.3;
   }
+  .photo-modal-close {
+    background: #f0e9da;
+    color: var(--text);
+    border: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .photo-modal-close:hover { background: #e3d9c2; }
+  .photo-modal-scroll {
+    overflow-y: auto;
+    padding: 20px 24px 24px;
+    flex: 1;
+    -webkit-overflow-scrolling: touch;
+  }
+  .photo-figure { margin: 0 0 22px; }
+  .photo-figure:last-child { margin-bottom: 4px; }
+  .photo-img-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: linear-gradient(135deg, #ece2cd, #d4c8ac);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .photo-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .photo-img-wrap img.loaded { opacity: 1; }
+  .photo-img-wrap.failed::after {
+    content: '📷  image not available';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+  }
+  .photo-figure figcaption {
+    font-size: 0.9rem;
+    color: var(--text);
+    margin-top: 10px;
+    line-height: 1.45;
+  }
+  .photo-figure figcaption .photo-credit {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 3px;
+    letter-spacing: 0.02em;
+  }
+  .photo-figure figcaption .photo-credit a { color: var(--muted); }
   @media (max-width: 600px) {
-    .route-switch { min-width: 0; flex: 1 1 100%; padding: 8px 14px; }
-    .route-switcher-label { display: none; }
+    .photo-modal { padding: 8px; }
+    .photo-modal-content { max-height: 96vh; border-radius: 10px; }
+    .photo-modal-header { padding: 14px 16px 12px; }
+    .photo-modal-title { font-size: 1rem; }
+    .photo-modal-scroll { padding: 14px 16px 16px; }
+    .photos-btn { margin-left: 0; display: flex; }
   }
 </style>
 </head>
@@ -631,21 +712,10 @@
 
 <header class="hero">
   <h1>June South Africa Road Trip</h1>
-  <p class="subtitle">Kenton-on-Sea → Hoedspruit</p>
-  <p class="meta"><strong>Fri 19 June → Tue 23 June 2026</strong> &nbsp;•&nbsp; 5 days &nbsp;•&nbsp; ~1,510 km</p>
+  <p class="subtitle">Kenton-on-Sea → Hoedspruit Airport <span style="opacity:0.6;font-size:0.85rem;">(via Graskop)</span></p>
+  <p class="meta"><strong>Fri 19 June → Wed 24 June 2026</strong> &nbsp;•&nbsp; 6 days &nbsp;•&nbsp; ~1,510 km &nbsp;•&nbsp; 2 nights at Funny Stone, last night in Graskop</p>
 </header>
 
-<nav class="route-switcher" aria-label="Route options">
-  <span class="route-switcher-label">Route option</span>
-  <a href="/" class="route-switch active" aria-current="page">
-    <span class="route-switch-label">Current plan</span>
-    <span class="route-switch-meta">5 days · finishes in Hoedspruit · 1 night Funny Stone</span>
-  </a>
-  <a href="/index-graskop.html" class="route-switch">
-    <span class="route-switch-label">Graskop variant (draft)</span>
-    <span class="route-switch-meta">6 days · finishes at HDS airport · 2 nights Funny Stone</span>
-  </a>
-</nav>
 
 <div class="container">
 
@@ -659,12 +729,13 @@
       <ol>
         <li><a href="#overview">Trip overview</a></li>
         <li><a href="#route">Route at a glance</a></li>
-        <li><a href="#day1">Day 1 — Barkly East (Funny Stone)</a></li>
-        <li><a href="#day2">Day 2 — Clarens (Eastern Free State)</a></li>
-        <li><a href="#day3">Day 3 — Wakkerstroom (Mpumalanga)</a></li>
-        <li><a href="#day4">Day 4 — Dullstroom</a></li>
-        <li><a href="#day5">Day 5 — Hoedspruit via Panorama Route</a></li>
-        <li><a href="#alt">Alternative: easier days, Panorama as a Hoedspruit day-trip</a></li>
+        <li><a href="#day1">Day 1 (Fri) — Kenton → Funny Stone</a></li>
+        <li><a href="#day2">Day 2 (Sat) — Rest day at Funny Stone</a></li>
+        <li><a href="#day3">Day 3 (Sun) — Funny Stone → Clarens</a></li>
+        <li><a href="#day4">Day 4 (Mon) — Clarens → Dullstroom</a></li>
+        <li><a href="#day5">Day 5 (Tue) — Dullstroom → Graskop (Panorama west)</a></li>
+        <li><a href="#day6">Day 6 (Wed) — Graskop → Hoedspruit Airport</a></li>
+        <li><a href="#after">After the airport — Arathusa &amp; Lissataba transfers</a></li>
         <li><a href="#practical">Practical notes — packing, food, fuel</a></li>
         <li><a href="#boys">🧒 For the Boys — kid highlights by day</a></li>
         <li><a href="#games">🎮 Games to play in the car</a></li>
@@ -690,16 +761,17 @@
   <!-- OVERVIEW -->
   <section id="overview">
     <h2>Trip overview</h2>
-    <p>A 5-day road trip from the Eastern Cape coast up to Hoedspruit, designed around rural farm stays, kid-friendly outdoor adventure, and avoiding Johannesburg entirely. The route hand-picks five very different landscapes: coastal Eastern Cape, mistbelt Berg foothills, Free State sandstone country, the highveld birding villages, the Mpumalanga trout highlands, and the Panorama Route's spectacular cliffs.</p>
+    <p>A 6-day road trip from the Eastern Cape coast up to Hoedspruit Airport, with <strong>two nights at Funny Stone</strong> for proper family time and a deliberate rest day before pushing north. Same total distance (~1,510 km), same showcase landscapes — coastal Eastern Cape, mistbelt Berg foothills, Free State sandstone, Mpumalanga highlands, Panorama Route — but the Panorama is spread over a slower Tuesday afternoon plus Wednesday morning, with the airport drive baked into the final morning. No Wakkerstroom; no Hoedspruit overnight. Last bed of the trip is in <strong>Graskop</strong> at the head of the Panorama Route.</p>
 
     <div class="callout">
-      <p><strong>A note on driving times:</strong> All times shown are Google Maps drive time <strong>plus 20%</strong> to account for toilet stops, fuel, and snack breaks — essential with kids on board. For example, Google Maps shows Day 2 (Barkly East → Clarens) as 5h20m; we're showing 6.5h. Plan on a comfort stop roughly every 90 minutes.</p>
+      <p><strong>A note on driving times:</strong> All times shown are Google Maps drive time <strong>plus 20%</strong> to account for toilet stops, fuel, and snack breaks — essential with kids on board. Plan on a comfort stop roughly every 90 minutes.</p>
     </div>
 
     <div class="callout warn">
-      <p><strong>Three things to know going in:</strong></p>
+      <p><strong>Four things to know going in:</strong></p>
       <ul>
-        <li><strong>Day 1 is the long day</strong> (Kenton → Barkly East, 8h) — leave by 7am. Day 2 is 5h (Barkly East → Clarens via Maloti Route). Days 3 and 4 are 5h each. Day 5 is ~3.5h driving broken up by Panorama Route stops.</li>
+        <li><strong>Day 1 is the long day</strong> (Kenton → Funny Stone, 8h) — leave by 7am. Day 2 is the deliberate rest day. Day 3 (Funny Stone → Clarens via Maloti) is 5h. Day 4 (Clarens → Dullstroom) is the new longer day — <strong>5.5h</strong> via Bethlehem and Standerton, since we're cutting out the Wakkerstroom stop. Day 5 is the easiest day, ~2.5h drive plus a Panorama-west afternoon loop.</li>
+        <li><strong>Day 6 has a fixed deadline.</strong> Giles must be at Hoedspruit Airport by ~11:30am Wed for the Arathusa shuttle. That means leaving Graskop by 7am to fit Bourke's Luck Potholes and the Three Rondavels viewpoint on the way down. If running tight, those are the two stops to keep — the rest (Pinnacle, God's Window, Wonder View) is done Tuesday afternoon from Graskop.</li>
         <li><strong>June nights inland are COLD</strong> (often below freezing in the Berg, Free State, and Mpumalanga highlands). Every recommended stay has a working fireplace — bring beanies, gloves, and a thermos.</li>
         <li><strong>Self-catering throughout</strong> means you can leave at dawn without waiting for breakfast. Pre-pack travel mugs, fruit, and rusks for the road.</li>
       </ul>
@@ -729,11 +801,19 @@
             <td class="center">~468</td>
             <td class="center warn">8h</td>
             <td>Family at Funny Stone. Gateway to the southern Berg — Naude's Nek country</td>
-            <td><strong>Funny Stone</strong><br><small>Family property — no booking needed</small></td>
+            <td><strong>Funny Stone</strong> (night 1 of 2)<br><small>Family property — no booking needed</small></td>
           </tr>
           <tr>
             <td><strong>Sat 20 Jun</strong></td>
-            <td>Barkly East → Clarens (E. Free State)</td>
+            <td>Rest day at Funny Stone</td>
+            <td class="center">—</td>
+            <td class="center">—</td>
+            <td>Recovery + one elective excursion — Naude's Nek (highest pass in SA), Tiffindell snow, Rhodes village trout, or just farm time</td>
+            <td><strong>Funny Stone</strong> (night 2 of 2)<br><small>No driving day — locals only</small></td>
+          </tr>
+          <tr>
+            <td><strong>Sun 21 Jun</strong></td>
+            <td>Funny Stone → Clarens (E. Free State)</td>
             <td class="center">~360</td>
             <td class="center warn">5h</td>
             <td>Maloti Route (R26) via Fouriesburg — sandstone Maluti Mountains &amp; Boer War country. Leave Funny Stone by 7am</td>
@@ -744,22 +824,11 @@
             </td>
           </tr>
           <tr>
-            <td><strong>Sun 21 Jun</strong></td>
-            <td>Clarens → Wakkerstroom (Mpumalanga)</td>
-            <td class="center">~235</td>
-            <td class="center">5h</td>
-            <td>Through Golden Gate National Park (R712) — most scenic Free State drive. Victorian birding village at the end. NB: SANParks entry fee (~R220/person)</td>
-            <td>
-              <strong>Wakkerstroom guest house / self-catering</strong><br>
-              <small>Small town — book early, limited options for 6</small>
-            </td>
-          </tr>
-          <tr>
             <td><strong>Mon 22 Jun</strong></td>
-            <td>Wakkerstroom → Dullstroom (via Amsterdam / Carolina R33)</td>
-            <td class="center">~220</td>
-            <td class="center">4h</td>
-            <td>Trout-fishing village in Mpumalanga highlands. Easy day, full afternoon to fish. Avoid Ermelo — scenic R33 route via Amsterdam instead.</td>
+            <td>Clarens → Dullstroom (via Bethlehem &amp; Standerton)</td>
+            <td class="center">~430</td>
+            <td class="center warn">5.5h</td>
+            <td>The new longer day — no Wakkerstroom stop. Quiet Free State farmland route through Bethlehem, Frankfort, Standerton, Carolina. Leave Clarens by 8am.</td>
             <td>
               <strong>⭐ Blue Crane Farm</strong><br>
               <small>Trout dam, fireplaces — ~R4,200/night</small><br>
@@ -768,15 +837,23 @@
           </tr>
           <tr>
             <td><strong>Tue 23 Jun</strong></td>
-            <td>Dullstroom → Hoedspruit via Panorama Route</td>
-            <td class="center">~230</td>
-            <td class="center">7h incl. stops</td>
-            <td>Long Tom Pass, God's Window, Bourke's Luck, Three Rondavels — the spectacular finale</td>
+            <td>Dullstroom → Graskop via Long Tom Pass</td>
+            <td class="center">~145</td>
+            <td class="center">2.5h drive + Panorama afternoon</td>
+            <td>Long Tom Pass, Sabie lunch, Mac Mac Falls, <strong>Pilgrim's Rest</strong> (1873 gold-rush village) — arrive Graskop ~2pm. Panorama-west golden-hour loop in the late afternoon: Pinnacle Rock, God's Window, Wonder View.</td>
             <td>
-              <strong>⭐ Lodge 603</strong><br>
-              <small>Thatched, stone fireplace, sleeps 6 — wildlife estate</small><br>
-              <small style="color:var(--muted)">Transfer to Lissataba Wed 11:30am</small>
+              <strong>Graskop guest house</strong><br>
+              <small>Heart of the Panorama Route — many options for 6</small><br>
+              <small style="color:var(--muted)">Suggested: Graskop Hotel / Misty Mountain / Summit Lodge</small>
             </td>
+          </tr>
+          <tr>
+            <td><strong>Wed 24 Jun</strong></td>
+            <td>Graskop → Hoedspruit Airport <em>(deadline ~11:30am)</em></td>
+            <td class="center">~145</td>
+            <td class="center warn">~4h with two stops</td>
+            <td>Leave Graskop 7am. Bourke's Luck Potholes (opens 7am) + Three Rondavels viewpoint, then Strijdom Tunnel descent to Hoedspruit Airport. Drop Giles for Arathusa shuttle, Jackie + boys continue to Lissataba.</td>
+            <td>—<br><small>Airport day — no overnight</small></td>
           </tr>
         </tbody>
       </table>
@@ -816,6 +893,7 @@
       </div>
 
       <a class="maps-link" href="https://www.google.com/maps/dir/Kenton-on-Sea,+Eastern+Cape,+South+Africa/Makhanda,+Eastern+Cape,+South+Africa/Fort+Beaufort,+Eastern+Cape,+South+Africa/Komani,+Eastern+Cape,+South+Africa/Lady+Grey,+Eastern+Cape,+South+Africa/Barkly+East,+Eastern+Cape,+South+Africa" target="_blank">📍 Open Day 1 route in Google Maps</a>
+      <button class="photos-btn" data-day="day1" data-day-label="Day 1 — Kenton → Funny Stone">📷 Photos of Day 1</button>
 
       <h4>Route waypoints — take Fort Beaufort, not Bedford</h4>
       <ul>
@@ -826,10 +904,10 @@
         <li><strong>Dordrecht → Barkly East</strong> — 60 km, 1 hr — increasingly spectacular as you enter the highlands at 1,700m</li>
       </ul>
 
-      <h3>Where you're staying — Funny Stone</h3>
+      <h3>Where you're staying — Funny Stone <em style="font-size:0.85rem;color:var(--muted);">(two nights)</em></h3>
       <div class="stay-card top-pick">
         <h4>Funny Stone <em style="font-size:0.85rem;color:var(--muted);">(family)</em></h4>
-        <p>Family property in Barkly East. Arrive, unpack, light a fire. You've earned it — the rest of the trip is from here.</p>
+        <p>Family property in Barkly East. Arrive Friday, unpack, light a fire, sleep deeply. Saturday is a deliberate rest day — see Day 2 for excursion options. You're here for two nights before pushing on to Clarens Sunday morning.</p>
       </div>
 
       <h3>If you arrive with energy</h3>
@@ -843,7 +921,7 @@
   </section>
 
   <!-- ============================================================ -->
-  <!-- DAY 2 -->
+  <!-- DAY 2 — REST DAY AT FUNNY STONE -->
   <!-- ============================================================ -->
   <section id="day2">
     <article class="day-card">
@@ -851,7 +929,52 @@
         <span class="day-num">Day 2</span>
         <span class="day-date">Saturday 20 June</span>
       </div>
-      <h2>Barkly East → Clarens (Eastern Free State) <span style="font-weight:normal;color:var(--muted)">[~360 km]</span></h2>
+      <h2>Rest day at Funny Stone <span style="font-weight:normal;color:var(--muted);">[no driving]</span></h2>
+      <div class="day-stats">
+        <span class="stat"><strong>0 km</strong> on the road</span>
+        <span class="stat"><strong>Family day</strong></span>
+        <span class="stat">Pick one excursion (or none)</span>
+      </div>
+
+      <button class="photos-btn" data-day="day2" data-day-label="Day 2 — Rest day at Funny Stone">📷 Photos of Day 2</button>
+
+      <h3>The point of today</h3>
+      <p>Day 1 is an 8-hour push and Day 3 is another 5-hour leg, so Saturday is deliberately empty — a buffer day. The most valuable thing it gives you is <em>time with family at Funny Stone</em>, which is the entire reason for the route's first half. Don't over-programme it. Late breakfast, walk the farm, kids loose in the veld, fire by mid-afternoon. The Funny Stone elders aren't getting any younger; the boys will remember a slow Saturday more than another viewpoint.</p>
+
+      <p>That said — if you do want one outing, the Barkly East area is one of the most under-rated mountain destinations in South Africa, and you're already in it. Pick <strong>one</strong>, not all four. Save the rest for next time.</p>
+
+      <h3>Option A — Naude's Nek Pass <em style="font-size:0.85rem;color:var(--muted);">(half-day, the iconic one)</em></h3>
+      <p>The highest road pass in South Africa at 2,587m — a gravel road over the Drakensberg, dropping into the Tina valley and Rhodes village on the far side. The full traverse to Maclear takes 4–5 hours each way; <strong>don't do that with kids</strong>. The right play is to drive to the summit, take photos, and turn back — a 3-hour round trip from Funny Stone. Snow is common in June; check road conditions the night before. 4x4 is not required but high-clearance tyres are smart. The hairpins, the cliff drops, and the sheer scale of the pass are genuinely awe-inspiring for ten-year-olds.</p>
+      <a class="maps-link" href="https://www.google.com/maps/dir/Barkly+East,+Eastern+Cape,+South+Africa/Naude's+Nek+Pass,+Eastern+Cape" target="_blank">📍 Funny Stone → Naude's Nek summit in Google Maps</a>
+
+      <h3>Option B — Rhodes village &amp; trout fishing <em style="font-size:0.85rem;color:var(--muted);">(half-day, kid-magnet)</em></h3>
+      <p>Rhodes is a tiny historic village ~40 minutes north of Barkly East, tucked at the base of the Drakensberg. Walkerbouts Inn rents kids' fishing rods; the Sterkstroom River has rainbow trout actively stocked for visiting anglers, and no licence is needed for juniors. There's a dedicated kids' fishing dam in the village. Wood-fired pizza or pancakes at Walkerbouts for lunch, then back to Funny Stone by 3pm. Lower-altitude than Naude's Nek so warmer; better in cold/wet weather when the pass might be a wash-out.</p>
+      <a class="maps-link" href="https://www.google.com/maps/dir/Barkly+East,+Eastern+Cape,+South+Africa/Rhodes,+Eastern+Cape,+South+Africa" target="_blank">📍 Funny Stone → Rhodes village in Google Maps</a>
+
+      <h3>Option C — Tiffindell / Ben McDhui <em style="font-size:0.85rem;color:var(--muted);">(half-day, only if there's snow)</em></h3>
+      <p>South Africa's only ski resort, at 2,720m on the slopes of Ben McDhui (SA's second-highest peak). Operations are intermittent — check status before you commit. <strong>If the ski tow is running</strong>, this is a no-brainer for the boys: two-hour lift pass, a few runs, the novelty of skiing in Africa. <strong>If it isn't</strong>, you can still drive to the summit plateau (3,000m) and let the kids play in the snow patches. Conditions can be severe — closed shoes, layers, gloves are non-negotiable. The road is gravel but well-maintained when conditions allow.</p>
+      <a class="maps-link" href="https://www.google.com/maps/dir/Barkly+East,+Eastern+Cape,+South+Africa/Tiffindell+Ski+Resort,+Eastern+Cape" target="_blank">📍 Funny Stone → Tiffindell in Google Maps</a>
+
+      <h3>Option D — Barkly East railway zigzags <em style="font-size:0.85rem;color:var(--muted);">(2 hours, the secret history)</em></h3>
+      <p>Just outside town: the disused Stormberg–Barkly East railway uses a series of <strong>eight reverses</strong> (zigzags) to climb the escarpment — one of only a handful of zigzag-reverse railway systems ever built. The track is still in place; you can park at the lower reverse and walk a section. The boys are old enough to grasp why engineers had to invent a way to climb a mountain a train couldn't simply ascend. Quick excursion with snacks and a flask. Closed shoes — rocky underfoot.</p>
+
+      <div class="callout">
+        <p><strong>Practical:</strong> Whatever you pick, be back at Funny Stone by 4pm at the latest. Fire by 4:30, dinner at 6, kids in bed by 8 — Day 3 (Funny Stone → Clarens) is a 5-hour drive starting at 7am Sunday morning, so Saturday night needs to end early.</p>
+      </div>
+    </article>
+  <a class="back-to-toc" href="#toc">↑ Back to contents</a>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- DAY 3 — FUNNY STONE → CLARENS -->
+  <!-- ============================================================ -->
+  <section id="day3">
+    <article class="day-card">
+      <div class="day-header">
+        <span class="day-num">Day 3</span>
+        <span class="day-date">Sunday 21 June</span>
+      </div>
+      <h2>Funny Stone → Clarens (Eastern Free State) <span style="font-weight:normal;color:var(--muted)">[~360 km]</span></h2>
       <div class="day-stats">
         <span class="stat"><strong>~360 km</strong></span>
         <span class="stat warn"><strong>5 hours</strong> driving</span>
@@ -861,7 +984,8 @@
       <h3>The drive</h3>
       <p>A long day but a rewarding one — the route change makes the difference. After Aliwal North, forget the flat inland road to Bethlehem: take the Maloti Route (Route 26) east, which follows the Lesotho border through the sandstone foothills. The Maluti Mountains are with you for 120 km — pink and orange cliffs with snow on the higher peaks in June. End with the spectacular R711 into Clarens. Leave Funny Stone by 7am and you'll arrive in Clarens around noon to 1pm.</p>
 
-      <a class="maps-link" href="https://www.google.com/maps/dir/Barkly+East,+Eastern+Cape,+South+Africa/Lady+Grey,+Eastern+Cape,+South+Africa/Aliwal+North,+Eastern+Cape,+South+Africa/Zastron,+Free+State,+South+Africa/Fouriesburg,+Free+State,+South+Africa/Clarens,+Free+State,+South+Africa" target="_blank">📍 Open Day 2 route in Google Maps (Maloti Route via Fouriesburg)</a>
+      <a class="maps-link" href="https://www.google.com/maps/dir/Barkly+East,+Eastern+Cape,+South+Africa/Lady+Grey,+Eastern+Cape,+South+Africa/Aliwal+North,+Eastern+Cape,+South+Africa/Zastron,+Free+State,+South+Africa/Fouriesburg,+Free+State,+South+Africa/Clarens,+Free+State,+South+Africa" target="_blank">📍 Open Day 3 route in Google Maps (Maloti Route via Fouriesburg)</a>
+      <button class="photos-btn" data-day="day3" data-day-label="Day 3 — Funny Stone → Clarens (Maloti Route)">📷 Photos of Day 3</button>
 
       <h4>Route waypoints (approximate — total ~360 km)</h4>
       <ul>
@@ -901,61 +1025,6 @@
   </section>
 
   <!-- ============================================================ -->
-  <!-- DAY 3 -->
-  <!-- ============================================================ -->
-  <section id="day3">
-    <article class="day-card">
-      <div class="day-header">
-        <span class="day-num">Day 3</span>
-        <span class="day-date">Sunday 21 June</span>
-      </div>
-      <h2>Clarens → Wakkerstroom (Mpumalanga) <span style="font-weight:normal;color:var(--muted)">[~235 km]</span></h2>
-      <div class="day-stats">
-        <span class="stat"><strong>~235 km</strong></span>
-        <span class="stat"><strong>5 hours</strong> driving</span>
-        <span class="stat">Arrive mid-afternoon</span>
-      </div>
-
-      <h3>The drive</h3>
-      <p>A shorter day and the most dramatic scenery before the Panorama Route. Leave Clarens on the R712 east — within 20 minutes you are inside Golden Gate Highlands National Park, one of the most spectacular drives in the Free State. After Harrismith, the road opens into highveld before dropping into Wakkerstroom. Leave at 9am and arrive comfortably by 2–3pm.</p>
-
-      <a class="maps-link" href="https://www.google.com/maps/dir/Clarens,+Free+State,+South+Africa/Golden+Gate+Highlands+National+Park,+South+Africa/Harrismith,+Free+State,+South+Africa/Volksrust,+Mpumalanga,+South+Africa/Wakkerstroom,+Mpumalanga,+South+Africa" target="_blank">📍 Open Day 3 route in Google Maps (via Golden Gate)</a>
-
-      <h4>Route waypoints (approximate — total ~235 km)</h4>
-      <ul>
-        <li><strong>Clarens → Golden Gate National Park (R712 east)</strong> — ~20 km to park entrance, ~45 km through the park — fully tarred since 2018 (previously gravel). Road-trippers consistently call this "the most scenic drive in the Free State." The road climbs through Lichens Pass at 2,041m — sandstone cliffs tower on both sides, turning gold as the sun moves. The park charges a SANParks conservation levy (~R220/person) — budget for this.</li>
-        <li><strong>Golden Gate → Harrismith</strong> — ~55 km, 45 min — descend from the escarpment. Harrismith was the last significant town held by Boer forces in the Free State — when it fell to the British in August 1900, the entire Boer supply chain through Van Reenen's Pass to Natal opened up. The town still has blockhouses and a military cemetery from the war.</li>
-        <li><strong>Harrismith → Volksrust (N11)</strong> — ~110 km, 1.25 hrs — good fast road across the highveld.</li>
-        <li><strong>Volksrust → Wakkerstroom (R543, Wakkerstroomnek Pass)</strong> — ~24 km, 25 min — a gentle tarred pass, westward views from the summit toward Volksrust. Named Volksrust ("People's Rest") — this was a Boer stronghold and a natural staging point for commandos moving through the Mpumalanga highlands during the war.</li>
-      </ul>
-
-      <div class="callout">
-        <p><strong>Historical note — Golden Gate and the Brandwater Basin:</strong> In July 1900, the mountains you're driving through formed a trap. The British surrounded 4,300 Boer troops in the Brandwater Basin (Fouriesburg area), blocking all the passes including Golden Gate to the east. Christiaan de Wet famously slipped out through Golden Gate with a small commando the night before the mass surrender — one of the great escapes of the war. When you drive through the park on the R712, you are driving through the very pass the British blocked to prevent that escape. Most of the Boers weren't so lucky.</p>
-      </div>
-
-      <h3>Where to stay</h3>
-
-      <div class="stay-card top-pick">
-        <h4>Wakkerstroom self-catering / guest house <em style="font-size:0.85rem;color:var(--muted);">(book early — limited for 6)</em></h4>
-        <p>Wakkerstroom is a tiny Victorian-era village — the accommodation pool is small but charming. Look for self-catering cottages that sleep 6 on Airbnb, SafariNow, or wakkerstroom.co.za. The village has a fireplace-and-braai culture; most properties are cosy and well set up for winter. Options include Ingwe Pan and Wakkerstroom Bush Camp.</p>
-        <a class="stay-link" href="https://wakkerstroom.co.za/" target="_blank">wakkerstroom.co.za — accommodation →</a>
-      </div>
-
-      <div class="callout warn">
-        <p><strong>Book early:</strong> Wakkerstroom is a very small town. Self-catering for 6 people is limited — don't leave this to the last minute.</p>
-      </div>
-
-      <h3>Wakkerstroom highlights</h3>
-      <ul>
-        <li><strong>Birding</strong> — Wakkerstroom is one of South Africa's top birding destinations. Bald Ibis, Blue Crane, and Wattled Crane are common. Even non-birders find it peaceful</li>
-        <li><strong>Victorian village walk</strong> — stone buildings, original storefronts, a proper small-town feel. Easy 30-min wander with the kids</li>
-        <li><strong>Evening fire</strong> — at 1,600m, June evenings in Wakkerstroom are properly cold and perfectly clear. Big braai, early night, ready for tomorrow's easy drive to Dullstroom</li>
-      </ul>
-    </article>
-  <a class="back-to-toc" href="#toc">↑ Back to contents</a>
-  </section>
-
-  <!-- ============================================================ -->
   <!-- DAY 4 -->
   <!-- ============================================================ -->
   <section id="day4">
@@ -964,28 +1033,33 @@
         <span class="day-num">Day 4</span>
         <span class="day-date">Monday 22 June</span>
       </div>
-      <h2>Wakkerstroom → Dullstroom <span style="font-weight:normal;color:var(--muted)">[~220 km]</span></h2>
+      <h2>Clarens → Dullstroom (via Bethlehem &amp; Standerton) <span style="font-weight:normal;color:var(--muted)">[~430 km]</span></h2>
       <div class="day-stats">
-        <span class="stat"><strong>~220 km</strong></span>
-        <span class="stat"><strong>4 hours</strong> driving</span>
-        <span class="stat">Easy day — arrive early afternoon</span>
+        <span class="stat"><strong>~430 km</strong></span>
+        <span class="stat warn"><strong>5.5 hours</strong> driving</span>
+        <span class="stat warn">⚠ Leave Clarens by 8am</span>
       </div>
 
       <h3>The drive</h3>
-      <p>The easiest driving day of the trip — and shorter than the old Ermelo route. Head north from Wakkerstroom to the tiny village of Amsterdam, then swing east on the R33 through Carolina into the Mpumalanga highlands. Leave at 8am and you're in Dullstroom by noon. The whole afternoon to fish.</p>
+      <p>The new longer day. Because we're skipping Wakkerstroom, this is the leg that absorbs the extra distance: Clarens out via Bethlehem, north through Reitz and Frankfort, across the highveld to Standerton, then east on the R23 / R36 through Carolina and up into Dullstroom. It's not the most dramatic stretch of road on the trip — the Free State maize-and-mielie country is wide open, agricultural, and quiet — but it moves well, the surface is good throughout, and a Monday in mid-winter means minimal traffic. Leave Clarens by 8am, fuel-and-coffee in Bethlehem, lunch in Standerton, arrive Dullstroom mid-afternoon. Full evening to settle in and a clear morning for fishing or a slow start on Day 5.</p>
 
-      <p>Wakkerstroom itself deserves a slow start. The British maintained a besieged garrison here during the Boer War while Boer commandos fired on the town from the surrounding hills for months at a stretch. The morning before you leave is worth a walk through the Victorian village — one of the best-preserved in Mpumalanga. Then head north on quiet tar roads toward Amsterdam.</p>
+      <p>If you want a slightly more scenic alternative, the route via Memel, Vrede and Volksrust adds ~30 km and is rolling rather than flat — same overall time. Both are mapped below.</p>
 
-      <p>The R33 from Amsterdam to Carolina runs through a beautiful stretch of Mpumalanga highland farmland — rolling grasslands, dolerite kopjes, and cattle country. It's not dramatic in the Drakensberg sense, but it's peaceful and traffic-free: this is a Monday in mid-winter, not a holiday weekend. Carolina was a Boer War garrison town and still has the bones of that era. From there the R540 climbs steadily into the misty highlands, and Dullstroom appears over a rise at 2,100m.</p>
+      <a class="maps-link" href="https://www.google.com/maps/dir/Clarens,+Free+State,+South+Africa/Bethlehem,+Free+State,+South+Africa/Reitz,+Free+State,+South+Africa/Frankfort,+Free+State,+South+Africa/Standerton,+Mpumalanga,+South+Africa/Carolina,+Mpumalanga,+South+Africa/Dullstroom,+Mpumalanga,+South+Africa" target="_blank">📍 Open Day 4 route in Google Maps (via Bethlehem &amp; Standerton)</a>
+      <button class="photos-btn" data-day="day4" data-day-label="Day 4 — Clarens → Dullstroom">📷 Photos of Day 4</button>
 
-      <a class="maps-link" href="https://www.google.com/maps/dir/Wakkerstroom,+Mpumalanga,+South+Africa/Amsterdam,+Mpumalanga,+South+Africa/Carolina,+Mpumalanga,+South+Africa/Dullstroom,+Mpumalanga,+South+Africa" target="_blank">📍 Open Day 4 route in Google Maps</a>
-
-      <h4>Route waypoints (approximate — total ~220 km)</h4>
+      <h4>Route waypoints (approximate — total ~430 km)</h4>
       <ul>
-        <li><strong>Wakkerstroom → Amsterdam</strong> — ~30 km, 30 min — quick hop north on good tar through open highveld. Amsterdam is a blink-and-miss-it village but worth slowing down for a coffee stop if anything is open.</li>
-        <li><strong>Amsterdam → Carolina via R33</strong> — ~100 km, 1h 15 min — the scenic highland run, entirely on tar. Avoids the N2 Ermelo industrial route and keeps you in proper countryside. Look out for the dolerite rock formations as you approach Carolina.</li>
-        <li><strong>Carolina → Dullstroom via R540</strong> — ~90 km, 1 hr — fuel stop in Carolina if needed, then the final climb into the highlands. Dullstroom sits at 2,100m — expect cold, clear air and possibly frost on the dam edges.</li>
+        <li><strong>Clarens → Bethlehem</strong> — ~35 km, 35 min — easy warm-up on the R711/N5, leaving the sandstone country behind. Bethlehem is the first proper town: 24-hour fuel, Wimpy / Mugg &amp; Bean for second breakfast, public toilets if you didn't quite catch them at Funny Stone. Stock up on water and snacks here — the next 200 km are mostly farm roads.</li>
+        <li><strong>Bethlehem → Reitz → Frankfort</strong> — ~120 km, 1.5 hrs — north on the R26 through classic Free State maize country. Reitz was once Christiaan de Wet's home town and is still a quiet agricultural centre. The road is straight, the horizon is enormous, and the kids can play "spot the windpomp" (windmill water pumps) — there are hundreds.</li>
+        <li><strong>Frankfort → Standerton</strong> — ~95 km, 1 hr — continues north on the R26 then east on the R23 across the Vaal River into Mpumalanga. The Vaal crossing is worth pointing out to the boys — it's the historic provincial boundary between the Free State and the old Transvaal. Standerton is a fuel-and-toilet stop, mid-trip lunch if anything decent is open (the Spur on the main road is reliable).</li>
+        <li><strong>Standerton → Carolina (via R36 / R39)</strong> — ~110 km, 1.25 hrs — east through highland farmland. Carolina was a Boer War garrison town; the British built a chain of blockhouses through here in 1901 to try to choke the supply lines of de Wet's commandos. Quick fuel stop if needed.</li>
+        <li><strong>Carolina → Dullstroom via R540</strong> — ~75 km, 1 hr — the final climb into the highlands. Dullstroom sits at 2,100m — expect cold, clear air and possibly frost on the dam edges by the time you're parking the car.</li>
       </ul>
+
+      <div class="callout warn">
+        <p><strong>This is the day to keep moving.</strong> No big detours, no Panorama-style stops — Bethlehem coffee, Standerton lunch, Carolina fuel, then push to Dullstroom. The reward is a long peaceful afternoon and evening at a trout farm. Save the dawdling for Day 5.</p>
+      </div>
 
       <h3>Where to stay (2 farm-stay options for 6)</h3>
 
@@ -1006,6 +1080,7 @@
         <li>Beginner fly-fishing lesson on the dam — most farms hire out rods + offer a quick coaching session</li>
         <li>Anvil Ale brewery in Dullstroom (kid-safe garden, parents get a beer)</li>
         <li>Walk the dam wall, build a fire by 4pm — dark by 5:30pm in June</li>
+        <li>Early to bed: Day 5 is a moderate drive but with a Panorama-west loop in the afternoon, so a 7am start is ideal</li>
       </ul>
     </article>
   <a class="back-to-toc" href="#toc">↑ Back to contents</a>
@@ -1020,48 +1095,76 @@
         <span class="day-num">Day 5</span>
         <span class="day-date">Tuesday 23 June</span>
       </div>
-      <h2>Dullstroom → Hoedspruit via Panorama Route <span style="font-weight:normal;color:var(--muted)">[~230 km]</span></h2>
+      <h2>Dullstroom → Graskop via Long Tom Pass <span style="font-weight:normal;color:var(--muted)">[~145 km + Panorama afternoon loop]</span></h2>
       <div class="day-stats">
-        <span class="stat"><strong>~230 km</strong></span>
-        <span class="stat"><strong>~3.5h driving</strong> + 2–3h stops</span>
-        <span class="stat">The grand finale</span>
+        <span class="stat"><strong>~145 km drive</strong></span>
+        <span class="stat"><strong>2.5h on the road</strong></span>
+        <span class="stat">+ Panorama-west afternoon loop</span>
       </div>
 
-      <h3>The grand finale</h3>
-      <p>Modest distance, big day of sightseeing. Leave Dullstroom at 7am, climb Long Tom Pass, drop into Sabie for an early lunch, then the Panorama Route's greatest hits: God's Window, Bourke's Luck Potholes, the Three Rondavels viewpoint over the Blyde River Canyon. Drop down through the Strijdom Tunnel into the Lowveld and into Hoedspruit by early evening.</p>
+      <h3>The easiest day, with a payoff</h3>
+      <p>Short driving, big rewards. Leave Dullstroom by 8am, climb Long Tom Pass with a proper cannon stop, drop into Sabie for an early lunch and the Mac Mac Falls roadside viewpoint, then visit <strong>Pilgrim's Rest</strong> — the perfectly preserved 1873 gold-rush village — before rolling into Graskop around 2pm. Check into the guest house, drop the bags, and head out late afternoon for the <strong>Panorama-west golden-hour loop</strong> — Pinnacle Rock, God's Window, and Wonder View, all within 25 minutes of Graskop and at their best in the 4–5pm light. Back to the guest house by 6pm for braai and an early night. The Wednesday-morning departure is non-negotiable, so this is the trip's last leisurely evening.</p>
 
-      <a class="maps-link" href="https://www.google.com/maps/dir/Dullstroom,+Mpumalanga,+South+Africa/Sabie,+Mpumalanga,+South+Africa/Graskop,+Mpumalanga,+South+Africa/Bourke's+Luck+Potholes,+Mpumalanga,+South+Africa/Three+Rondavels+Viewpoint,+Mpumalanga,+South+Africa/Hoedspruit,+Limpopo,+South+Africa" target="_blank">📍 Open Day 5 Panorama Route in Google Maps</a>
+      <a class="maps-link" href="https://www.google.com/maps/dir/Dullstroom,+Mpumalanga,+South+Africa/Long+Tom+Pass,+Mpumalanga/Sabie,+Mpumalanga,+South+Africa/Mac+Mac+Falls,+Mpumalanga/Pilgrim's+Rest,+Mpumalanga,+South+Africa/Graskop,+Mpumalanga,+South+Africa" target="_blank">📍 Open Day 5 morning route in Google Maps (Long Tom → Sabie → Mac Mac → Pilgrim's Rest → Graskop)</a>
+      <button class="photos-btn" data-day="day5" data-day-label="Day 5 — Dullstroom → Graskop (Long Tom + Pilgrim's Rest)">📷 Photos of Day 5</button>
 
-      <h3>Stops, in order</h3>
+      <h3>Morning stops, in order</h3>
 
-      <h4>1. Long Tom Pass (Lydenburg → Sabie) — ~1 hr</h4>
-      <p>The R37 climbs over 2,150m past the Long Tom cannon replica at the Devil's Knuckles. This pass is named after the final conventional battle of the Anglo-Boer War (8–11 September 1900). After the Battle of Bergendal, General Louis Botha retreated here with two Boer Long Tom siege guns — French-made 155mm Creusot cannons that could hurl a 38kg shell 10km. The British gave the guns their nickname. Botha successfully dragged both cannons up the near-vertical slope of Mauchsberg before the British could capture them — a remarkable feat. The bronze replica cannon at Devil's Knuckles marks the spot. Stop here — it's a 5-minute walk from the car park and the views down the escarpment are extraordinary.</p>
+      <h4>1. Long Tom Pass — Devil's Knuckles cannon — ~45 min</h4>
+      <p>The R37 climbs over 2,150m past the Long Tom cannon replica at Devil's Knuckles. The pass is named after the final conventional battle of the Anglo-Boer War (8–11 September 1900). After the Battle of Bergendal, General Louis Botha retreated here with two Boer Long Tom siege guns — French-made 155mm Creusot cannons that could hurl a 38kg shell 10km. The British gave the guns their nickname. Botha successfully dragged both cannons up the near-vertical slope of Mauchsberg before the British could capture them — a remarkable feat. The bronze replica at Devil's Knuckles marks the spot; it's a 5-minute walk from the car park and the views down the escarpment are extraordinary. The boys can climb on it.</p>
 
-      <h4>2. Sabie — early lunch (11am-ish)</h4>
-      <p>The Wild Fig Tree or Woodsman are reliable. Quick stop, then push on.</p>
+      <h4>2. Sabie — early lunch (~11:30am)</h4>
+      <p>The Wild Fig Tree or Woodsman are reliable family options. Sabie itself is a former forestry town and the heart of waterfall country — quiet, leafy, easy.</p>
 
       <h4>3. Mac Mac Falls — 20 min</h4>
-      <p>Roadside viewpoint, no hiking needed. 65m double waterfall.</p>
+      <p>Roadside viewpoint, no hiking needed. 65m double waterfall, the mist rising from the gorge is genuinely impressive. Named after Scottish miners who all had "Mac" in their surnames.</p>
 
-      <h4>4. God's Window — 30 min</h4>
-      <p>700m sheer drop over the Lowveld escarpment. Short walk from car park. Spectacular if it's not misted in (June is generally clear).</p>
+      <h4>4. Pilgrim's Rest — 1 to 1.5 hr</h4>
+      <p>The 1873 gold-rush village frozen in time. When alluvial gold was discovered in the Blyde River and its tributaries, hundreds of prospectors arrived overnight and threw up a tin-roofed town that ran for forty years before the deposits ran out. The state declared the entire village a national monument in 1986 and bought the original buildings; what you walk through is the actual town, not a reconstruction. The whole of the main street — Royal Hotel, Anglican church, jail, dredging-era stamp mill — is open to walk. The boys can pan for gold at the demonstration claim (the operators salt it so they always find something — they're nine, this is fine). 17 km west of Graskop on the R533, sitting in a forested valley that looks unchanged since the 1890s.</p>
+      <a class="maps-link" href="https://www.google.com/maps/place/Pilgrim's+Rest,+Mpumalanga,+South+Africa" target="_blank">📍 Pilgrim's Rest in Google Maps</a>
 
-      <h4>5. Bourke's Luck Potholes — 1 hr</h4>
-      <p>Cylindrical river-carved potholes where the Blyde meets the Treur. Bridge walks, picnic lawns. R55/adult entry, payable on arrival.</p>
+      <h4>5. Graskop arrival — ~2pm</h4>
+      <p>17 km up the R533 from Pilgrim's Rest. Settle in, fuel the car for tomorrow, grab proper coffee or a stack at Harrie's Pancakes on the main street. Then back in the car around 3:30–4pm for the late-afternoon Panorama-west loop while the light's at its best.</p>
 
-      <h4>6. Three Rondavels viewpoint — 30 min</h4>
-      <p>The big one. View over Blyde River Canyon (third-largest canyon in the world). Stop at the lookout, take the photos, get back in the car.</p>
+      <h3>Afternoon — Panorama west loop from Graskop</h3>
+      <p>All three of these are along the R534/R532 north and west of Graskop, on a tight 60 km loop. Allow 3 hours including stops.</p>
 
-      <h4>7. Strijdom Tunnel → Hoedspruit — 1 hr</h4>
-      <p>Drop ~1,000m down the escarpment through the tunnel. Look for baboons. Arrive Hoedspruit ~5–6pm.</p>
+      <a class="maps-link" href="https://www.google.com/maps/dir/Graskop,+Mpumalanga,+South+Africa/Pinnacle+Rock,+Mpumalanga/God's+Window,+Mpumalanga/Wonder+View,+Mpumalanga/Graskop,+Mpumalanga,+South+Africa" target="_blank">📍 Open Panorama west loop in Google Maps</a>
+
+      <h4>Pinnacle Rock — 20 min</h4>
+      <p>A 30m sandstone tower rising from the forested escarpment. Easy 5-min walk to the viewpoint. Fewer crowds than God's Window — often the better photo stop.</p>
+
+      <h4>God's Window — 30 min</h4>
+      <p>700m sheer drop over the Lowveld escarpment. Short walk from the car park; the boys can do the slightly longer rainforest trail (15 min one-way) up to the cliff edge. Spectacular if it's not misted in (June is generally clear and dry — the dry season).</p>
+
+      <h4>Wonder View — 15 min</h4>
+      <p>Just up the road from God's Window — actually higher (1,730m) and arguably the better view. A quick photo stop on the way back to Graskop.</p>
 
       <div class="callout">
-        <p><strong>Tactical timing:</strong></p>
+        <p><strong>Why do this in the afternoon, not Wednesday morning:</strong> Wednesday has a fixed airport deadline — you cannot afford to be queueing behind tour buses at God's Window with a flight on the clock. Doing the western viewpoints today means Wednesday only has the two big eastern stops (Bourke's Luck + Three Rondavels) on the way south, both en route, no detours.</p>
+      </div>
+
+      <h3>Where to stay — Graskop</h3>
+
+      <div class="stay-card top-pick">
+        <h4>Graskop Hotel <em style="font-size:0.85rem;color:var(--muted);">(centre of town, art-led, family rooms)</em></h4>
+        <p>Long-running hotel on the main street with an art collection, decent restaurant, family rooms that sleep 4–6. Walkable to dinner; secure parking. Reliable rather than spectacular — but secure, central, and the staff will brief you on the next morning's Panorama timing.</p>
+        <a class="stay-link" href="https://www.graskophotel.co.za/" target="_blank">graskophotel.co.za →</a>
+      </div>
+
+      <div class="stay-card">
+        <h4>Misty Mountain Reserve / Summit Lodge <em style="font-size:0.85rem;color:var(--muted);">(escarpment-edge, view over Lowveld)</em></h4>
+        <p>Self-catering cabins on the escarpment ~10 min south of Graskop, with views straight off the cliff into the Lowveld. The chairlift down to the lower viewpoints is a kid favourite. Slightly less convenient for the Wednesday-morning route but visually unforgettable.</p>
+        <a class="stay-link" href="https://www.mistymountain.co.za/" target="_blank">mistymountain.co.za →</a>
+      </div>
+
+      <div class="callout warn">
+        <p><strong>Critical pre-bed checks for Wednesday morning:</strong></p>
         <ul>
-          <li>Hard rule: be on the road by <strong>7am</strong> from Dullstroom</li>
-          <li>If running late, the easiest cuts are Mac Mac Falls and God's Window — keep Bourke's Luck and Three Rondavels</li>
-          <li>Sunset in June is ~5:30pm. Don't try to do the Panorama viewpoints in dusk</li>
-          <li><a href="https://www.sa-venues.com/maps/mpumalanga-panorama-route.htm" target="_blank">Panorama Route map (SA Venues) →</a></li>
+          <li>Tank filled tonight, not tomorrow morning — Graskop's BP/Engen do open early but don't add risk</li>
+          <li>Bags packed and stacked by the front door tonight; loading the car at 6:30am is the fastest way to leave on time</li>
+          <li>Confirm Giles's shuttle pickup time with Arathusa the day before — the standard pickup is 12:00 from Hoedspruit Airport</li>
+          <li>Confirm Lissataba check-in time for Jackie + boys — usually 14:00, leaving the airport at 12:00 lines up perfectly</li>
         </ul>
       </div>
     </article>
@@ -1069,20 +1172,86 @@
   </section>
 
   <!-- ============================================================ -->
-  <!-- ALTERNATIVE -->
+  <!-- DAY 6 — GRASKOP → HOEDSPRUIT AIRPORT -->
   <!-- ============================================================ -->
-  <section id="alt">
-    <h2>Confirmed route — verified distances</h2>
-    <p>All distances have been verified against Google Maps and Rome2Rio. This is the corrected picture of the trip:</p>
+  <section id="day6">
+    <article class="day-card">
+      <div class="day-header">
+        <span class="day-num">Day 6</span>
+        <span class="day-date">Wednesday 24 June</span>
+      </div>
+      <h2>Graskop → Hoedspruit Airport via Bourke's Luck &amp; Three Rondavels <span style="font-weight:normal;color:var(--muted)">[~145 km]</span></h2>
+      <div class="day-stats">
+        <span class="stat"><strong>~145 km</strong></span>
+        <span class="stat warn"><strong>~4 hours</strong> incl. two stops</span>
+        <span class="stat warn">⚠ Airport drop by 11:30am</span>
+      </div>
 
+      <h3>The deadline morning</h3>
+      <p>Leave Graskop by 7am. Two stops only — Bourke's Luck Potholes (opens 7am) and the Three Rondavels viewpoint — and you'll be at Hoedspruit Airport with comfortable time to spare. Giles steps onto the Arathusa shuttle; Jackie and the boys keep the car and drive on to Lissataba (45 min from the airport). The Panorama-west viewpoints (Pinnacle, God's Window, Wonder View) were knocked off Tuesday afternoon, so this morning is genuinely the two-stop run, not a sightseeing marathon against the clock.</p>
+
+      <a class="maps-link" href="https://www.google.com/maps/dir/Graskop,+Mpumalanga,+South+Africa/Bourke's+Luck+Potholes,+Mpumalanga,+South+Africa/Three+Rondavels+Viewpoint,+Mpumalanga,+South+Africa/Hoedspruit+Eastgate+Airport,+Limpopo,+South+Africa" target="_blank">📍 Open Day 6 route in Google Maps</a>
+      <button class="photos-btn" data-day="day6" data-day-label="Day 6 — Graskop → Hoedspruit Airport (Panorama East)">📷 Photos of Day 6</button>
+
+      <h3>Schedule (target arrival 11:00–11:30am)</h3>
+
+      <h4>06:30 — Load the car &amp; clear the room</h4>
+      <p>Last fuel check (should be full from last night). Kids in the car with rusks, juice, a blanket — they can sleep through the first 30 minutes.</p>
+
+      <h4>07:00 — Leave Graskop</h4>
+      <p>North on the R532. The drive to Bourke's Luck Potholes is ~35 km, ~40 min. The road is well-maintained tar through forested escarpment country.</p>
+
+      <h4>07:45 — Bourke's Luck Potholes (gate opens 07:00) — 45 min on site</h4>
+      <p>The geological highlight of the whole Panorama Route. The Blyde and Treur rivers carved perfectly cylindrical potholes into the rock over millions of years — some are 6m deep and 3m wide. There are suspension bridge walkways over the gorge. Kids go absolutely feral here. R55/adult entry, payable on arrival. Allow 45 min including the walk to the upper viewpoint and back. <strong>Leave by 08:45.</strong></p>
+
+      <h4>09:00 — Three Rondavels Viewpoint — 20 min</h4>
+      <p>~15 km north on the R532. Three massive dolerite towers rising from the floor of the Blyde River Canyon, 800m below — the third-largest canyon in the world. Stop at the lookout, take the photos, get back in the car. Worth the small detour up to the upper parking — the angle is markedly better. <strong>Leave by 09:30.</strong></p>
+
+      <h4>09:30 — Descend via Strijdom Tunnel to Hoedspruit — ~1.5 hrs with kids</h4>
+      <p>Drop ~1,000m off the escarpment through the Strijdom Tunnel. The vegetation changes from highland grass to subtropical bushveld, the temperature rises 10°C, and you start seeing roadside baboons. Continue to Hoedspruit via the R36 / R531. Final 50 km is open Lowveld — fast, hot, and the change of scenery wakes everyone up.</p>
+
+      <h4>11:00–11:30 — Hoedspruit Airport drop-off</h4>
+      <p>Giles steps onto the Arathusa shuttle (departs the airport at 12:00 — confirm with the lodge the day before). Jackie + boys keep the rental car, refill the snack tub, and drive on to Lissataba (45 min).</p>
+
+      <div class="callout warn">
+        <p><strong>If you're running late at 09:00 (still at Bourke's Luck):</strong> skip Three Rondavels. The drive to the airport is the non-negotiable. Three Rondavels is photogenic but adds ~45 min including the detour up to the viewpoint. Bourke's Luck is the more memorable stop for the boys.</p>
+      </div>
+
+      <div class="callout">
+        <p><strong>If you're running early at 09:00 (already past Three Rondavels):</strong> there's a Hoedspruit Reptile Park / Endangered Species Centre on the airport road if you have an hour to kill — but the airport itself has a decent café and the boys will be ready to settle. Don't add stops just because you have time. Use it.</p>
+      </div>
+    </article>
+  <a class="back-to-toc" href="#toc">↑ Back to contents</a>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- AFTER THE AIRPORT -->
+  <!-- ============================================================ -->
+  <section id="after">
+    <h2>After the airport — Arathusa &amp; Lissataba transfers</h2>
+    <p>The trip splits at Hoedspruit Eastgate Airport (HDS). Giles is on the Arathusa shuttle; Jackie + boys keep the rental car and continue south to Lissataba. Both destinations are within an hour of the airport.</p>
+
+    <h3>Giles → Arathusa Safari Lodge (Sabi Sand)</h3>
     <ul>
-      <li><strong>Day 1 (Fri):</strong> Kenton → Funny Stone, Barkly East — <strong>~468 km, 8h</strong> — via Fort Beaufort (R67/The Queen's Road). Ecca Pass + Nico Malan Pass en route. Leave Kenton 7am, arrive ~3pm.</li>
-      <li><strong>Day 2 (Sat):</strong> Barkly East → Clarens — <strong>~360 km, 5h</strong> — via Maloti Route (R26) through Fouriesburg. One of SA's most scenic drives. Leave Funny Stone 7am, arrive Clarens around noon to 1pm.</li>
-      <li><strong>Day 3 (Sun):</strong> Clarens → Wakkerstroom — <strong>~235 km, 5h</strong> — through Golden Gate National Park (R712). NB: SANParks entry fee applies (~R220/person).</li>
-      <li><strong>Day 4 (Mon):</strong> Wakkerstroom → Dullstroom — <strong>~220 km, 4h</strong> — via Amsterdam / Carolina (R33)</li>
-      <li><strong>Day 5 (Tue):</strong> Dullstroom → Hoedspruit via Panorama Route — <strong>~230 km driving</strong> + 2–3h at viewpoints</li>
+      <li><strong>Transfer:</strong> Arathusa shuttle from inside Hoedspruit Eastgate Airport. Standard departure is 12:00. Confirm with the lodge before the trip and again the day before.</li>
+      <li><strong>Drive time:</strong> ~1.5 hrs by shuttle (Hoedspruit → Sabi Sand entrance via R40 and the Newington Gate). Final stretch on private-reserve gravel.</li>
+      <li><strong>Dates:</strong> Wed 24 → Sat 27 June (3 nights)</li>
+      <li><a href="https://www.arathusa.co.za/" target="_blank">arathusa.co.za →</a></li>
     </ul>
-    <p><strong>Total driving distance: ~1,510 km</strong> — 160km less than the original routing, and dramatically more scenic on Days 2 and 3 thanks to the Maloti Route and Golden Gate. All times include a 20% buffer above Google Maps.</p>
+    <a class="maps-link" href="https://www.google.com/maps/dir/Hoedspruit+Eastgate+Airport,+Limpopo/Arathusa+Safari+Lodge,+Sabi+Sand,+Mpumalanga" target="_blank">📍 Hoedspruit Airport → Arathusa in Google Maps</a>
+
+    <h3>Jackie + boys → Lissataba Private Reserve (Hoedspruit)</h3>
+    <ul>
+      <li><strong>Drive yourself:</strong> ~45 minutes from Hoedspruit Airport. Lissataba is a private game reserve in the Greater Hoedspruit area — fully tarred to the gate, then a short gravel access road inside the reserve.</li>
+      <li><strong>Standard check-in:</strong> 14:00 — a 12:00 airport departure puts you at the lodge with margin to spare.</li>
+      <li><strong>Fuel before:</strong> top up at the Engen on the R40 in Hoedspruit before the final stretch — the reserve road has no service.</li>
+      <li><a href="https://www.lissataba.co.za/" target="_blank">lissataba.co.za →</a></li>
+    </ul>
+    <a class="maps-link alt" href="https://www.google.com/maps/dir/Hoedspruit+Eastgate+Airport,+Limpopo/Lissataba+Private+Reserve,+Hoedspruit,+Limpopo" target="_blank">📍 Hoedspruit Airport → Lissataba in Google Maps</a>
+
+    <div class="callout">
+      <p><strong>Coordinated practicalities:</strong> Both shuttle and self-drive are short — neither side is rushed if the 11:30 airport arrival holds. Hoedspruit Airport has a small café for a quick lunch before the shuttle. If you want lunch together as a family before splitting, do it here.</p>
+    </div>
   <a class="back-to-toc" href="#toc">↑ Back to contents</a>
   </section>
 
@@ -1093,18 +1262,18 @@
     <h2>Practical notes</h2>
 
     <h3>Pack for cold (this is the big one)</h3>
-    <p>June nights inland in SA are properly cold — Clarens, Dullstroom, Wakkerstroom all routinely drop below 0°C overnight. Daytime is gorgeous (15–22°C, sunny) but the moment the sun drops, it bites.</p>
+    <p>June nights inland in SA are properly cold — Barkly East, Clarens, Dullstroom and Graskop all routinely drop below 0°C overnight. Daytime is gorgeous (15–22°C, sunny) but the moment the sun drops, it bites.</p>
     <ul>
-      <li>Beanies, gloves, thermal layers for everyone (the boys will need them at Bourke's Luck and Three Rondavels)</li>
+      <li>Beanies, gloves, thermal layers for everyone (the boys will need them at Bourke's Luck and Three Rondavels on Day 6)</li>
       <li>Hot water bottles or a thermos for the car</li>
       <li>Down jacket or warm fleece each — fires take a while to warm a stone cottage</li>
-      <li>Closed shoes for farm mud at Funny Stone and the cliff viewpoints on Day 5</li>
+      <li>Closed shoes for farm mud at Funny Stone, the Saturday excursion (Naude's Nek / Rhodes), and the Panorama viewpoints</li>
     </ul>
 
     <h3>Self-catering food strategy</h3>
     <ul>
-      <li>Big shop in Grahamstown on Day 1 before leaving — stock up on breakfast (rusks, fruit, yoghurt), snacks, lunch supplies, dinners for Funny Stone</li>
-      <li>Top-up shop in Aliwal North on Day 2 — restock for Clarens and beyond (good Total/Engen with food)</li>
+      <li>Big shop in Grahamstown on Day 1 before leaving — stock up on breakfast (rusks, fruit, yoghurt), snacks, lunch supplies, dinners for two nights at Funny Stone</li>
+      <li>Top-up shop in Bethlehem on Day 4 — restock for Dullstroom and Graskop (Pick n Pay / Spar on the main road)</li>
       <li>Coffee/tea, sugar, salt, oil — most farm stays don't supply pantry basics, double-check at booking</li>
       <li>Boys love road-trip snack boxes pre-packed (jelly babies, biltong, naartjies)</li>
     </ul>
@@ -1113,22 +1282,22 @@
     <ul>
       <li>Fill in Grahamstown at car pickup (Day 1)</li>
       <li><strong>Day 1:</strong> Queenstown is the main fuel stop en route to Barkly East</li>
-      <li><strong>Day 2:</strong> Aliwal North (good Total/Engen with toilets and food — crosses into Free State here)</li>
-      <li><strong>Day 3:</strong> Volksrust (bigger town with decent shops — lunch &amp; fuel)</li>
-      <li><strong>Day 4:</strong> Carolina if needed, then top up in Dullstroom on arrival</li>
-      <li><strong>Day 5:</strong> Top up in Lydenburg before Long Tom Pass, then Sabie if needed</li>
+      <li><strong>Day 3:</strong> Aliwal North (good Total/Engen with toilets and food — crosses into Free State here)</li>
+      <li><strong>Day 4:</strong> Bethlehem at the start of the day for fuel + coffee; Standerton mid-trip if needed; Carolina before the final climb to Dullstroom</li>
+      <li><strong>Day 5:</strong> Top up in Lydenburg before Long Tom Pass, then top up <strong>again in Graskop tonight</strong> (not tomorrow) so Wednesday morning starts on a full tank</li>
+      <li><strong>Day 6:</strong> No fuel stops between Graskop and the airport — tank must be full at 7am</li>
     </ul>
 
     <h3>Car prep</h3>
     <ul>
-      <li>Twin boys + two adults in the back: agree on a screen-time / book / nap schedule before Day 2 (the long one — 7.5h)</li>
+      <li>Twin boys + two adults in the back: agree on a screen-time / book / nap schedule before Day 1 (the long one — 8h)</li>
       <li>USB chargers + power inverter — long days will drain devices</li>
       <li>Snack tub between the front seats so kids don't have to ask</li>
       <li>Good road playlist — Spotify offline downloads (parts of the Free State have no signal)</li>
     </ul>
 
     <div class="callout">
-      <p><strong>Booking ASAP:</strong> June is mid-winter so it's quieter than summer holidays, but Clarens books up for school-holiday weekends and Dullstroom is busy with anglers year-round. Lock in stays at least 4–6 weeks ahead.</p>
+      <p><strong>Booking ASAP:</strong> June is mid-winter so it's quieter than summer holidays, but Clarens books up for school-holiday weekends and Dullstroom is busy with anglers year-round. Graskop is in peak season because of the Panorama traffic — book at least 6 weeks ahead.</p>
     </div>
   <a class="back-to-toc" href="#toc">↑ Back to contents</a>
   </section>
@@ -1140,43 +1309,52 @@
     <h2>🧒 For the Boys — highlights along the whole route</h2>
     <p style="color:var(--muted);font-size:0.95rem;margin-top:-12px;margin-bottom:28px;">Everything along the way that will actually excite the kids. Ordered by day.</p>
 
-    <h3>Night 0 — Funny Stone, Barkly East (Saturday 19 June)</h3>
+    <h3>Day 1 — Friday 19 June (Kenton → Funny Stone)</h3>
     <ul>
-      <li><strong>Naude's Nek</strong> — if the boys are awake and weather is clear, this pass (highest in SA at 2,874m) is worth a late-afternoon drive to the summit. Snow is possible in June. The rocks, the hairpins, and the sheer scale are genuinely impressive to kids. <a href="https://www.mountainpassessouthafrica.co.za/" target="_blank">Check conditions →</a></li>
-      <li><strong>Rhodes village trout fishing</strong> — 40 min from Funny Stone. The village has a dedicated kids' fishing spot on the Sterkstroom River. Rods for hire, no licence needed for juniors. Catch-and-release rainbow trout. <a href="https://www.rhodesvillage.co.za/" target="_blank">rhodesvillage.co.za →</a></li>
-      <li><strong>Ben McDhui Ski Resort</strong> — 45 min from Barkly East. If there's been early snow (common by mid-June), the ski tow is running and the snow sledding is brilliant for kids. Even without snow, the summit plateau at 3,000m is dramatic. <a href="https://www.benmcdhui.co.za/" target="_blank">benmcdhui.co.za →</a></li>
+      <li><strong>Ecca Pass shales</strong> — 250-million-year-old rock layers in the pass cuttings. Boys can see the age of the planet written in stripes. 15 km north of Grahamstown.</li>
+      <li><strong>Fort Beaufort Martello Tower</strong> — visible from the R67, one of only two in the world with a full-swivel 360° cannon. Ten minutes off the road if you want to stop.</li>
+      <li><strong>Nico Malan Pass — 673m climb in 13.8 km</strong> — top-25 altitude-gaining pass in SA. Kids tend to be glued to the window for the steep sections.</li>
     </ul>
 
-    <h3>Day 2 — En route to Clarens (Sunday 20 June)</h3>
+    <h3>Day 2 — Saturday 20 June (Rest day at Funny Stone)</h3>
     <ul>
-      <li><strong>Aliwal North Hot Springs</strong> — the overnight stop after Day 1 (if you break the journey) has a famous thermal springs resort. The pool water is 34°C even in winter — kids love it. Worth knowing about even if just driving past. <a href="https://www.alwaysalival.co.za/" target="_blank">Always Alival →</a></li>
-      <li><strong>Fouriesburg — Surrender Hill viewpoint</strong> — from the R26 approaching Clarens, a short detour shows the hill where 4,300 Boers laid down arms. Hard to explain to adults, impossible to explain to kids — but the giant open landscape where all those men gave up is something they'll remember.</li>
-      <li><strong>Clarens ice cream &amp; Spruit Walk</strong> — the main street in Clarens is extremely walkable, with artisan ice cream (Clarens Creamery), quirky curio shops, and the Spruit Walk along the stream that kids can splash around in. The sandstone cliffs surrounding town glow orange in afternoon light. Let them run.</li>
-      <li><strong>Highlight: the landscape itself</strong> — from Zastron through Fouriesburg to Clarens, the Maloti Mountains on the left are Lesotho. The road crosses open Free State farmland with nothing between you and the mountains but grass and sky. Dramatically different from the Eastern Cape.</li>
+      <li><strong>Naude's Nek summit drive</strong> — the highest road pass in SA (2,587m). The hairpins, cliff drops, and possible snow are genuinely awe-inspiring. Do the summit and back, not the full traverse — 3-hour round trip from Funny Stone.</li>
+      <li><strong>Rhodes village trout fishing</strong> — 40 min from Funny Stone. Dedicated kids' fishing spot on the Sterkstroom River, rods for hire, no licence needed for juniors. Catch-and-release rainbow trout. <a href="https://www.rhodesvillage.co.za/" target="_blank">rhodesvillage.co.za →</a></li>
+      <li><strong>Tiffindell / Ben McDhui</strong> — 45 min from Barkly East. If there's been early snow (common by mid-June), the ski tow is running and the snow sledding is brilliant for kids. Even without snow, the summit plateau at 3,000m is dramatic. <a href="https://www.benmcdhui.co.za/" target="_blank">benmcdhui.co.za →</a></li>
+      <li><strong>Barkly East railway zigzag reverses</strong> — one of only a handful of zigzag-reverse railway systems ever built. Park at the lower reverse and walk a section. Quick excursion, surprisingly engaging for ten-year-olds once the engineering clicks.</li>
     </ul>
 
-    <h3>Day 3 — Clarens → Wakkerstroom via Golden Gate (Monday ... wait, Sunday 21 June)</h3>
+    <h3>Day 3 — Sunday 21 June (Funny Stone → Clarens via Maloti Route)</h3>
     <ul>
-      <li><strong>Golden Gate Highlands NP — Blesbok Loop</strong> — a 6.7km self-drive game circuit inside the park. You'll see zebra, blesbok, black wildebeest, and eland at close range, often from the car window. No hiking required. Open from sunrise. <a href="https://www.sanparks.org/parks/golden_gate/tourism/activities.php" target="_blank">SANParks activities →</a></li>
-      <li><strong>Cathedral Cave picnic</strong> — inside Golden Gate, a short walk (20 min return) leads to Cathedral Cave, a giant sandstone overhang with San bushman paintings. The cave is big enough that you could shelter a hundred people. Kids tend to go quiet in there.</li>
-      <li><strong>Lichens Pass summit — 2,041m</strong> — on the R712 after Golden Gate you climb over a high pass into KwaZulu-Natal. Stop at the top: the views back toward the Drakensberg escarpment are huge, and if it's cold enough, the frost on the grass hasn't melted by 9am. Worth 5 minutes.</li>
-      <li><strong>Volksrust — old Anglo-Boer War border post</strong> — the town sits on the old Natal/Transvaal border. In 1900 this was a forward British position. The name means "People's Rest" — where Boer families stopped fleeing the British. Quick fuel stop and a look at the Boer War memorial on the main street.</li>
+      <li><strong>Aliwal North Hot Springs</strong> — fuel-stop town has a famous thermal springs resort. The pool water is 34°C even in winter — kids love it. Worth knowing about even if just driving past. <a href="https://www.alwaysalival.co.za/" target="_blank">Always Alival →</a></li>
+      <li><strong>Maluti Mountains, sandstone country</strong> — from Zastron through Fouriesburg to Clarens, the Maluti Mountains on the left are Lesotho. The road crosses open Free State farmland with nothing between you and the snow-capped peaks but grass and sky. Dramatically different from the Eastern Cape.</li>
+      <li><strong>Surrender Hill — Fouriesburg</strong> — a short detour shows the hill where 4,300 Boers laid down arms. Hard to explain to adults, impossible to explain to kids — but the giant open landscape where all those men gave up is something they'll remember.</li>
+      <li><strong>Clarens ice cream &amp; Spruit Walk</strong> — the main street in Clarens is extremely walkable, with artisan ice cream (Clarens Creamery), quirky curio shops, and the Spruit Walk along the stream. Sandstone cliffs glow orange in afternoon light. Let them run.</li>
     </ul>
 
-    <h3>Day 4 — Wakkerstroom → Dullstroom (Monday 22 June)</h3>
+    <h3>Day 4 — Monday 22 June (Clarens → Dullstroom)</h3>
     <ul>
-      <li><strong>Victorian walk, Wakkerstroom</strong> — before you leave, 20 minutes wandering the main street shows the boys what a Boer War–era town actually looked like. The General Store, the old church, and the stone houses around the green are all intact. There's a plaque marking where Boer commando snipers pinned down the British garrison.</li>
-      <li><strong>Blue Crane Farm — trout dam jetties</strong> — the main event of Day 4. Multiple jetties on a 9-hectare dam. Rods for hire from the farm. The trout are stocked and aggressive — kids will catch fish. Beginner fly-fishing lessons available. A 9-hectare lake means they can also just throw sticks in. <a href="https://www.bluecranefarm.co.za/" target="_blank">bluecranefarm.co.za →</a></li>
-      <li><strong>Anvil Ale Brewery, Dullstroom</strong> — kid-safe garden with outdoor seating, lawn games, and a braai area. Parents get a craft beer, boys get juice and somewhere to run. Exactly what you need after a long day in the car. </li>
+      <li><strong>Vaal River crossing</strong> — the boundary between the old Free State and the old Transvaal. A historic border worth pointing out from the bridge — easy "where in SA are we now" geography moment.</li>
+      <li><strong>Windpomp counting through the Free State</strong> — endless wind-pump water pumps dotted across the maize country. Make it a game — 50 windpomps = R10 ice cream from the Spar in Bethlehem.</li>
+      <li><strong>Blue Crane Farm — trout dam jetties</strong> — the main event of Day 4. Multiple jetties on a 9-hectare dam. Rods for hire from the farm; trout are stocked and aggressive — kids will catch fish. Beginner fly-fishing lessons available. <a href="https://www.bluecranefarm.co.za/" target="_blank">bluecranefarm.co.za →</a></li>
+      <li><strong>Anvil Ale Brewery, Dullstroom</strong> — kid-safe garden with outdoor seating, lawn games, and a braai area. Parents get a craft beer, boys get juice and somewhere to run. Exactly what you need after a long day in the car.</li>
     </ul>
 
-    <h3>Day 5 — Dullstroom → Hoedspruit via Panorama Route (Tuesday 23 June)</h3>
+    <h3>Day 5 — Tuesday 23 June (Dullstroom → Graskop, Panorama afternoon)</h3>
     <ul>
       <li><strong>Long Tom Pass — bronze cannon replica</strong> — 5-min walk from the car park at Devil's Knuckles. A life-size replica of the French Creusot siege gun the Boers dragged up this pass in 1900. You can climb on it, stand next to it, and see why the British called it the Long Tom. The escarpment views from here are spectacular. <a href="https://www.mountainpassessouthafrica.co.za/passes/mpumalanga/long-tom-pass/" target="_blank">Pass history →</a></li>
       <li><strong>Mac Mac Falls</strong> — 65m double waterfall, accessible from a roadside viewpoint in 2 minutes. No hike needed. The thunder of the water is genuinely impressive and the mist rises 20m. Named after Scottish miners who all had "Mac" in their surnames.</li>
-      <li><strong>Bourke's Luck Potholes</strong> — the geological highlight of the day. The Blyde and Treur rivers carved perfectly cylindrical potholes into the rock over millions of years — some are 6m deep and 3m wide. There are suspension bridge walkways over the gorge. Kids go absolutely feral here. R55/adult entry. Allow 1 hour. <a href="https://www.mpumalanga.com/bourkes-luck-potholes/" target="_blank">Info →</a></li>
-      <li><strong>Three Rondavels — Blyde River Canyon viewpoint</strong> — the "big view" of the whole trip. Three massive dolerite towers rising from the canyon floor, 800m below. The scale is genuinely shocking even for adults. Kids will spend 5 minutes staring and then want to climb the fence — hold onto them. The canyon is the third-largest in the world.</li>
-      <li><strong>Descending the Strijdom Tunnel</strong> — the road drops 1,000m from the escarpment to the Lowveld in 30 minutes. Suddenly the vegetation changes from highland grass to subtropical bushveld, the temperature rises 10°C, and you start seeing roadside baboons. The change is instant and dramatic.</li>
+      <li><strong>Pilgrim's Rest — the gold-rush village</strong> — a perfectly preserved 1873 mining town, declared a national monument and frozen in place. The boys can pan for gold at the demonstration claim (the operators salt it — they always find something). Walk the main street: Royal Hotel, Anglican church, original jail, stamp mill. Unchanged since the 1890s. 17 km west of Graskop on the R533.</li>
+      <li><strong>Pinnacle Rock</strong> — 30m sandstone tower rising from the forested escarpment. Easy 5-min walk to the viewpoint. Often less crowded than God's Window — better photo stop.</li>
+      <li><strong>God's Window</strong> — 700m sheer drop over the Lowveld. The boys can do the short rainforest trail (15 min up) to the cliff edge. Holding on to them at the top is non-negotiable.</li>
+      <li><strong>Graskop Hotel pancakes</strong> — Harrie's Pancakes on the main street is a Graskop institution. Order the savoury chicken-and-mushroom for dinner; the boys will be sticky with the sweet versions for pudding.</li>
+    </ul>
+
+    <h3>Day 6 — Wednesday 24 June (Graskop → Hoedspruit Airport)</h3>
+    <ul>
+      <li><strong>Bourke's Luck Potholes — suspension bridges</strong> — the geological highlight of the whole trip. Cylindrical river-carved potholes some 6m deep and 3m wide, with suspension-bridge walkways over the gorge. Kids go absolutely feral here. R55/adult entry. Plan 45 minutes. <a href="https://www.mpumalanga.com/bourkes-luck-potholes/" target="_blank">Info →</a></li>
+      <li><strong>Three Rondavels — Blyde River Canyon viewpoint</strong> — the "big view" of the whole trip. Three massive dolerite towers rising from the canyon floor, 800m below. The scale is genuinely shocking even for adults. The canyon is the third-largest in the world.</li>
+      <li><strong>Strijdom Tunnel descent</strong> — the road drops 1,000m off the escarpment in 30 minutes. Vegetation changes from highland grass to subtropical bushveld, the temperature rises 10°C, and you start seeing roadside baboons. The change is instant and dramatic. End-of-trip energy lifter for the back seat.</li>
     </ul>
   <a class="back-to-toc" href="#toc">↑ Back to contents</a>
   </section>
@@ -1186,7 +1364,7 @@
   <!-- ============================================================ -->
   <section id="games">
     <h2>🎮 Games to play in the car</h2>
-    <p style="color:var(--muted);font-size:0.95rem;margin-top:-12px;margin-bottom:28px;">Five days, ~1,510km, two ten-year-olds. Come prepared. These work without screens, signal, or any equipment.</p>
+    <p style="color:var(--muted);font-size:0.95rem;margin-top:-12px;margin-bottom:28px;">Six days (one of them a rest day), ~1,510km on the road, two ten-year-olds. Come prepared. These work without screens, signal, or any equipment.</p>
 
     <h3>South Africa specials 🇿🇦</h3>
     <p><em>These ones are tailored to what's actually outside the window on this route.</em></p>
@@ -1305,14 +1483,24 @@
       <li>Panorama Route map: <a href="https://www.sa-venues.com/maps/mpumalanga-panorama-route.htm" target="_blank">sa-venues.com — Panorama Route</a></li>
     </ul>
 
-    <h3>Accommodation</h3>
+    <h3>Accommodation — road trip</h3>
     <ul>
       <li>Funny Stone Country House (Barkly East): <a href="https://www.funnystone.co.za/" target="_blank">funnystone.co.za</a></li>
-      <li>Rhodes village &amp; Walkerbouts Inn: <a href="https://www.rhodesvillage.co.za/" target="_blank">rhodesvillage.co.za</a></li>
+      <li>Rhodes village &amp; Walkerbouts Inn (Day 2 rest-day option): <a href="https://www.rhodesvillage.co.za/" target="_blank">rhodesvillage.co.za</a></li>
       <li>Clarens accommodation portal: <a href="https://clarens.co.za/" target="_blank">clarens.co.za</a></li>
-      <li>Wakkerstroom Tourism &amp; stays: <a href="https://wakkerstroom.co.za/" target="_blank">wakkerstroom.co.za</a></li>
       <li>Blue Crane Farm (Dullstroom — trout dam): <a href="https://www.bluecranefarm.co.za/" target="_blank">bluecranefarm.co.za</a></li>
       <li>Millstream Farm (Dullstroom — fly fishing): <a href="https://www.millstreamfarm.co.za/" target="_blank">millstreamfarm.co.za</a></li>
+      <li>Graskop Hotel (central, family rooms): <a href="https://www.graskophotel.co.za/" target="_blank">graskophotel.co.za</a></li>
+      <li>Misty Mountain (Graskop escarpment lodges): <a href="https://www.mistymountain.co.za/" target="_blank">mistymountain.co.za</a></li>
+    </ul>
+
+    <h3>After the airport</h3>
+    <ul>
+      <li>Arathusa Safari Lodge (Sabi Sand — Giles, 24–27 June): <a href="https://www.arathusa.co.za/" target="_blank">arathusa.co.za</a></li>
+      <li>Lissataba Private Reserve (Hoedspruit — Jackie + boys, from 24 June): <a href="https://www.lissataba.co.za/" target="_blank">lissataba.co.za</a></li>
+      <li>Hoedspruit Eastgate Airport (HDS): <a href="https://www.hoedspruitairport.co.za/" target="_blank">hoedspruitairport.co.za</a></li>
+      <li>Hoedspruit Airport → Arathusa (driving directions): <a href="https://www.google.com/maps/dir/Hoedspruit+Eastgate+Airport,+Limpopo/Arathusa+Safari+Lodge,+Sabi+Sand,+Mpumalanga" target="_blank">Google Maps →</a></li>
+      <li>Hoedspruit Airport → Lissataba (driving directions): <a href="https://www.google.com/maps/dir/Hoedspruit+Eastgate+Airport,+Limpopo/Lissataba+Private+Reserve,+Hoedspruit,+Limpopo" target="_blank">Google Maps →</a></li>
     </ul>
 
     <h3>Activities &amp; Attractions</h3>
@@ -1320,6 +1508,7 @@
       <li>Ben McDhui Ski Resort (snow in June!): <a href="https://www.benmcdhui.co.za/" target="_blank">benmcdhui.co.za</a></li>
       <li>Golden Gate wildlife &amp; hikes: <a href="https://www.sanparks.org/parks/golden_gate/tourism/activities.php" target="_blank">sanparks.org — Golden Gate activities</a></li>
       <li>Bourke's Luck Potholes (MPU Tourism): <a href="https://www.mpumalanga.com/bourkes-luck-potholes/" target="_blank">mpumalanga.com — Bourke's Luck</a></li>
+      <li>Pilgrim's Rest historic village (national monument): <a href="https://www.sa-venues.com/attractionsmp/pilgrims-rest.htm" target="_blank">sa-venues.com — Pilgrim's Rest</a></li>
       <li>Long Tom Pass history: <a href="https://www.mountainpassessouthafrica.co.za/passes/mpumalanga/long-tom-pass/" target="_blank">mountainpassessouthafrica.co.za — Long Tom</a></li>
     </ul>
   <a class="back-to-toc" href="#toc">↑ Back to contents</a>
@@ -1791,6 +1980,231 @@
   }
   window.addEventListener('hashchange', expandFromHash);
   expandFromHash();
+</script>
+
+<!-- Photo modal -->
+<div id="photo-modal" class="photo-modal" hidden role="dialog" aria-modal="true" aria-labelledby="photo-modal-title">
+  <div class="photo-modal-backdrop" data-close></div>
+  <div class="photo-modal-content">
+    <div class="photo-modal-header">
+      <h3 id="photo-modal-title" class="photo-modal-title">Photos</h3>
+      <button class="photo-modal-close" type="button" data-close aria-label="Close">×</button>
+    </div>
+    <div id="photo-modal-scroll" class="photo-modal-scroll"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var COMMONS_API = 'https://commons.wikimedia.org/w/api.php';
+
+  var photoData = {
+    day1: [
+      { search: 'Kenton on Sea',                                caption: 'Kenton-on-Sea — Day 1 starting point on the Eastern Cape coast, mouth of the Bushman’s River.' },
+      { search: 'Cathedral Grahamstown Makhanda',               caption: 'Makhanda (Grahamstown) — the 1820 Settlers’ frontier town; cathedral dominates the skyline.' },
+      { search: 'Ecca Pass',                                    caption: 'Ecca Pass — 250-million-year-old shales in the cuttings, 15km north of Grahamstown.' },
+      { search: 'Fort Beaufort Martello tower',                 caption: 'Fort Beaufort’s Martello tower — one of only two in the world with a full 360° swivel cannon.' },
+      { search: 'Nico Malan Pass Eastern Cape',                 caption: 'Nico Malan Pass — 673m climb in 13.8km between Fort Beaufort and Whittlesea.' },
+      { search: 'Komani Queenstown Eastern Cape',               caption: 'Queenstown (Komani) — main fuel stop before the climb into the Berg.' },
+      { search: 'Sterkstroom Eastern Cape',                     caption: 'Sterkstroom — the landscape begins to climb into the Berg foothills.' },
+      { search: 'Drakensberg Eastern Cape',                     caption: 'Southern Drakensberg foothills — the country you arrive in north of Dordrecht.' },
+      { search: 'Barkly East railway bridge',                   caption: 'Barkly East — town at 1,700m, gateway to Naude’s Nek country.' },
+      { search: 'Eastern Cape highveld farm',                   caption: 'Funny Stone country — Eastern Cape highveld, fires lit by 4:30pm in June.' }
+    ],
+    day2: [
+      { search: 'Naudes Nek',                                   caption: 'Naude’s Nek summit — Drakensberg birding country at 2,587m, the highest road pass in South Africa.' },
+      { search: 'Rhodes village Eastern Cape',                  caption: 'Rhodes — historic stone village at the foot of the Drakensberg, 40 min from Funny Stone.' },
+      { search: 'Rainbow trout stream',                         caption: 'Rhodes’ Sterkstroom River — stocked rainbow trout, kids’ rods for hire.' },
+      { search: 'Tiffindell ski resort',                        caption: 'Tiffindell — South Africa’s only ski resort, at 2,720m on Ben McDhui.' },
+      { search: 'Ben Macdhui South Africa',                     caption: 'Ben McDhui — SA’s second-highest peak, 3,001m. Snow plateaus common in June.' },
+      { search: 'Snow Drakensberg',                             caption: 'Winter snow on the Drakensberg escarpment.' },
+      { search: 'Mountain pass zigzag railway',                 caption: 'Barkly East railway zigzags — eight reverses climb the escarpment, one of only a handful in the world.' },
+      { search: 'Stormberg South Africa',                       caption: 'Stormberg mountains — the line the British army held in 1899 before the Boer offensive south.' },
+      { search: 'Drakensberg South Africa',                     caption: 'The southern Drakensberg — escarpment and high grassland on three sides of Barkly East.' },
+      { search: 'South Africa farm fireplace',                  caption: 'Funny Stone evenings — sunset hits fast at altitude, fire from 4:30pm.' }
+    ],
+    day3: [
+      { search: 'Aliwal North',                                 caption: 'Aliwal North — Orange River bridge, crossing into the Free State.' },
+      { search: 'Orange River South Africa',                    caption: 'The Orange River — provincial boundary and Day 3’s fuel-stop town.' },
+      { search: 'Lady Grey Eastern Cape',                       caption: 'Lady Grey — named after the wife of British Governor Sir George Grey.' },
+      { search: 'Zastron Free State',                           caption: 'Zastron — start of the Maloti Route along the Lesotho border.' },
+      { search: 'Maloti Mountains',                             caption: 'Maluti Mountains — sandstone massifs along the Lesotho border, snow-capped in June.' },
+      { search: 'Fouriesburg Free State',                       caption: 'Fouriesburg — the provisional capital of the Orange Free State Republic in 1900.' },
+      { search: 'Brandwater Basin',                             caption: 'Brandwater Basin — where 4,300 Boers surrendered to the British on 30 July 1900.' },
+      { search: 'Caledon River',                                caption: 'The Caledon River valley — visible from the R711 approach to Clarens.' },
+      { search: 'Sandstone Free State Clarens',                 caption: 'Free State sandstone country — the R711 stretch into Clarens.' },
+      { search: 'Clarens Free State',                           caption: 'Clarens — Day 3’s destination, sandstone cliffs glow orange in afternoon light.' }
+    ],
+    day4: [
+      { search: 'Clarens sandstone Free State',                 caption: 'Clarens at dawn — sandstone cliffs above the village.' },
+      { search: 'Bethlehem Free State',                         caption: 'Bethlehem — fuel-and-coffee stop on the N5, first proper town of Day 4.' },
+      { search: 'Free State maize farm',                        caption: 'Free State maize country — endless horizons, windpomp water pumps every kilometre.' },
+      { search: 'Reitz Free State',                             caption: 'Reitz — once Christiaan de Wet’s home town, quiet agricultural centre.' },
+      { search: 'Frankfort Free State',                         caption: 'Frankfort — north on the R26 toward the Vaal River crossing.' },
+      { search: 'Vaal River South Africa',                      caption: 'Vaal River — historic boundary between the Free State and the old Transvaal.' },
+      { search: 'Standerton Mpumalanga',                        caption: 'Standerton — mid-trip lunch and fuel stop on the R23.' },
+      { search: 'Carolina Mpumalanga',                          caption: 'Carolina — Boer War garrison town with British blockhouse ruins.' },
+      { search: 'Dullstroom',                                   caption: 'Dullstroom — fly-fishing capital of South Africa, at 2,100m.' },
+      { search: 'Rainbow trout fishing',                        caption: 'Blue Crane Farm trout dam — stocked aggressively, kids will catch fish.' }
+    ],
+    day5: [
+      { search: 'Long Tom Pass Mpumalanga',                     caption: 'Long Tom Pass — R37 climbs over 2,150m past Devil’s Knuckles.' },
+      { search: '155mm Creusot Long Tom',                       caption: 'The bronze Long Tom replica — French 155mm Creusot siege cannon the Boers dragged up Mauchsberg in 1900.' },
+      { search: 'Mpumalanga escarpment view',                   caption: 'Mpumalanga escarpment — the view from the Long Tom summit toward the Lowveld.' },
+      { search: 'Sabie Mpumalanga',                             caption: 'Sabie — former forestry town and lunch stop at the heart of waterfall country.' },
+      { search: 'Mac Mac Falls',                                caption: 'Mac Mac Falls — 65m double waterfall, named after Scottish miners with “Mac” in their surnames.' },
+      { search: 'Pilgrim\'s Rest Mpumalanga',                   caption: 'Pilgrim’s Rest — 1873 gold-rush village, national monument, frozen in time.' },
+      { search: 'Royal Hotel Pilgrim\'s Rest',                  caption: 'Royal Hotel, Pilgrim’s Rest — main-street centrepiece since the 1890s.' },
+      { search: 'Pinnacle Rock Mpumalanga',                     caption: 'Pinnacle Rock — 30m sandstone tower rising from the forested escarpment.' },
+      { search: 'Gods Window Mpumalanga',                       caption: 'God’s Window — 700m sheer drop over the Lowveld escarpment.' },
+      { search: 'Graskop Mpumalanga',                           caption: 'Graskop — base of the Panorama Route, last bed before the airport.' }
+    ],
+    day6: [
+      { search: 'Bourkes Luck Potholes',                        caption: 'Bourke’s Luck Potholes — cylindrical formations carved by the Blyde and Treur rivers.' },
+      { search: 'Blyde River',                                  caption: 'The Blyde River — feeds the third-largest canyon in the world.' },
+      { search: 'Three Rondavels',                              caption: 'Three Rondavels — 800m dolerite towers above Blyde River Canyon.' },
+      { search: 'Blyde River Canyon',                           caption: 'Blyde River Canyon — third-largest canyon in the world, after the Grand and Fish River canyons.' },
+      { search: 'Abel Erasmus Pass',                            caption: 'Abel Erasmus Pass — 1,000m drop from the escarpment to the Lowveld.' },
+      { search: 'Strijdom Tunnel',                              caption: 'J.G. Strijdom Tunnel — punches through the last spur before the Lowveld.' },
+      { search: 'Lowveld South Africa',                         caption: 'Lowveld bushveld — vegetation changes instantly after the descent.' },
+      { search: 'Hoedspruit',                                   caption: 'Hoedspruit — gateway town to the Greater Kruger, end of the road-trip portion.' },
+      { search: 'Chacma baboon',                                caption: 'Chacma baboons — roadside companions on the descent.' },
+      { search: 'Sabi Sand Game Reserve leopard',               caption: 'Sabi Sand — Arathusa Safari Lodge sits inside the reserve; shuttle leaves Hoedspruit Airport at midday.' }
+    ]
+  };
+
+  var modal = document.getElementById('photo-modal');
+  var titleEl = document.getElementById('photo-modal-title');
+  var scrollEl = document.getElementById('photo-modal-scroll');
+
+  function stripHtml(s) {
+    var d = document.createElement('div');
+    d.innerHTML = s || '';
+    return (d.textContent || '').trim();
+  }
+
+  function fetchPhoto(search) {
+    var key = 'photo:v1:' + search;
+    try {
+      var cached = sessionStorage.getItem(key);
+      if (cached) return Promise.resolve(JSON.parse(cached));
+    } catch (_) {}
+
+    var params = new URLSearchParams({
+      action: 'query',
+      generator: 'search',
+      gsrsearch: search,
+      gsrnamespace: '6',
+      gsrlimit: '1',
+      prop: 'imageinfo',
+      iiprop: 'url|extmetadata',
+      iiurlwidth: '900',
+      iiextmetadatafilter: 'Artist|LicenseShortName',
+      format: 'json',
+      origin: '*'
+    });
+
+    return fetch(COMMONS_API + '?' + params.toString())
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var pages = (data.query && data.query.pages) || {};
+        var firstKey = Object.keys(pages)[0];
+        if (!firstKey) return null;
+        var page = pages[firstKey];
+        var ii = (page.imageinfo || [])[0];
+        if (!ii) return null;
+        var meta = ii.extmetadata || {};
+        var result = {
+          thumb: ii.thumburl || ii.url,
+          file: page.title,
+          credit: (meta.Artist && stripHtml(meta.Artist.value)) || 'Wikimedia Commons',
+          license: (meta.LicenseShortName && stripHtml(meta.LicenseShortName.value)) || '',
+          fileUrl: 'https://commons.wikimedia.org/wiki/' + encodeURIComponent(page.title)
+        };
+        try { sessionStorage.setItem(key, JSON.stringify(result)); } catch (_) {}
+        return result;
+      })
+      .catch(function() { return null; });
+  }
+
+  function buildFigure(entry) {
+    var fig = document.createElement('figure');
+    fig.className = 'photo-figure';
+
+    var wrap = document.createElement('div');
+    wrap.className = 'photo-img-wrap';
+
+    var img = document.createElement('img');
+    img.alt = entry.caption;
+    img.loading = 'lazy';
+    img.referrerPolicy = 'no-referrer';
+    img.addEventListener('load', function() { img.classList.add('loaded'); });
+    img.addEventListener('error', function() { wrap.classList.add('failed'); });
+    wrap.appendChild(img);
+
+    var cap = document.createElement('figcaption');
+    cap.textContent = entry.caption;
+    var creditLine = document.createElement('span');
+    creditLine.className = 'photo-credit';
+    cap.appendChild(creditLine);
+
+    fig.appendChild(wrap);
+    fig.appendChild(cap);
+
+    fetchPhoto(entry.search).then(function(photo) {
+      if (!photo || !photo.thumb) { wrap.classList.add('failed'); return; }
+      img.src = photo.thumb;
+      var parts = [];
+      if (photo.credit) parts.push('© ' + photo.credit);
+      if (photo.license) parts.push(photo.license);
+      var label = parts.join(' · ') || 'Wikimedia Commons';
+      if (photo.fileUrl) {
+        var a = document.createElement('a');
+        a.href = photo.fileUrl;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.textContent = label;
+        creditLine.appendChild(a);
+      } else {
+        creditLine.textContent = label;
+      }
+    });
+
+    return fig;
+  }
+
+  function openModal(dayKey, dayLabel) {
+    var entries = photoData[dayKey] || [];
+    if (!entries.length) return;
+    titleEl.textContent = dayLabel || 'Photos';
+    scrollEl.innerHTML = '';
+    entries.forEach(function(entry) { scrollEl.appendChild(buildFigure(entry)); });
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    modal.querySelector('.photo-modal-close').focus();
+  }
+
+  function closeModal() {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+    scrollEl.innerHTML = '';
+  }
+
+  document.querySelectorAll('.photos-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      openModal(btn.dataset.day, btn.dataset.dayLabel);
+    });
+  });
+
+  modal.addEventListener('click', function(e) {
+    var t = e.target;
+    if (t && t.dataset && Object.prototype.hasOwnProperty.call(t.dataset, 'close')) closeModal();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && !modal.hidden) closeModal();
+  });
+})();
 </script>
 
 </body>
