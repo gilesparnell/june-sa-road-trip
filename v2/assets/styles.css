@@ -340,6 +340,165 @@ h3.display { font-family: var(--font-display); font-weight: 500; color: var(--na
 .day-card-link:hover .day-card-cta .arrow { transform: translateX(3px); }
 
 /* -----------------------------------------------------------------
+   Route timeline (vertical journey, gradient by altitude)
+   ----------------------------------------------------------------- */
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 56px;
+  position: relative;
+  max-width: 900px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 25px;
+  top: 22px;
+  bottom: 22px;
+  width: 3px;
+  border-radius: 2px;
+  background: linear-gradient(180deg,
+    #4d8fb3 0%,        /* coast — Day 1 start at Kenton (sea level) */
+    #8a6e3a 14%,       /* climbing toward Barkly East */
+    #aa4400 32%,       /* peak — Dullstroom 2,100m */
+    #8a6e3a 47%,       /* descent — Long Tom + Panorama Route */
+    #5d8c45 62%,       /* Lowveld green — Hoedspruit / Lissataba */
+    #5d8c45 84%,       /* still Lowveld — Kruger Park Lodge */
+    #aa4400 100%);     /* highveld — Pretoria / JHB */
+}
+.timeline-item {
+  position: relative;
+  margin-bottom: var(--s-4);
+}
+.timeline-item:last-child { margin-bottom: 0; }
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -40px;
+  top: 22px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--cream);
+  border: 3px solid var(--rust);
+  box-shadow: 0 0 0 3px var(--cream);
+  z-index: 1;
+}
+.timeline-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--s-4);
+  align-items: center;
+  background: var(--white);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-3);
+  padding: var(--s-4) var(--s-5);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, transform 0.1s, box-shadow 0.15s;
+}
+.timeline-card:hover {
+  border-color: var(--rust);
+  transform: translateX(2px);
+  box-shadow: var(--shadow-1);
+  text-decoration: none;
+}
+.t-day-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  align-items: baseline;
+  margin-bottom: var(--s-1);
+}
+.t-day-num {
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--rust);
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+}
+.t-date {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.t-route {
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--navy);
+  font-size: 1.1rem;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  margin: 0 0 var(--s-2);
+}
+.t-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+.t-meta strong { color: var(--navy); font-weight: 600; }
+.t-meta .warn { color: var(--rust); }
+.t-meta .meta-sep { color: var(--line); }
+.t-alt {
+  text-align: right;
+  min-width: 90px;
+  padding-left: var(--s-3);
+  border-left: 1px dashed var(--line-soft);
+}
+.t-alt strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--navy);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.t-alt small {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-top: 4px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.t-alt-icon {
+  display: inline-block;
+  margin-right: 2px;
+  font-size: 0.9em;
+  color: var(--rust);
+}
+.timeline-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+  margin-top: var(--s-6);
+  padding-left: 56px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.timeline-legend .swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+@media (max-width: 600px) {
+  .timeline { padding-left: 40px; }
+  .timeline::before { left: 17px; }
+  .timeline-item::before { left: -32px; }
+  .timeline-card { grid-template-columns: 1fr; gap: var(--s-3); padding: var(--s-3) var(--s-4); }
+  .t-alt { text-align: left; min-width: 0; padding-left: 0; border-left: 0; border-top: 1px dashed var(--line-soft); padding-top: var(--s-2); }
+  .t-alt strong { display: inline; font-size: 1rem; }
+  .t-alt small { display: inline; margin-left: var(--s-2); }
+  .timeline-legend { padding-left: 40px; font-size: 0.72rem; }
+}
+
+/* -----------------------------------------------------------------
    Route table (compact strip on hub)
    ----------------------------------------------------------------- */
 .route-strip {

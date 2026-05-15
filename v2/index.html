@@ -15,7 +15,6 @@
     <a href="#route">Route</a>
     <a href="#days">Days</a>
     <a href="#actions">Actions</a>
-    <a href="#after">After airport</a>
     <a href="#links">Links</a>
     <a href="#comments">Comments</a>
   </div>
@@ -47,90 +46,248 @@
         <h2 class="display">At a glance</h2>
       </div>
     </div>
-    <div class="table-wrap" style="overflow-x:auto;">
-    <table class="route-strip">
-      <thead>
-        <tr>
-          <th>Day</th>
-          <th>Route</th>
-          <th class="center">Km</th>
-          <th class="center">Drive</th>
-          <th class="hide-sm">Sleep</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><span class="day-num">Day 1</span><br><small>Fri 19 Jun</small></td>
-          <td><a href="/v2/day/1.html">Kenton → Funny Stone</a></td>
-          <td class="center">~468</td>
-          <td class="center warn">8h</td>
-          <td class="hide-sm">Funny Stone</td>
-        </tr>
-        <tr>
-          <td><span class="day-num">Day 2</span><br><small>Sat 20 Jun</small></td>
-          <td><a href="/v2/day/2.html">Rest day at Funny Stone</a></td>
-          <td class="center">—</td>
-          <td class="center">—</td>
-          <td class="hide-sm">Funny Stone</td>
-        </tr>
-        <tr>
-          <td><span class="day-num">Day 3</span><br><small>Sun 21 Jun</small></td>
-          <td><a href="/v2/day/3.html">Funny Stone → Clarens</a></td>
-          <td class="center">~360</td>
-          <td class="center warn">5h</td>
-          <td class="hide-sm">Barbet Cottages</td>
-        </tr>
-        <tr>
-          <td><span class="day-num">Day 4</span><br><small>Mon 22 Jun</small></td>
-          <td><a href="/v2/day/4.html">Clarens → Dullstroom</a></td>
-          <td class="center">~430</td>
-          <td class="center warn">5.5h</td>
-          <td class="hide-sm">Blue Crane Farm</td>
-        </tr>
-        <tr>
-          <td><span class="day-num">Day 5</span><br><small>Tue 23 Jun</small></td>
-          <td><a href="/v2/day/5.html">Dullstroom → Graskop</a></td>
-          <td class="center">~145</td>
-          <td class="center">2.5h + Panorama</td>
-          <td class="hide-sm">Graskop Hotel</td>
-        </tr>
-        <tr>
-          <td><span class="day-num">Day 6</span><br><small>Wed 24 Jun</small></td>
-          <td><a href="/v2/day/6.html">Graskop → HDS Airport</a></td>
-          <td class="center">~145</td>
-          <td class="center warn">11:30am</td>
-          <td class="hide-sm">— airport day —</td>
-        </tr>
-        <tr>
-          <td><span class="day-num">Days 7–9</span><br><small>Wed–Sat</small></td>
-          <td><a href="/v2/day/7.html">Lissataba (3 nights · Jackie + boys)</a></td>
-          <td class="center">—</td>
-          <td class="center">—</td>
-          <td class="hide-sm">Lissataba</td>
-        </tr>
-        <tr>
-          <td><span class="day-num">Day 10</span><br><small>Sat 27 Jun</small></td>
-          <td><a href="/v2/day/8.html">Lissataba → Kruger Park Lodge</a></td>
-          <td class="center">~180</td>
-          <td class="center">2.5h</td>
-          <td class="hide-sm">Kruger Park Lodge</td>
-        </tr>
-        <tr>
-          <td><span class="day-num">Days 11–13</span><br><small>Sat–Tue</small></td>
-          <td><a href="/v2/day/9.html">Kruger Park Lodge (3 nights · Kruger day-trips)</a></td>
-          <td class="center">—</td>
-          <td class="center">—</td>
-          <td class="hide-sm">Kruger Park Lodge</td>
-        </tr>
-        <tr>
-          <td><span class="day-num">Day 14</span><br><small>Tue 30 Jun</small></td>
-          <td><a href="/v2/day/10.html">Kruger Park Lodge → Johannesburg</a></td>
-          <td class="center">~450</td>
-          <td class="center warn">5–6h</td>
-          <td class="hide-sm">— end of trip —</td>
-        </tr>
-      </tbody>
-    </table>
+    <p class="lede" style="margin-bottom:var(--s-6);max-width:64ch;">Each day is a stop on a vertical journey. The connecting line is colour-graded by altitude — coastal blue at Kenton, rust at the Maluti / Dullstroom highveld peak, Lowveld green through Hoedspruit and Kruger, then climbing rust again on the run home to Joburg.</p>
+
+    <ol class="timeline">
+
+      <li class="timeline-item">
+        <a class="timeline-card" href="/v2/day/1.html">
+          <div>
+            <div class="t-day-line">
+              <span class="t-day-num">Day 1</span>
+              <span class="t-date">· Fri 19 Jun</span>
+            </div>
+            <h3 class="t-route">Kenton-on-Sea → Funny Stone</h3>
+            <div class="t-meta">
+              <span><strong>468 km</strong></span>
+              <span class="meta-sep">·</span>
+              <span class="warn"><strong>8h</strong> driving</span>
+              <span class="meta-sep">·</span>
+              <span>Sleep: Funny Stone</span>
+            </div>
+          </div>
+          <div class="t-alt">
+            <strong><span class="t-alt-icon">↑</span>1,700 m</strong>
+            <small>Berg highlands</small>
+          </div>
+        </a>
+      </li>
+
+      <li class="timeline-item">
+        <a class="timeline-card" href="/v2/day/2.html">
+          <div>
+            <div class="t-day-line">
+              <span class="t-day-num">Day 2</span>
+              <span class="t-date">· Sat 20 Jun</span>
+            </div>
+            <h3 class="t-route">Rest day at Funny Stone</h3>
+            <div class="t-meta">
+              <span><strong>0 km</strong></span>
+              <span class="meta-sep">·</span>
+              <span>Family day, one optional excursion</span>
+              <span class="meta-sep">·</span>
+              <span>Sleep: Funny Stone</span>
+            </div>
+          </div>
+          <div class="t-alt">
+            <strong>1,700 m</strong>
+            <small>still up high</small>
+          </div>
+        </a>
+      </li>
+
+      <li class="timeline-item">
+        <a class="timeline-card" href="/v2/day/3.html">
+          <div>
+            <div class="t-day-line">
+              <span class="t-day-num">Day 3</span>
+              <span class="t-date">· Sun 21 Jun</span>
+            </div>
+            <h3 class="t-route">Funny Stone → Clarens</h3>
+            <div class="t-meta">
+              <span><strong>360 km</strong></span>
+              <span class="meta-sep">·</span>
+              <span class="warn"><strong>5h</strong> driving</span>
+              <span class="meta-sep">·</span>
+              <span>Sleep: Barbet Cottages</span>
+            </div>
+          </div>
+          <div class="t-alt">
+            <strong><span class="t-alt-icon">↑</span>1,800 m</strong>
+            <small>Maluti sandstone</small>
+          </div>
+        </a>
+      </li>
+
+      <li class="timeline-item">
+        <a class="timeline-card" href="/v2/day/4.html">
+          <div>
+            <div class="t-day-line">
+              <span class="t-day-num">Day 4</span>
+              <span class="t-date">· Mon 22 Jun</span>
+            </div>
+            <h3 class="t-route">Clarens → Dullstroom</h3>
+            <div class="t-meta">
+              <span><strong>430 km</strong></span>
+              <span class="meta-sep">·</span>
+              <span class="warn"><strong>5.5h</strong> driving</span>
+              <span class="meta-sep">·</span>
+              <span>Sleep: Blue Crane Farm</span>
+            </div>
+          </div>
+          <div class="t-alt">
+            <strong><span class="t-alt-icon">↑</span>2,100 m</strong>
+            <small>peak of the trip</small>
+          </div>
+        </a>
+      </li>
+
+      <li class="timeline-item">
+        <a class="timeline-card" href="/v2/day/5.html">
+          <div>
+            <div class="t-day-line">
+              <span class="t-day-num">Day 5</span>
+              <span class="t-date">· Tue 23 Jun</span>
+            </div>
+            <h3 class="t-route">Dullstroom → Graskop</h3>
+            <div class="t-meta">
+              <span><strong>145 km</strong></span>
+              <span class="meta-sep">·</span>
+              <span><strong>2.5h</strong> drive + Panorama loop</span>
+              <span class="meta-sep">·</span>
+              <span>Sleep: Graskop Hotel</span>
+            </div>
+          </div>
+          <div class="t-alt">
+            <strong>1,440 m</strong>
+            <small>descent begins</small>
+          </div>
+        </a>
+      </li>
+
+      <li class="timeline-item">
+        <a class="timeline-card" href="/v2/day/6.html">
+          <div>
+            <div class="t-day-line">
+              <span class="t-day-num">Day 6</span>
+              <span class="t-date">· Wed 24 Jun</span>
+            </div>
+            <h3 class="t-route">Graskop → Hoedspruit Airport</h3>
+            <div class="t-meta">
+              <span><strong>145 km</strong></span>
+              <span class="meta-sep">·</span>
+              <span class="warn">Airport ~11:30am</span>
+              <span class="meta-sep">·</span>
+              <span>Safari split</span>
+            </div>
+          </div>
+          <div class="t-alt">
+            <strong><span class="t-alt-icon">↓</span>500 m</strong>
+            <small>Lowveld</small>
+          </div>
+        </a>
+      </li>
+
+      <li class="timeline-item">
+        <a class="timeline-card" href="/v2/day/7.html">
+          <div>
+            <div class="t-day-line">
+              <span class="t-day-num">Days 7–9</span>
+              <span class="t-date">· Wed pm → Sat</span>
+            </div>
+            <h3 class="t-route">Lissataba — 3-night safari stay</h3>
+            <div class="t-meta">
+              <span><strong>0 km</strong> on the road</span>
+              <span class="meta-sep">·</span>
+              <span>Twice-daily game drives + Hoedspruit excursions</span>
+              <span class="meta-sep">·</span>
+              <span>Sleep: Lissataba</span>
+            </div>
+          </div>
+          <div class="t-alt">
+            <strong>500 m</strong>
+            <small>bushveld</small>
+          </div>
+        </a>
+      </li>
+
+      <li class="timeline-item">
+        <a class="timeline-card" href="/v2/day/8.html">
+          <div>
+            <div class="t-day-line">
+              <span class="t-day-num">Day 10</span>
+              <span class="t-date">· Sat 27 Jun</span>
+            </div>
+            <h3 class="t-route">Lissataba → Kruger Park Lodge</h3>
+            <div class="t-meta">
+              <span><strong>180 km</strong></span>
+              <span class="meta-sep">·</span>
+              <span><strong>2.5h</strong> via HDS family pickup</span>
+              <span class="meta-sep">·</span>
+              <span>Sleep: Kruger Park Lodge</span>
+            </div>
+          </div>
+          <div class="t-alt">
+            <strong>600 m</strong>
+            <small>Hazyview</small>
+          </div>
+        </a>
+      </li>
+
+      <li class="timeline-item">
+        <a class="timeline-card" href="/v2/day/9.html">
+          <div>
+            <div class="t-day-line">
+              <span class="t-day-num">Days 11–13</span>
+              <span class="t-date">· Sat pm → Tue</span>
+            </div>
+            <h3 class="t-route">Kruger Park Lodge + self-drive Kruger</h3>
+            <div class="t-meta">
+              <span><strong>0 km</strong> on the road (Kruger day-trips not counted)</span>
+              <span class="meta-sep">·</span>
+              <span>3 nights</span>
+              <span class="meta-sep">·</span>
+              <span>Sleep: Kruger Park Lodge</span>
+            </div>
+          </div>
+          <div class="t-alt">
+            <strong>600 m</strong>
+            <small>Kruger doorstep</small>
+          </div>
+        </a>
+      </li>
+
+      <li class="timeline-item">
+        <a class="timeline-card" href="/v2/day/10.html">
+          <div>
+            <div class="t-day-line">
+              <span class="t-day-num">Day 14</span>
+              <span class="t-date">· Tue 30 Jun</span>
+            </div>
+            <h3 class="t-route">Kruger Park Lodge → Johannesburg</h3>
+            <div class="t-meta">
+              <span><strong>450 km</strong></span>
+              <span class="meta-sep">·</span>
+              <span class="warn"><strong>5–6h</strong> driving</span>
+              <span class="meta-sep">·</span>
+              <span>End of trip — home</span>
+            </div>
+          </div>
+          <div class="t-alt">
+            <strong><span class="t-alt-icon">↑</span>1,750 m</strong>
+            <small>highveld home</small>
+          </div>
+        </a>
+      </li>
+
+    </ol>
+
+    <div class="timeline-legend">
+      <span><span class="swatch" style="background:#4d8fb3;"></span>coast</span>
+      <span><span class="swatch" style="background:#8a6e3a;"></span>Berg foothills</span>
+      <span><span class="swatch" style="background:#aa4400;"></span>highveld peak</span>
+      <span><span class="swatch" style="background:#5d8c45;"></span>Lowveld &amp; Kruger</span>
+      <span>· line gradient reflects altitude · click any day for the full detail</span>
     </div>
   </div>
 </section>
@@ -395,39 +552,6 @@
       </form>
       <button type="button" class="completed-toggle" id="toggle-completed" style="display:none;"></button>
       <ul class="checklist completed-list" id="action-done-list" style="display:none;"></ul>
-    </div>
-  </div>
-</section>
-
-<!-- AFTER AIRPORT -->
-<section id="after" class="section">
-  <div class="container">
-    <div class="section-header">
-      <div>
-        <span class="eyebrow">Wednesday Afternoon</span>
-        <h2 class="display">After the airport</h2>
-      </div>
-    </div>
-
-    <p class="lede">The trip splits at Hoedspruit Eastgate Airport. Giles is on the Arathusa shuttle; Jackie + boys keep the rental car and continue on to Lissataba (~45 min). Both destinations are within an hour of HDS.</p>
-
-    <div class="day-grid" style="margin-top:var(--s-6);">
-      <div style="background:var(--white);border-radius:var(--r-3);padding:var(--s-5);border:1px solid var(--line-soft);">
-        <h3 class="display" style="font-size:1.3rem;">Giles → Arathusa Safari Lodge</h3>
-        <p style="color:var(--ink-soft);font-size:0.95rem;">Arathusa shuttle from inside the HDS terminal. Standard departure 12:00. ~1.5h to Sabi Sand via the Newington Gate. Wed 24 → Sat 27 June (3 nights).</p>
-        <div class="cta-row">
-          <a class="maps-link" href="https://www.google.com/maps/dir/Hoedspruit+Eastgate+Airport,+Limpopo/Arathusa+Safari+Lodge,+Sabi+Sand,+Mpumalanga" target="_blank">📍 HDS → Arathusa</a>
-          <a class="stay-link" href="https://www.arathusa.co.za/" target="_blank">arathusa.co.za →</a>
-        </div>
-      </div>
-      <div style="background:var(--white);border-radius:var(--r-3);padding:var(--s-5);border:1px solid var(--line-soft);">
-        <h3 class="display" style="font-size:1.3rem;">Jackie + boys → Lissataba</h3>
-        <p style="color:var(--ink-soft);font-size:0.95rem;">Self-drive ~45 min from HDS. Greater Hoedspruit private reserve. Standard check-in 14:00 — a 12:00 airport departure lines up with margin. Fuel before the reserve road.</p>
-        <div class="cta-row">
-          <a class="maps-link alt" href="https://www.google.com/maps/dir/Hoedspruit+Eastgate+Airport,+Limpopo/Lissataba+Private+Reserve,+Hoedspruit,+Limpopo" target="_blank">📍 HDS → Lissataba</a>
-          <a class="stay-link" href="https://www.lissataba.co.za/" target="_blank">lissataba.co.za →</a>
-        </div>
-      </div>
     </div>
   </div>
 </section>
