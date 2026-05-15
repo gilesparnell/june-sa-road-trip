@@ -297,9 +297,21 @@
     display: flex;
     align-items: flex-start;
     gap: 6px;
-    transition: opacity 0.15s;
+    transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
+    -webkit-touch-callout: none;
   }
   .checklist li.dragging { opacity: 0.35; }
+  .checklist li.touch-dragging {
+    transform: scale(1.02);
+    background: #fdf6f0;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    border-radius: 6px;
+    padding: 6px 8px;
+    margin-left: -8px;
+    margin-right: -8px;
+    position: relative;
+    z-index: 10;
+  }
   .checklist li.drag-over {
     border-top: 2px solid var(--navy);
     margin-top: -2px;
@@ -467,6 +479,9 @@
   }
   @media (max-width: 680px) {
     .toc-grid { grid-template-columns: 1fr; }
+    .drag-handle,
+    .checklist .row-btn,
+    .owner-chip.empty { opacity: 1; }
   }
   /* Alternative route section */
   .alt-route-card {
@@ -1425,6 +1440,89 @@
       li.classList.remove('drag-over');
       if (!draggedId || draggedId === item.id) return;
       reorderItems(draggedId, item.id);
+    });
+
+    attachTouchDragHandlers(li, item);
+  }
+
+  function attachTouchDragHandlers(li, item) {
+    var pressTimer = null;
+    var dragging = false;
+    var startX = 0, startY = 0;
+    var currentTarget = null;
+    var LONG_PRESS_MS = 400;
+    var MOVE_CANCEL_PX = 8;
+
+    function clearPress() {
+      if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+    }
+
+    function clearDragOverAll() {
+      document.querySelectorAll('.checklist li.drag-over').forEach(function(el) {
+        el.classList.remove('drag-over');
+      });
+    }
+
+    function endDrag(commit) {
+      if (!dragging) return;
+      li.classList.remove('touch-dragging');
+      clearDragOverAll();
+      var target = currentTarget;
+      dragging = false;
+      currentTarget = null;
+      if (commit && target && target !== li && target.dataset && target.dataset.id) {
+        reorderItems(item.id, target.dataset.id);
+      }
+    }
+
+    li.addEventListener('touchstart', function(e) {
+      if (e.touches.length !== 1) return;
+      var t = e.target;
+      // Don't initiate drag from interactive controls
+      if (t.closest && t.closest('button, input, .owner-chip, .item-edit-input, .owner-edit-input')) return;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      clearPress();
+      pressTimer = setTimeout(function() {
+        pressTimer = null;
+        dragging = true;
+        li.classList.add('touch-dragging');
+        if (navigator.vibrate) { try { navigator.vibrate(15); } catch (_) {} }
+      }, LONG_PRESS_MS);
+    }, { passive: true });
+
+    li.addEventListener('touchmove', function(e) {
+      if (!dragging) {
+        // If the finger moves before long-press fires, treat as scroll: cancel
+        var dx = Math.abs(e.touches[0].clientX - startX);
+        var dy = Math.abs(e.touches[0].clientY - startY);
+        if (dx > MOVE_CANCEL_PX || dy > MOVE_CANCEL_PX) clearPress();
+        return;
+      }
+      // We're dragging: block page scroll and track the row under the finger
+      e.preventDefault();
+      var touch = e.touches[0];
+      var elUnder = document.elementFromPoint(touch.clientX, touch.clientY);
+      var rowUnder = elUnder && elUnder.closest ? elUnder.closest('.checklist li') : null;
+      if (rowUnder !== currentTarget) {
+        clearDragOverAll();
+        if (rowUnder && rowUnder !== li) {
+          rowUnder.classList.add('drag-over');
+          currentTarget = rowUnder;
+        } else {
+          currentTarget = null;
+        }
+      }
+    }, { passive: false });
+
+    li.addEventListener('touchend', function() {
+      clearPress();
+      endDrag(true);
+    });
+
+    li.addEventListener('touchcancel', function() {
+      clearPress();
+      endDrag(false);
     });
   }
 
