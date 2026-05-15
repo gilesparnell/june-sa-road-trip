@@ -110,6 +110,16 @@ module.exports = async (req, res) => {
         return res.json(state);
       }
 
+      if (action === 'rename') {
+        const id = String(body.id || '');
+        const text = String(body.text || '').trim();
+        if (!text) return res.status(400).json({ error: 'text required' });
+        const item = state.items.find((it) => it.id === id);
+        if (item) item.text = text;
+        await writeState(state);
+        return res.json(state);
+      }
+
       if (action === 'toggle' || (body.id && typeof body.checked === 'boolean')) {
         const id = String(body.id || '');
         const checked = !!body.checked;
