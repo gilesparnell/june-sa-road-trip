@@ -372,6 +372,46 @@
     min-width: 0;
   }
   .item-edit-input:focus { outline: none; }
+  .owner-chip {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.75rem;
+    line-height: 1;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: #ede5d8;
+    color: var(--navy);
+    white-space: nowrap;
+    cursor: pointer;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+    user-select: none;
+  }
+  .owner-chip:hover { background: #e0d6c4; }
+  .owner-chip.empty {
+    background: transparent;
+    color: var(--muted);
+    border: 1px dashed #c8c2b6;
+    padding: 2px 7px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .checklist li:hover .owner-chip.empty,
+  .checklist li:focus-within .owner-chip.empty { opacity: 1; }
+  .owner-edit-input {
+    font: inherit;
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    border: 1px solid var(--navy);
+    border-radius: 12px;
+    background: #fff;
+    max-width: 110px;
+    min-width: 70px;
+    flex-shrink: 0;
+  }
+  .owner-edit-input:focus { outline: none; }
   .add-row {
     display: flex;
     gap: 8px;
@@ -1288,15 +1328,72 @@
       removeItem(item.id, item.text);
     });
 
+    var chip = document.createElement('span');
+    var ownerText = (item.owner || '').trim();
+    chip.className = 'owner-chip' + (ownerText ? '' : ' empty');
+    chip.textContent = ownerText || '+ owner';
+    chip.title = ownerText ? 'Click to change owner' : 'Click to assign owner';
+    chip.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      beginEditOwner(li, item, chip);
+    });
+    chip.addEventListener('mousedown', function(e) { e.stopPropagation(); });
+
     label.appendChild(cb);
     label.appendChild(span);
     li.appendChild(grip);
     li.appendChild(label);
+    li.appendChild(chip);
     li.appendChild(edit);
     li.appendChild(del);
 
     attachDragHandlers(li, item);
     return li;
+  }
+
+  function beginEditOwner(li, item, chip) {
+    if (li.querySelector('.owner-edit-input')) return;
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'owner-edit-input';
+    input.value = item.owner || '';
+    input.placeholder = 'name';
+    input.maxLength = 40;
+
+    var committed = false;
+    function commit() {
+      if (committed) return;
+      committed = true;
+      var next = (input.value || '').trim();
+      if (next === (item.owner || '')) { render(); return; }
+      setOwner(item.id, next);
+    }
+    function cancel() {
+      if (committed) return;
+      committed = true;
+      render();
+    }
+
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); commit(); }
+      else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+    });
+    input.addEventListener('blur', commit);
+    input.addEventListener('mousedown', function(e) { e.stopPropagation(); });
+
+    li.draggable = false;
+    li.replaceChild(input, chip);
+    input.focus();
+    input.select();
+  }
+
+  function setOwner(id, owner) {
+    var item = state.items.find(function(i) { return i.id === id; });
+    if (item) { item.owner = owner; render(); }
+    postAction({ action: 'set-owner', id: id, owner: owner })
+      .then(applyState)
+      .catch(function(e) { console.warn('Could not save owner', e); loadActions(); });
   }
 
   var draggedId = null;

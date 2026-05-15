@@ -19,13 +19,14 @@ const gistHeaders = {
 };
 
 function normalise(raw) {
-  // New shape: { items: [{ id, text, done }] }
+  // New shape: { items: [{ id, text, done, owner }] }
   if (raw && Array.isArray(raw.items)) {
     return {
       items: raw.items.map((it) => ({
         id: String(it.id),
         text: String(it.text || ''),
         done: !!it.done,
+        owner: String(it.owner || ''),
       })),
     };
   }
@@ -35,16 +36,17 @@ function normalise(raw) {
       id: seed.id,
       text: seed.text,
       done: !!raw[seed.id],
+      owner: '',
     }));
     // Preserve any unknown legacy keys as items with the id as text
     Object.keys(raw).forEach((k) => {
       if (!items.find((i) => i.id === k)) {
-        items.push({ id: k, text: k, done: !!raw[k] });
+        items.push({ id: k, text: k, done: !!raw[k], owner: '' });
       }
     });
     return { items };
   }
-  return { items: DEFAULT_ITEMS.map((s) => ({ ...s, done: false })) };
+  return { items: DEFAULT_ITEMS.map((s) => ({ ...s, done: false, owner: '' })) };
 }
 
 async function readState() {
@@ -97,8 +99,9 @@ module.exports = async (req, res) => {
       if (action === 'add') {
         const text = String(body.text || '').trim();
         if (!text) return res.status(400).json({ error: 'text required' });
+        const owner = String(body.owner || '').trim().slice(0, 40);
         const id = makeId(text);
-        state.items.push({ id, text, done: false });
+        state.items.push({ id, text, done: false, owner });
         await writeState(state);
         return res.json(state);
       }
@@ -116,6 +119,15 @@ module.exports = async (req, res) => {
         if (!text) return res.status(400).json({ error: 'text required' });
         const item = state.items.find((it) => it.id === id);
         if (item) item.text = text;
+        await writeState(state);
+        return res.json(state);
+      }
+
+      if (action === 'set-owner') {
+        const id = String(body.id || '');
+        const owner = String(body.owner == null ? '' : body.owner).trim().slice(0, 40);
+        const item = state.items.find((it) => it.id === id);
+        if (item) item.owner = owner;
         await writeState(state);
         return res.json(state);
       }
