@@ -313,6 +313,73 @@
     text-decoration: line-through;
     color: var(--muted);
   }
+  .check-label .item-text { flex: 1; }
+  .checklist .del-btn {
+    background: none;
+    border: 0;
+    color: var(--muted);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s;
+  }
+  .checklist li:hover .del-btn { opacity: 1; }
+  .checklist .del-btn:hover { color: #b94a48; }
+  .add-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #eee;
+  }
+  .add-row input[type="text"] {
+    flex: 1;
+    padding: 7px 10px;
+    font: inherit;
+    font-size: 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+  }
+  .add-row input[type="text"]:focus {
+    outline: none;
+    border-color: var(--navy);
+  }
+  .add-row button {
+    padding: 7px 14px;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: var(--navy);
+    color: #fff;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .add-row button:hover { background: #1a3656; }
+  .add-row button:disabled { background: #999; cursor: not-allowed; }
+  .completed-toggle {
+    display: inline-block;
+    margin-top: 14px;
+    background: none;
+    border: 0;
+    padding: 0;
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .completed-toggle:hover { color: var(--navy); }
+  .completed-list { margin-top: 10px; opacity: 0.75; }
+  .action-empty {
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-style: italic;
+    margin: 8px 0;
+  }
   @media (max-width: 680px) {
     .toc-grid { grid-template-columns: 1fr; }
   }
@@ -412,44 +479,14 @@
 
     <div class="action-items">
       <h3>Action items</h3>
-      <ul class="checklist">
-        <li>
-          <label class="check-label">
-            <input type="checkbox" id="act-car">
-            <span>Book car hire</span>
-          </label>
-        </li>
-        <li>
-          <label class="check-label">
-            <input type="checkbox" id="act-clarens">
-            <span>Book night in Clarens — 20 June</span>
-          </label>
-        </li>
-        <li>
-          <label class="check-label">
-            <input type="checkbox" id="act-wakkerstroom">
-            <span>Book night in Wakkerstroom — 21 June</span>
-          </label>
-        </li>
-        <li>
-          <label class="check-label">
-            <input type="checkbox" id="act-dullstroom">
-            <span>Book night in Dullstroom — 22 June</span>
-          </label>
-        </li>
-        <li>
-          <label class="check-label">
-            <input type="checkbox" id="act-hoedspruit">
-            <span>Book night in Hoedspruit — 23 June</span>
-          </label>
-        </li>
-        <li>
-          <label class="check-label">
-            <input type="checkbox" id="act-jhb">
-            <span>Book night in JHB with family friends — 30 June</span>
-          </label>
-        </li>
-      </ul>
+      <ul class="checklist" id="action-list"></ul>
+      <p class="action-empty" id="action-empty" style="display:none;">Nothing outstanding — add something below.</p>
+      <form class="add-row" id="add-form">
+        <input type="text" id="add-input" placeholder="Add an action item…" maxlength="140" autocomplete="off">
+        <button type="submit" id="add-btn">Add</button>
+      </form>
+      <button type="button" class="completed-toggle" id="toggle-completed" style="display:none;"></button>
+      <ul class="checklist completed-list" id="action-done-list" style="display:none;"></ul>
     </div>
 
   </div>
@@ -1122,11 +1159,75 @@
 
 <script>
   var API = '/api/actions';
+  var state = { items: [] };
+  var showCompleted = false;
 
-  function applyState(state) {
-    document.querySelectorAll('.checklist input[type="checkbox"]').forEach(function(cb) {
-      cb.checked = !!state[cb.id];
+  var listEl = document.getElementById('action-list');
+  var doneListEl = document.getElementById('action-done-list');
+  var emptyEl = document.getElementById('action-empty');
+  var toggleEl = document.getElementById('toggle-completed');
+  var formEl = document.getElementById('add-form');
+  var inputEl = document.getElementById('add-input');
+  var addBtn = document.getElementById('add-btn');
+
+  function buildRow(item) {
+    var li = document.createElement('li');
+    var label = document.createElement('label');
+    label.className = 'check-label';
+
+    var cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = !!item.done;
+    cb.addEventListener('change', function() {
+      toggleItem(item.id, cb.checked);
     });
+
+    var span = document.createElement('span');
+    span.className = 'item-text';
+    span.textContent = item.text;
+
+    var del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'del-btn';
+    del.title = 'Remove';
+    del.setAttribute('aria-label', 'Remove ' + item.text);
+    del.textContent = '×';
+    del.addEventListener('click', function(e) {
+      e.preventDefault();
+      removeItem(item.id, item.text);
+    });
+
+    label.appendChild(cb);
+    label.appendChild(span);
+    li.appendChild(label);
+    li.appendChild(del);
+    return li;
+  }
+
+  function render() {
+    listEl.innerHTML = '';
+    doneListEl.innerHTML = '';
+    var active = state.items.filter(function(i) { return !i.done; });
+    var done = state.items.filter(function(i) { return i.done; });
+
+    active.forEach(function(item) { listEl.appendChild(buildRow(item)); });
+    done.forEach(function(item) { doneListEl.appendChild(buildRow(item)); });
+
+    emptyEl.style.display = active.length === 0 ? '' : 'none';
+
+    if (done.length === 0) {
+      toggleEl.style.display = 'none';
+      doneListEl.style.display = 'none';
+    } else {
+      toggleEl.style.display = '';
+      toggleEl.textContent = (showCompleted ? 'Hide' : 'Show') + ' completed (' + done.length + ')';
+      doneListEl.style.display = showCompleted ? '' : 'none';
+    }
+  }
+
+  function applyState(next) {
+    state = next && Array.isArray(next.items) ? next : { items: [] };
+    render();
   }
 
   function loadActions() {
@@ -1136,17 +1237,50 @@
       .catch(function(e) { console.warn('Could not load actions', e); });
   }
 
-  document.querySelectorAll('.checklist input[type="checkbox"]').forEach(function(cb) {
-    cb.addEventListener('change', function() {
-      fetch(API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: cb.id, checked: cb.checked }),
-      }).catch(function(e) { console.warn('Could not save action', e); });
-    });
+  function postAction(body) {
+    return fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }).then(function(r) { return r.json(); });
+  }
+
+  function toggleItem(id, checked) {
+    var item = state.items.find(function(i) { return i.id === id; });
+    if (item) { item.done = checked; render(); }
+    postAction({ action: 'toggle', id: id, checked: checked })
+      .then(applyState)
+      .catch(function(e) { console.warn('Could not save', e); });
+  }
+
+  function removeItem(id, text) {
+    if (!confirm('Remove "' + text + '"?')) return;
+    state.items = state.items.filter(function(i) { return i.id !== id; });
+    render();
+    postAction({ action: 'remove', id: id })
+      .then(applyState)
+      .catch(function(e) { console.warn('Could not remove', e); loadActions(); });
+  }
+
+  formEl.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var text = (inputEl.value || '').trim();
+    if (!text) return;
+    addBtn.disabled = true;
+    postAction({ action: 'add', text: text })
+      .then(function(next) {
+        applyState(next);
+        inputEl.value = '';
+      })
+      .catch(function(err) { console.warn('Could not add', err); })
+      .then(function() { addBtn.disabled = false; inputEl.focus(); });
   });
 
-  // Load on start, then sync every 30 seconds so both of you stay in lockstep
+  toggleEl.addEventListener('click', function() {
+    showCompleted = !showCompleted;
+    render();
+  });
+
   loadActions();
   setInterval(loadActions, 30000);
 </script>
