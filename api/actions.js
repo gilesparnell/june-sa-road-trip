@@ -120,6 +120,23 @@ module.exports = async (req, res) => {
         return res.json(state);
       }
 
+      if (action === 'reorder') {
+        const ids = Array.isArray(body.ids) ? body.ids.map(String) : null;
+        if (!ids) return res.status(400).json({ error: 'ids (array) required' });
+        const byId = new Map(state.items.map((it) => [it.id, it]));
+        const reordered = [];
+        ids.forEach((id) => {
+          if (byId.has(id)) {
+            reordered.push(byId.get(id));
+            byId.delete(id);
+          }
+        });
+        byId.forEach((it) => reordered.push(it));
+        state.items = reordered;
+        await writeState(state);
+        return res.json(state);
+      }
+
       if (action === 'toggle' || (body.id && typeof body.checked === 'boolean')) {
         const id = String(body.id || '');
         const checked = !!body.checked;

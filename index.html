@@ -297,7 +297,27 @@
     display: flex;
     align-items: flex-start;
     gap: 6px;
+    transition: opacity 0.15s;
   }
+  .checklist li.dragging { opacity: 0.35; }
+  .checklist li.drag-over {
+    border-top: 2px solid var(--navy);
+    margin-top: -2px;
+  }
+  .drag-handle {
+    cursor: grab;
+    color: #c8c2b6;
+    font-size: 1rem;
+    line-height: 1.4;
+    padding: 0 2px;
+    flex-shrink: 0;
+    user-select: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .checklist li:hover .drag-handle,
+  .checklist li:focus-within .drag-handle { opacity: 1; }
+  .drag-handle:active { cursor: grabbing; }
   .check-label {
     display: flex;
     align-items: flex-start;
@@ -469,6 +489,28 @@
     color: var(--navy);
     text-decoration: none;
   }
+  /* Collapsible sections */
+  .section-heading {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-heading .section-chev {
+    display: inline-block;
+    font-size: 0.7em;
+    color: var(--muted);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+  section.section-collapsed .section-heading .section-chev {
+    transform: rotate(-90deg);
+  }
+  section.section-collapsed > *:not(h2) { display: none; }
+  section.section-collapsed .day-card > *:not(h2) { display: none; }
+  section.section-collapsed .day-card { padding-bottom: 22px; }
+  section.section-collapsed { margin-bottom: 18px; }
 </style>
 </head>
 <body>
@@ -1197,6 +1239,15 @@
 
   function buildRow(item) {
     var li = document.createElement('li');
+    li.draggable = true;
+    li.dataset.id = item.id;
+
+    var grip = document.createElement('span');
+    grip.className = 'drag-handle';
+    grip.title = 'Drag to reorder';
+    grip.setAttribute('aria-hidden', 'true');
+    grip.textContent = '⋮⋮';
+
     var label = document.createElement('label');
     label.className = 'check-label';
 
@@ -1239,10 +1290,45 @@
 
     label.appendChild(cb);
     label.appendChild(span);
+    li.appendChild(grip);
     li.appendChild(label);
     li.appendChild(edit);
     li.appendChild(del);
+
+    attachDragHandlers(li, item);
     return li;
+  }
+
+  var draggedId = null;
+
+  function attachDragHandlers(li, item) {
+    li.addEventListener('dragstart', function(e) {
+      draggedId = item.id;
+      li.classList.add('dragging');
+      try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', item.id); } catch (_) {}
+    });
+    li.addEventListener('dragend', function() {
+      li.classList.remove('dragging');
+      document.querySelectorAll('.checklist li.drag-over').forEach(function(el) {
+        el.classList.remove('drag-over');
+      });
+      draggedId = null;
+    });
+    li.addEventListener('dragover', function(e) {
+      if (!draggedId || draggedId === item.id) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      li.classList.add('drag-over');
+    });
+    li.addEventListener('dragleave', function() {
+      li.classList.remove('drag-over');
+    });
+    li.addEventListener('drop', function(e) {
+      e.preventDefault();
+      li.classList.remove('drag-over');
+      if (!draggedId || draggedId === item.id) return;
+      reorderItems(draggedId, item.id);
+    });
   }
 
   function beginEdit(li, item) {
@@ -1273,6 +1359,7 @@
     });
     input.addEventListener('blur', commit);
 
+    li.draggable = false;
     li.innerHTML = '';
     li.appendChild(input);
     input.focus();
@@ -1345,6 +1432,22 @@
       .catch(function(e) { console.warn('Could not rename', e); loadActions(); });
   }
 
+  function reorderItems(srcId, targetId) {
+    var srcIdx = -1, targetIdx = -1;
+    for (var i = 0; i < state.items.length; i++) {
+      if (state.items[i].id === srcId) srcIdx = i;
+      if (state.items[i].id === targetId) targetIdx = i;
+    }
+    if (srcIdx < 0 || targetIdx < 0 || srcIdx === targetIdx) return;
+    var moved = state.items.splice(srcIdx, 1)[0];
+    var newTarget = state.items.findIndex(function(i) { return i.id === targetId; });
+    state.items.splice(newTarget, 0, moved);
+    render();
+    postAction({ action: 'reorder', ids: state.items.map(function(i) { return i.id; }) })
+      .then(applyState)
+      .catch(function(e) { console.warn('Could not reorder', e); loadActions(); });
+  }
+
   formEl.addEventListener('submit', function(e) {
     e.preventDefault();
     var text = (inputEl.value || '').trim();
@@ -1366,6 +1469,59 @@
 
   loadActions();
   setInterval(loadActions, 30000);
+
+  // ---------- Collapsible sections (state persisted in localStorage) ----------
+  function storageKey(id) { return 'section-collapsed:' + id; }
+
+  function setCollapsed(section, collapsed) {
+    section.classList.toggle('section-collapsed', collapsed);
+    try { localStorage.setItem(storageKey(section.id), collapsed ? '1' : '0'); } catch (_) {}
+  }
+
+  function initSection(section) {
+    if (!section.id) return;
+    var h2 = section.querySelector('h2');
+    if (!h2 || h2.classList.contains('section-heading')) return;
+    h2.classList.add('section-heading');
+
+    var chev = document.createElement('span');
+    chev.className = 'section-chev';
+    chev.setAttribute('aria-hidden', 'true');
+    chev.textContent = '▾';
+    h2.appendChild(chev);
+
+    h2.setAttribute('role', 'button');
+    h2.setAttribute('tabindex', '0');
+    h2.setAttribute('aria-controls', section.id);
+    function toggle() {
+      setCollapsed(section, !section.classList.contains('section-collapsed'));
+      h2.setAttribute('aria-expanded', section.classList.contains('section-collapsed') ? 'false' : 'true');
+    }
+    h2.addEventListener('click', toggle);
+    h2.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+
+    var stored = null;
+    try { stored = localStorage.getItem(storageKey(section.id)); } catch (_) {}
+    if (stored === '1') section.classList.add('section-collapsed');
+    h2.setAttribute('aria-expanded', section.classList.contains('section-collapsed') ? 'false' : 'true');
+  }
+
+  document.querySelectorAll('section[id]').forEach(initSection);
+
+  function expandFromHash() {
+    var id = (location.hash || '').replace('#', '');
+    if (!id) return;
+    var sec = document.getElementById(id);
+    if (sec && sec.tagName === 'SECTION' && sec.classList.contains('section-collapsed')) {
+      setCollapsed(sec, false);
+      var h2 = sec.querySelector('h2');
+      if (h2) h2.setAttribute('aria-expanded', 'true');
+    }
+  }
+  window.addEventListener('hashchange', expandFromHash);
+  expandFromHash();
 </script>
 
 </body>
