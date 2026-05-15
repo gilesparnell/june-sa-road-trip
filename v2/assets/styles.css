@@ -847,6 +847,96 @@ h3.display { font-family: var(--font-display); font-weight: 500; color: var(--na
 .day-pills a.featured:hover { background: var(--rust-soft); }
 
 /* -----------------------------------------------------------------
+   Route map (hand-drawn SVG, day highlighted via data-day)
+   ----------------------------------------------------------------- */
+.route-map-link {
+  display: block;
+  text-decoration: none;
+  border-radius: var(--r-3);
+  overflow: hidden;
+  border: 1px solid var(--line-soft);
+  background: var(--cream);
+  box-shadow: var(--shadow-1);
+  margin: var(--s-5) 0;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+  position: relative;
+}
+.route-map-link:hover {
+  border-color: var(--rust);
+  box-shadow: var(--shadow-2);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+.route-map-link .route-map-overlay {
+  position: absolute;
+  bottom: var(--s-3);
+  right: var(--s-3);
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--navy);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: var(--s-1) var(--s-3);
+  border-radius: 100px;
+  border: 1px solid var(--line-soft);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+}
+.route-map { display: block; width: 100%; height: auto; }
+.route-map .land { fill: #f2ecdb; }
+.route-map .lesotho { fill: #ede5d2; stroke: #b8a878; stroke-width: 1; stroke-dasharray: 3,3; }
+.route-map .seg { fill: none; stroke: #c5bea9; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.route-map .dot { fill: #1f3a5f; }
+.route-map .label { font-family: 'DM Sans', sans-serif; font-size: 11px; fill: #5e574a; font-weight: 500; }
+.route-map .title { font-family: 'Fraunces', serif; font-size: 14px; fill: #1f3a5f; font-weight: 500; letter-spacing: -0.01em; }
+.route-map .subtitle { font-family: 'DM Sans', sans-serif; font-size: 11px; fill: #7a7163; letter-spacing: 0.04em; text-transform: uppercase; }
+/* Active day segment + endpoint dots */
+.route-map[data-day="1"]  #seg-d1,
+.route-map[data-day="3"]  #seg-d3,
+.route-map[data-day="4"]  #seg-d4,
+.route-map[data-day="5"]  #seg-d5,
+.route-map[data-day="6"]  #seg-d6,
+.route-map[data-day="8"]  #seg-d8,
+.route-map[data-day="10"] #seg-d10 {
+  stroke: #aa4400;
+  stroke-width: 4;
+}
+.route-map[data-day="1"]  .dot-kenton,
+.route-map[data-day="1"]  .dot-funnystone,
+.route-map[data-day="3"]  .dot-funnystone,
+.route-map[data-day="3"]  .dot-clarens,
+.route-map[data-day="4"]  .dot-clarens,
+.route-map[data-day="4"]  .dot-dullstroom,
+.route-map[data-day="5"]  .dot-dullstroom,
+.route-map[data-day="5"]  .dot-graskop,
+.route-map[data-day="6"]  .dot-graskop,
+.route-map[data-day="6"]  .dot-hoedspruit,
+.route-map[data-day="8"]  .dot-hoedspruit,
+.route-map[data-day="8"]  .dot-kpl,
+.route-map[data-day="10"] .dot-kpl,
+.route-map[data-day="10"] .dot-jhb {
+  fill: #aa4400;
+  r: 5;
+}
+.route-map[data-day="1"]  .label-kenton,
+.route-map[data-day="1"]  .label-funnystone,
+.route-map[data-day="3"]  .label-funnystone,
+.route-map[data-day="3"]  .label-clarens,
+.route-map[data-day="4"]  .label-clarens,
+.route-map[data-day="4"]  .label-dullstroom,
+.route-map[data-day="5"]  .label-dullstroom,
+.route-map[data-day="5"]  .label-graskop,
+.route-map[data-day="6"]  .label-graskop,
+.route-map[data-day="6"]  .label-hoedspruit,
+.route-map[data-day="8"]  .label-hoedspruit,
+.route-map[data-day="8"]  .label-kpl,
+.route-map[data-day="10"] .label-kpl,
+.route-map[data-day="10"] .label-jhb {
+  fill: #1f3a5f;
+  font-weight: 700;
+}
+
+/* -----------------------------------------------------------------
    Maps button + photos button (preserve API but restyle)
    ----------------------------------------------------------------- */
 .maps-link, .photos-btn {
