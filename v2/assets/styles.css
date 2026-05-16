@@ -850,6 +850,61 @@ h3.display { font-family: var(--font-display); font-weight: 500; color: var(--na
 .day-pills a.featured:hover { background: var(--rust-soft); }
 
 /* -----------------------------------------------------------------
+   Kid TL;DR card — for-the-boys summary at top of each day
+   ----------------------------------------------------------------- */
+.kid-tldr {
+  max-width: 820px;
+  margin: var(--s-6) auto var(--s-7);
+  background: var(--sand);
+  border-radius: var(--r-3);
+  padding: var(--s-5) var(--s-6);
+  border-left: 4px solid var(--rust);
+  display: flex;
+  gap: var(--s-5);
+  align-items: flex-start;
+  box-shadow: var(--shadow-1);
+}
+.kid-tldr .kid-icon {
+  font-size: 2.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.kid-tldr .kid-body {
+  flex: 1;
+  min-width: 0;
+}
+.kid-tldr .kid-eyebrow {
+  display: block;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rust);
+  font-weight: 700;
+  margin-bottom: var(--s-2);
+}
+.kid-tldr p {
+  font-size: 1.15rem;
+  line-height: 1.55;
+  color: var(--ink);
+  margin: 0;
+  font-family: var(--font-body);
+}
+.kid-tldr strong {
+  color: var(--navy);
+  font-weight: 700;
+}
+@media (max-width: 600px) {
+  .kid-tldr {
+    margin: var(--s-5) var(--s-4);
+    padding: var(--s-4) var(--s-5);
+    gap: var(--s-3);
+  }
+  .kid-tldr .kid-icon { font-size: 1.8rem; }
+  .kid-tldr p { font-size: 1.02rem; }
+}
+
+/* -----------------------------------------------------------------
    Route map (hand-drawn SVG, day highlighted via data-day)
    ----------------------------------------------------------------- */
 .route-map-link {
