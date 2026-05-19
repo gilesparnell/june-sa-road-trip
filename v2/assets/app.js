@@ -485,12 +485,36 @@
   }
 
   // ---------------------------------------------------------------------
-  // 5. Boot
+  // 5. Reading-mode toggle — C5 (Kid view ↔ Full view)
+  //    Persists to localStorage as 'v2ReadingMode' = 'kid' | 'full'
+  //    Hides [data-detail="adult"] blocks in kid mode.
+  // ---------------------------------------------------------------------
+  function initReadingMode() {
+    var btn = document.getElementById('mode-toggle');
+    if (!btn) return;
+    var isKid = localStorage.getItem('v2ReadingMode') === 'kid';
+    applyMode(isKid);
+    btn.addEventListener('click', function () {
+      isKid = !isKid;
+      localStorage.setItem('v2ReadingMode', isKid ? 'kid' : 'full');
+      applyMode(isKid);
+    });
+    function applyMode(kid) {
+      document.body.classList.toggle('mode-kid', kid);
+      btn.textContent = kid ? '📖 Full view' : '👦 Kid view';
+      btn.classList.toggle('mode-kid-active', kid);
+      btn.setAttribute('aria-pressed', kid ? 'true' : 'false');
+    }
+  }
+
+  // ---------------------------------------------------------------------
+  // 6. Boot
   // ---------------------------------------------------------------------
   function boot() {
     loadHeroes();
     initActions();
     initPhotoModal();
+    initReadingMode();
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);

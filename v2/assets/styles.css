@@ -51,6 +51,10 @@
   --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
   --font-body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace;
+
+  /* C4 — extended type scale */
+  --font-intro: 1.15rem;     /* lead paragraphs */
+  --font-callout: 1.3rem;    /* pull-out fun-fact headlines */
 }
 
 * { box-sizing: border-box; }
@@ -94,13 +98,13 @@ a:hover { color: var(--rust); }
 .display, h1.display, h2.display {
   font-family: var(--font-display);
   font-weight: 500;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
   line-height: 1.05;
   color: var(--navy);
   margin: 0;
   font-variation-settings: "opsz" 90;
 }
-h1.display { font-size: clamp(2.4rem, 5.5vw, 4.2rem); }
+h1.display { font-size: clamp(2.6rem, 5.8vw, 4.4rem); }
 h2.display { font-size: clamp(1.8rem, 3.6vw, 2.6rem); font-variation-settings: "opsz" 40; }
 h3.display { font-family: var(--font-display); font-weight: 500; color: var(--navy); font-size: 1.4rem; margin: 0; letter-spacing: -0.01em; }
 
@@ -1341,3 +1345,109 @@ h3.display { font-family: var(--font-display); font-weight: 500; color: var(--na
 }
 .v2-banner a { color: var(--white); font-weight: 500; }
 .v2-banner a:hover { color: var(--sand); }
+
+/* -----------------------------------------------------------------
+   C4 — Text utility classes
+   ----------------------------------------------------------------- */
+.text-intro {
+  font-size: var(--font-intro);
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+.text-callout {
+  font-size: var(--font-callout);
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+/* -----------------------------------------------------------------
+   C3 — "Did you know?" fun-fact callout
+   Pull the most interesting fact to the top; fold context beneath.
+   ----------------------------------------------------------------- */
+.fun-fact {
+  background: linear-gradient(135deg, var(--sand-soft) 0%, var(--cream) 100%);
+  border-left: 4px solid var(--rust);
+  border-radius: var(--r-2);
+  padding: var(--s-5) var(--s-6);
+  margin: var(--s-5) 0;
+  position: relative;
+  overflow: hidden;
+}
+.fun-fact::before {
+  content: '?';
+  position: absolute;
+  right: var(--s-5);
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-display);
+  font-size: 5rem;
+  color: var(--rust);
+  opacity: 0.07;
+  line-height: 1;
+  pointer-events: none;
+  font-weight: 700;
+}
+.fun-fact .fun-fact-label {
+  display: inline-block;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--rust);
+  font-weight: 700;
+  margin-bottom: var(--s-3);
+}
+.fun-fact .fun-fact-headline {
+  font-family: var(--font-display);
+  font-size: var(--font-callout);
+  color: var(--navy);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  margin: 0 0 var(--s-3);
+  max-width: 48ch;
+}
+.fun-fact .fun-fact-body {
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 60ch;
+}
+.fun-fact .fun-fact-body a { color: var(--navy); }
+@media (max-width: 600px) {
+  .fun-fact { padding: var(--s-4) var(--s-4); }
+  .fun-fact .fun-fact-headline { font-size: 1.12rem; }
+}
+
+/* -----------------------------------------------------------------
+   C5 — Reading-mode toggle (Kid view ↔ Full view)
+   ----------------------------------------------------------------- */
+.mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  padding: 5px var(--s-3);
+  border-radius: var(--r-2);
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--ink-soft);
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.mode-btn:hover { background: var(--sand-soft); color: var(--navy); }
+.mode-btn.mode-kid-active { background: var(--rust); color: var(--white); border-color: var(--rust); }
+
+/* In kid mode, hide adult-detail blocks */
+.mode-kid [data-detail="adult"] { display: none !important; }
+
+/* C6 — Inline icon helpers */
+.section-icon {
+  display: inline-block;
+  margin-right: var(--s-2);
+  font-style: normal;
+}
