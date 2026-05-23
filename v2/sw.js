@@ -1,4 +1,4 @@
-const VERSION = "1.0.0";
+const VERSION = "1.0.1";
 const CACHE_NAME = `arcade-v${VERSION}`;
 const API_PATH = "/api/actions";
 const DB_NAME = "tripArcade";
@@ -8,14 +8,20 @@ const EMPTY_STATE = { items: [], scores: { version: 1, scores: {}, dailySeed: nu
 const PRECACHE_URLS = [
   "/v2/",
   "/v2/index.html",
+  // Hub page essentials — without these the page can't bootstrap offline
+  "/v2/assets/styles.css",
+  "/v2/assets/app.js",
+  // Arcade library (F1-F6)
   "/v2/games/lib/kaplay-loader.js",
   "/v2/games/lib/player.js",
   "/v2/games/lib/scoreboard.js",
   "/v2/games/lib/scoreboard-widget.js",
   "/v2/games/lib/game-modal.js",
   "/v2/games/lib/sound.js",
+  // Hello-world demo
   "/v2/games/hello-world/game.js",
   "/v2/games/hello-world/index.html",
+  // Kaplay framework
   "https://unpkg.com/kaplay@3001.0.19/dist/kaplay.mjs",
 ];
 
