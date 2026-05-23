@@ -1,11 +1,14 @@
 // Keep these in sync with api/actions.js CANONICAL_PLAYER_IDS.
 // If you add an ID here, add it there too.
-// Canonical IDs: twin-a, twin-b, matti, adult.
+// Canonical IDs: twin-a, twin-b, matti, gilo, vonnies, julz.
+// `adult` retired 2026-05-23 — replaced by named grown-up identities.
 export const PLAYERS = [
   { id: "twin-a", displayName: "Griff", emoji: "🦓" },
   { id: "twin-b", displayName: "Connor", emoji: "🐘" },
   { id: "matti", displayName: "Matti", emoji: "🦁" },
-  { id: "adult", displayName: "Grown-up", emoji: "👨" },
+  { id: "gilo", displayName: "Gilo", emoji: "🦘" },
+  { id: "vonnies", displayName: "Vonnies", emoji: "🐨" },
+  { id: "julz", displayName: "Julz", emoji: "🦒" },
 ];
 
 export const CONFIRM_WINDOW_MS = 10 * 60 * 1000;

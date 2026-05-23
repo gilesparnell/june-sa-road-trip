@@ -5,7 +5,8 @@ const SCORES_FILE_NAME = 'scores.json';
 
 // Keep these in sync with v2/games/lib/player.js PLAYERS.
 // If you add an ID here, add it there too.
-const CANONICAL_PLAYER_IDS = ['twin-a', 'twin-b', 'matti', 'adult'];
+// `adult` retired 2026-05-23 — replaced by named grown-up identities.
+const CANONICAL_PLAYER_IDS = ['twin-a', 'twin-b', 'matti', 'gilo', 'vonnies', 'julz'];
 
 // Wave 1 game ids. Includes 'hello-world' for the Phase 0 acceptance gate.
 const CANONICAL_GAME_IDS = [

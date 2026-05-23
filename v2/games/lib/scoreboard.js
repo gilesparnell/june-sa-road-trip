@@ -1,10 +1,14 @@
+import { PLAYERS } from "./player.js";
+
 export const API_URL = "/api/actions";
 export const CACHE_TTL_MS = 30 * 1000;
 
 const FETCH_TIMEOUT_MS = 5000;
 const RETRY_BACKOFF_MS = 250;
 const HISTORY_LIMIT = 10;
-const CANONICAL_PLAYER_IDS = ["twin-a", "twin-b", "matti", "adult"];
+// Derived from PLAYERS so the client-side roster has one source of truth.
+// Server-side mirror lives in api/actions.js — keep in sync there.
+const CANONICAL_PLAYER_IDS = PLAYERS.map((p) => p.id);
 const DEFAULT_SCORES = { version: 1, scores: {}, dailySeed: null };
 
 let cachedScores = null;
