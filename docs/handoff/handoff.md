@@ -5,6 +5,67 @@ Per `~/.claude/CLAUDE.md` → Plan Execution Continuity rule.
 
 ---
 
+## 2026-05-23 AEST — Phase 0 F4 complete + 3 flying games added to wave 2/3
+
+Runner: Claude (design + orchestration) → codex-cli (F4 impl) → Claude (review + commit).
+
+**F4 (Family scoreboard widget) landed.** Design at
+`docs/games/foundation/F4-scoreboard.md`. Implementation: single ESM
+module at `v2/games/lib/scoreboard-widget.js` exporting `mountScoreboard`.
+
+- Two view modes — compact (4 rows sorted by personalBest, day-page
+  inline) and full (4 player sections in canonical order, top-3 personal
+  scores with relative timestamps, game-modal post-round)
+- Caller-driven refresh — `handle.refresh()` issues `getScores({ force: true })`;
+  concurrent calls dedupe to a single in-flight promise
+- Idempotent `unmount()` clears DOM + active-owner state
+- Defensive on bad F3 data — entries missing `ts` or non-numeric `score`
+  are skipped silently
+- `highlightId` defaults to F2's `getCurrentPlayer()?.id`; rust accent
+  on the highlighted row/section
+- Styles injected via `injectStyles()` template-string `<style>` tag
+
+Hello-world QA harness updated: scoreboard mounted under the canvas
+after player selection. Auto-refresh every 5s so submits round-trip
+to display in the harness. Real F5 will do proper post-submit refresh
+without polling.
+
+Static checks: single export, no innerHTML on dynamic content, no
+top-level await, no window globals, no hardcoded player IDs (imports
+PLAYERS from F2). Codex's logic walk-through covered all paths.
+
+**Three flying games added to wave 2/3 deferred list:**
+- Day 7: **Bush Pilot** — Cessna landing at HDS / Arathusa shuttle
+- Days 8–10: **Sunrise Balloon** — hot-air balloon drift over the Lowveld
+- Days 8–10: **Bateleur** — soaring raptor hunt (honours HESC + Moholoholo)
+
+All three need a shared "altitude-and-drift" template. Templating cost
+bundles into whichever is built first.
+
+### Next
+
+**F5 (Game modal infrastructure)** — `claude (design) → codex-delegate (impl)`,
+~3h. Extends the existing `.photo-modal` pattern in v2 with a
+`.game-modal` class: full-bleed canvas inside, persistent score+player
+badge (the in-modal `[change]` affordance from F2), sound-toggle button,
+escape-to-close (with "are you sure?" if mid-game). After F5 lands,
+hello-world can be tested as an embedded modal launch instead of a
+standalone harness.
+
+### Gotchas for next session
+
+- F4 visual verification still owed by Giles — open
+  `https://june-sa-road-trip.vercel.app/v2/games/hello-world/` and
+  confirm the scoreboard renders under the game canvas with a
+  `personalBest: 100` row for `twin-a` (from my F3 curl test).
+- F4's QA polling in hello-world is throwaway — F5 will replace it
+  with a proper post-submit refresh.
+- The wave 2/3 deferred list mostly uses pre-schedule-shift day
+  numbers. A "canonical day-number sweep" is a separate housekeeping
+  task before wave-2 build starts.
+
+---
+
 ## 2026-05-23 AEST — Phase 0 F3 complete + F1/F2 visually verified
 
 Runner: Claude (design + orchestration) → codex-cli (F3 impl) → Claude (review + commit).

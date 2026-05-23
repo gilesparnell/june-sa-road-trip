@@ -50,17 +50,20 @@
         <button id="pick-player" type="button">Pick player</button>
         <button id="unmount" type="button">Unmount</button>
       </div>
+      <div id="scoreboard-mount" class="qa-scoreboard"></div>
     </main>
 
     <script type="module">
       import { ensurePlayerForGame, showPicker } from "../lib/player.js";
       import { unmount } from "../lib/kaplay-loader.js";
+      import { mountScoreboard } from "../lib/scoreboard-widget.js";
       import { startGame } from "./game.js";
 
       const main = document.querySelector("main");
       const heading = document.querySelector("h1");
       const canvas = document.querySelector("#game");
       const controls = document.querySelector(".controls");
+      const scoreboardMount = document.querySelector("#scoreboard-mount");
       const pickPlayerButton = document.querySelector("#pick-player");
       const unmountButton = document.querySelector("#unmount");
 
@@ -72,7 +75,18 @@
       console.log("player", player);
       renderHeading(player);
 
-      main.append(heading, canvas, controls);
+      main.append(heading, canvas, controls, scoreboardMount);
+
+      const scoreboardHandle = mountScoreboard(scoreboardMount, {
+        gameId: "hello-world",
+        view: "compact",
+        highlightId: player.id,
+      });
+
+      // QA polling: refresh every 5s so the harness shows fresh scores after each round-end submit.
+      // This is throwaway QA wiring — real F5 will refresh on the actual post-submit callback.
+      const refreshInterval = setInterval(() => scoreboardHandle.refresh(), 5000);
+      window.addEventListener("beforeunload", () => clearInterval(refreshInterval));
 
       let k = await startGame(canvas);
 
@@ -80,10 +94,12 @@
         const nextPlayer = await showPicker(main);
         console.log("player", nextPlayer);
         renderHeading(nextPlayer);
-        main.append(heading, canvas, controls);
+        main.append(heading, canvas, controls, scoreboardMount);
       });
 
       unmountButton.addEventListener("click", () => {
+        scoreboardHandle.unmount();
+        clearInterval(refreshInterval);
         unmount(k, canvas);
         k = null;
         unmountButton.disabled = true;

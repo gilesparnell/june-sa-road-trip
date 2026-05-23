@@ -85,3 +85,32 @@ if (player) await submitScore({ gameId: "my-game-id", playerId: player.id, score
 ```
 
 → See `docs/games/foundation/F3-score-storage.md` for full design.
+
+## Scoreboard widget (F4)
+
+Scoreboard rendering lives in `lib/scoreboard-widget.js`.
+
+Public API:
+
+- `mountScoreboard(container, options)` — mounts a read-only family scoreboard and returns `{ refresh, unmount }`.
+
+The widget has two view modes:
+
+- `compact` — four-player leaderboard sorted by personal best for inline day-page use.
+- `full` — canonical-player sections with each player's top three runs for modal/detail use.
+
+Caller pattern:
+
+```js
+import { mountScoreboard } from "/v2/games/lib/scoreboard-widget.js";
+
+const handle = mountScoreboard(container, { gameId: "long-tom", view: "full" });
+
+// after a score submission:
+await handle.refresh();
+
+// on modal close:
+handle.unmount();
+```
+
+→ See `docs/games/foundation/F4-scoreboard.md` for full design.

@@ -539,17 +539,23 @@ Backwards compatible — existing action-items widget unaffected. Documented in 
 
 ### Wave 2 / Wave 3 (deferred)
 
-Remaining day-position games, build order based on wave-1 play data:
+Remaining day-position games, build order based on wave-1 play data.
+(Day numbers below mostly reflect the pre-schedule-shift numbering — the
+canonical-day-number sweep is a separate housekeeping task before wave 2
+build starts.)
 
 - Day 1: R67 Roadtripper (driving template reused)
 - Day 3: Lesotho Smuggler (runner template)
 - Day 4: Maize Maze (puzzle template)
 - Day 6: Bourke's Luck Pothole Hopper (platformer)
+- Day 7: **Bush Pilot** — Cessna pilot, Arathusa shuttle from HDS to Sabi Sand (side-scroller; new template — keep altitude through crosswinds + thermals, land at the airstrip)
+- Days 8–10: **Sunrise Balloon** — hot-air balloon drift over the Lowveld at dawn (new template — vertical altitude control via tap, photograph animals from above before sunrise window closes)
+- Days 8–10: **Bateleur** — soaring raptor hunting prey across the bushveld (new template — eagle soar mechanic, dive on tap, score per kill; honours the real raptors at HESC + Moholoholo)
 - Day 8: HDS Connector (logistics puzzle — pickup/drop game)
 - Day 10: Transfer Time-Attack (driving template reused)
 - Day 14: Long-haul N4 (rhythm — toll-plaza pacing)
 
-Decision gate: wave 2 build sequence chosen by which mechanic family wave-1 boys play most.
+Decision gate: wave 2 build sequence chosen by which mechanic family wave-1 boys play most. The three flying-game additions (Bush Pilot, Sunrise Balloon, Bateleur) all need a new shared "altitude-and-drift" template — bundle their templating cost into the first one built.
 
 ### v1.1 polish
 
