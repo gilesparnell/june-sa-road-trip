@@ -2,9 +2,9 @@ import { mount } from "./kaplay-loader.js";
 import { ensurePlayerForGame, showPicker } from "./player.js";
 import { submitScore } from "./scoreboard.js";
 import { mountScoreboard } from "./scoreboard-widget.js";
+import { isMuted, setMuted, applyMute, unlockAudio } from "./sound.js";
 
 const STYLE_ID = "game-modal-styles";
-const MUTE_KEY = "tripArcade.muted";
 const DEFAULT_WIDTH = 800;
 const DEFAULT_HEIGHT = 450;
 const FOCUSABLE_SELECTOR = [
@@ -40,7 +40,7 @@ export async function openGameModal({ gameId, title, gameModule } = {}) {
     roundInProgress: false,
     closing: false,
     resolved: false,
-    muted: readMuted(),
+    muted: isMuted(),
     focusables: [],
     opener,
   };
@@ -247,14 +247,8 @@ async function startFromSplashTap(state) {
 
   state.k = k;
 
-  // Kaplay 3001: audioCtx is a property (AudioContext), not a function.
-  // The plan's research recommended audioCtx() — stale; fixed 2026-05-23.
-  const audioCtx = k.audioCtx;
-  if (audioCtx && typeof audioCtx.resume === "function") {
-    audioCtx.resume();
-  }
-  k.burp({ volume: 0 });
-  applyVolume(state);
+  unlockAudio(k);
+  applyMute(state.k);
 
   const module = currentModule || await loadGameModule(state);
   if (state.closing) {
@@ -268,11 +262,7 @@ async function startFromSplashTap(state) {
     k,
     onRoundEnd: ({ score }) => handleRoundEnd(state, score),
     onAudioUnlock: () => {
-      const ctx = state.k?.audioCtx;
-      if (ctx && typeof ctx.resume === "function") {
-        return ctx.resume();
-      }
-      return undefined;
+      unlockAudio(state.k);
     },
   };
 
@@ -284,7 +274,7 @@ async function startFromSplashTap(state) {
 
   if (gameK) {
     state.k = gameK;
-    applyVolume(state);
+    applyMute(state.k);
   }
   state.roundInProgress = true;
 }
@@ -470,36 +460,14 @@ function updatePlayerBadge(state) {
 
 function toggleSound(state) {
   state.muted = !state.muted;
-  writeMuted(state.muted);
+  setMuted(state.muted);
   updateSoundButton(state);
-  applyVolume(state);
+  applyMute(state.k);
 }
 
 function updateSoundButton(state) {
   state.soundButton.textContent = state.muted ? "🔇" : "🔊";
   state.soundButton.setAttribute("aria-pressed", state.muted ? "true" : "false");
-}
-
-function applyVolume(state) {
-  if (state.k && typeof state.k.volume === "function") {
-    state.k.volume(state.muted ? 0 : 1);
-  }
-}
-
-function readMuted() {
-  try {
-    return globalThis.localStorage?.getItem(MUTE_KEY) === "true";
-  } catch {
-    return false;
-  }
-}
-
-function writeMuted(muted) {
-  try {
-    globalThis.localStorage?.setItem(MUTE_KEY, muted ? "true" : "false");
-  } catch {
-    // Storage can fail in private browsing; the button still controls this session.
-  }
 }
 
 function refreshFocusables(state) {

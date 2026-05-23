@@ -5,6 +5,73 @@ Per `~/.claude/CLAUDE.md` → Plan Execution Continuity rule.
 
 ---
 
+## 2026-05-23 AEST — Phase 0 F6 complete (sound extraction)
+
+Runner: Claude (design + orchestration) → codex-cli (F6 impl) → Claude (review + commit).
+
+**F6 (Sound infrastructure) landed.** Tight extraction unit:
+`v2/games/lib/sound.js` now owns all mute-state + audio-unlock + sound-preload
+concerns. F5 imports from it; the in-modal mute toggle button stays in
+F5 (UI chrome).
+
+Exports:
+- `MUTE_KEY` = `"tripArcade.muted"`
+- `isMuted()` / `setMuted(muted)` — localStorage-backed, in-memory fallback if unavailable
+- `applyMute(k)` — calls `k.volume(0|1)` based on current mute state; idempotent + null-safe
+- `loadSounds(k, manifest)` — async; preloads `.m4a` (AAC ~96kbps mono per the
+  research) via `k.loadSound(id, url)`. Per-asset failures logged + skipped
+  (Promise.allSettled) — missing sounds shouldn't block game start.
+- `unlockAudio(k)` — calls `k.audioCtx.resume()` (property, not function — the
+  F5 audioCtx bug applies here too) + silent burp. Fire-and-forget for iOS
+  user-gesture timing.
+
+Hello-world QA harness now calls `unlockAudio(k)` after mount — mirrors what
+the modal does on splash-tap. Standalone path stays viable.
+
+Phase 1 games can preload audio in their `startGame`:
+```js
+import { loadSounds } from '/v2/games/lib/sound.js';
+await loadSounds(k, { fire: '/v2/games/long-tom/assets/audio/fire.m4a', ... });
+```
+
+Static checks: 6 expected exports load under Node, no top-level await, no
+window globals, `node --check` passes on sound.js + game-modal.js,
+MUTE_KEY/readMuted/writeMuted/applyVolume all extracted out of game-modal.js.
+
+### Phase 0 status
+
+| Unit | Status |
+|---|---|
+| F1 Kaplay bootstrap | ✅ verified |
+| F2 Player identity picker | ✅ verified |
+| F3 Backend score storage | ✅ verified end-to-end via curl |
+| F4 Scoreboard widget | ✅ shipped |
+| F5 Game modal | ✅ verified end-to-end via the v2 hub launcher |
+| F6 Sound infrastructure | ✅ just landed; verified via static checks |
+| F7 Service worker | ⏳ next, ~4h |
+| F8 FPS HUD | ⏳ ~2h |
+
+### Next
+
+**F7 (Service worker, offline cache)** — `claude (design) → codex-delegate (impl)`,
+~4h. Precache: game JS, sprite atlases, sound files, page shells, Kaplay
+framework. Network-first for `/api/actions` with stale-while-revalidate
+fallback. Offline score-submit queue in IndexedDB, flush on `online` event.
+Cache-busting on version bump via versioned cache name. F7 = Keep (locked
+decision; see plan).
+
+After F7+F8 land, Phase 0 is complete and Phase 1 (the 4 wave-1 games)
+begins.
+
+### Open thread
+
+`/ultrareview` is running in the cloud against PR #2 (Phase 0 retrospective
+review surface). When findings arrive via task-notification, fold any
+actionable feedback into a follow-up commit before starting F7. Pure
+optional — if the review surfaces nothing critical, F7 can start immediately.
+
+---
+
 ## 2026-05-23 AEST — Phase 0 F5 complete + roster expanded to 6 named players
 
 Runner: Claude (design + orchestration) → codex-cli (F5 impl) → Claude (review + commit).

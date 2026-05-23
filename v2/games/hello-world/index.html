@@ -58,6 +58,7 @@
       import { mount, unmount } from "../lib/kaplay-loader.js";
       import { mountScoreboard } from "../lib/scoreboard-widget.js";
       import { submitScore } from "../lib/scoreboard.js";
+      import { unlockAudio } from "../lib/sound.js";
       import { startGame, meta } from "./game.js";
 
       const main = document.querySelector("main");
@@ -86,6 +87,7 @@
       });
 
       const k = await mount(canvas);
+      unlockAudio(k);
 
       const ctx = {
         player,

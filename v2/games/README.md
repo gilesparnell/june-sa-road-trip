@@ -24,7 +24,7 @@ export async function startGame(canvas, ctx) {
 }
 ```
 
-F5 owns the modal mount/unmount flow. It also owns the iOS audio unlock: the first user tap inside the modal calls `k.audioCtx().resume()` plus a silent `burp`.
+F5 owns the modal mount/unmount flow. Sound state, mute persistence, audio preload, and the iOS audio unlock helper live in F6's sound module.
 
 F3 owns real score submit. Games emit completed rounds with `ctx.onRoundEnd({ score })`; the modal submits and refreshes the scoreboard.
 
@@ -163,3 +163,31 @@ Day pages and the hub integrate by rendering a launcher button:
 `v2/assets/app.js` delegates clicks on `.game-launcher`, dynamically imports `lib/game-modal.js`, and calls `openGameModal(...)` so the hub does not load modal code until the first game launch.
 
 → See `docs/games/foundation/F5-game-modal.md` for full design.
+
+## Sound (F6)
+
+Sound infrastructure lives in `lib/sound.js`.
+
+Public API:
+
+- `MUTE_KEY` — exported storage key for mute attribution.
+- `isMuted()` — reads the persisted mute flag and defaults to sound on.
+- `setMuted(muted)` — saves the normalised mute flag and returns it.
+- `applyMute(k)` — applies the saved mute state to a Kaplay instance.
+- `loadSounds(k, manifest)` — preloads a sound manifest with `k.loadSound(id, url)` and skips individual failures.
+- `unlockAudio(k)` — resumes Kaplay's audio context and plays a silent burp without awaiting.
+
+The mute key is owned here. Do not read `localStorage.tripArcade.muted` directly elsewhere.
+
+Games preload audio during setup:
+
+```js
+import { loadSounds } from "/v2/games/lib/sound.js";
+
+await loadSounds(k, {
+  fire: "/v2/games/long-tom/assets/audio/fire.m4a",
+  // ...
+});
+```
+
+→ See `docs/games/foundation/F6-sound.md` for full design.
