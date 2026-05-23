@@ -42,16 +42,33 @@
     </main>
 
     <script type="module">
-      import { unmount } from "../lib/kaplay-loader.js";
+      // Standalone QA harness — bypasses F5's game modal so a fresh game
+      // can be exercised in isolation. The harness assumes the F5 contract:
+      // game.js exports { meta, startGame(canvas, ctx) }.
+      import { mount, unmount } from "../lib/kaplay-loader.js";
+      import { unlockAudio } from "../lib/sound.js";
       import { startGame } from "./game.js";
 
       const canvas = document.querySelector("#game");
       const button = document.querySelector("#unmount");
-      let k = await startGame(canvas);
 
+      const k = await mount(canvas);
+      unlockAudio(k);
+
+      const ctx = {
+        player: { id: "harness", displayName: "Harness", emoji: "🧪" },
+        k,
+        onRoundEnd: ({ score }) => console.log("[harness] round end", score),
+        onAudioUnlock: () => unlockAudio(k),
+      };
+
+      await startGame(canvas, ctx);
+
+      let live = k;
       button.addEventListener("click", () => {
-        unmount(k, canvas);
-        k = null;
+        if (!live) return;
+        unmount(live, canvas);
+        live = null;
         button.disabled = true;
       });
     </script>

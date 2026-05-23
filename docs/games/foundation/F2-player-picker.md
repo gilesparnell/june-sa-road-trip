@@ -4,6 +4,12 @@ Foundation unit F2 of the Trip Game Arcade. See the plan at
 `docs/plans/2026-05-16-001-feat-trip-game-arcade-wave-1-plan.md` for the
 phase context. This document is the spec codex implements against.
 
+> **Roster updated 2026-05-23.** The shipped roster is 6 players
+> (`twin-a` GriffBiff, `twin-b` ConBon, `matti`, `gilo` GiloPants,
+> `vonnies`, `julz`). The 4-player tables and `adult` references in
+> this doc are the original spec — see **`v2/games/lib/player.js`
+> PLAYERS** for the canonical, current roster. Code is authoritative.
+
 **Phase 0 effort estimate:** 3h total (design + impl). Design half is this
 doc; impl half is codex-delegated.
 

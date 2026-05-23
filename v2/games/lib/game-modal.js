@@ -38,6 +38,8 @@ export async function openGameModal({ gameId, title, gameModule } = {}) {
     playerNameEl: null,
     soundButton: null,
     roundInProgress: false,
+    mounting: false,
+    quitConfirmOpen: false,
     closing: false,
     resolved: false,
     muted: isMuted(),
@@ -175,10 +177,18 @@ function bindEvents(state, opener) {
     }
 
     if (target.closest(".game-modal-player-change")) {
+      // Block while a splash-tap mount is in flight — swapping body
+      // contents now would detach the canvas Kaplay just attached to.
+      if (state.mounting) return;
+
       if (state.roundInProgress) {
-        renderQuitConfirm(state, opener);
+        renderChangePlayerConfirm(state, opener);
         return;
       }
+
+      // Tear down any live Kaplay before swapping body contents. Without
+      // this the previous instance's RAF loop + audio context leak.
+      teardownGameInstance(state);
 
       state.player = await showPicker(state.body);
       updatePlayerBadge(state);
@@ -226,57 +236,77 @@ function renderSplash(state) {
 }
 
 async function startFromSplashTap(state) {
-  const currentModule = state.gameModule;
-  const meta = currentModule?.meta || {};
+  // The mounting flag blocks the in-modal `[change]` action while we're
+  // mid-mount — without it, a tap during the Kaplay-load window would
+  // call showPicker() and detach the canvas mid-mount.
+  state.mounting = true;
+  try {
+    const currentModule = state.gameModule;
+    const meta = currentModule?.meta || {};
 
-  const canvas = document.createElement("canvas");
-  canvas.className = "game-modal-canvas";
-  canvas.width = meta.width || DEFAULT_WIDTH;
-  canvas.height = meta.height || DEFAULT_HEIGHT;
-  canvas.tabIndex = -1;
-  state.body.replaceChildren(canvas);
-  state.canvas = canvas;
-  refreshFocusables(state);
+    const canvas = document.createElement("canvas");
+    canvas.className = "game-modal-canvas";
+    canvas.width = meta.width || DEFAULT_WIDTH;
+    canvas.height = meta.height || DEFAULT_HEIGHT;
+    canvas.tabIndex = -1;
+    state.body.replaceChildren(canvas);
+    state.canvas = canvas;
+    refreshFocusables(state);
 
-  const k = await mount(canvas);
-  if (state.closing) {
-    k.quit();
-    canvas.remove();
-    return;
-  }
+    const k = await mount(canvas);
+    if (state.closing) {
+      k.quit();
+      canvas.remove();
+      return;
+    }
 
-  state.k = k;
+    state.k = k;
 
-  unlockAudio(k);
-  applyMute(state.k);
-
-  const module = currentModule || await loadGameModule(state);
-  if (state.closing) {
-    return;
-  }
-
-  state.gameModule = module;
-
-  const ctx = {
-    player: state.player,
-    k,
-    onRoundEnd: ({ score }) => handleRoundEnd(state, score),
-    onAudioUnlock: () => {
-      unlockAudio(state.k);
-    },
-  };
-
-  const gameK = await module.startGame(canvas, ctx);
-  if (state.closing) {
-    gameK?.quit();
-    return;
-  }
-
-  if (gameK) {
-    state.k = gameK;
+    unlockAudio(k);
     applyMute(state.k);
+
+    const module = currentModule || await loadGameModule(state);
+    if (state.closing) {
+      return;
+    }
+
+    state.gameModule = module;
+
+    const ctx = {
+      player: state.player,
+      k,
+      onRoundEnd: ({ score }) => handleRoundEnd(state, score),
+      onAudioUnlock: () => {
+        unlockAudio(state.k);
+      },
+    };
+
+    const gameK = await module.startGame(canvas, ctx);
+    if (state.closing) {
+      gameK?.quit();
+      return;
+    }
+
+    if (gameK) {
+      state.k = gameK;
+      applyMute(state.k);
+    }
+    state.roundInProgress = true;
+  } finally {
+    state.mounting = false;
   }
-  state.roundInProgress = true;
+}
+
+// Helper used by restartRound, the change-player branch, and modal close.
+// Idempotent — safe to call when state.k / state.canvas are already null.
+function teardownGameInstance(state) {
+  state.scoreboardHandle?.unmount();
+  state.scoreboardHandle = null;
+  state.k?.quit();
+  state.canvas?.remove();
+  state.k = null;
+  state.canvas = null;
+  state.roundInProgress = false;
 }
 
 async function handleRoundEnd(state, score) {
@@ -285,6 +315,13 @@ async function handleRoundEnd(state, score) {
   }
 
   state.roundInProgress = false;
+
+  // If a quit-confirm is up and the timer happens to expire underneath
+  // it, dismiss the now-stale confirm before showing the scoreboard.
+  // Without this the user sees two stacked overlays where the confirm
+  // still says "you'll lose this round's score" while the score has
+  // already been submitted.
+  dismissQuitConfirm(state);
 
   try {
     await submitScore({
@@ -343,17 +380,34 @@ function renderScoreboard(state) {
 }
 
 async function restartRound(state) {
-  state.scoreboardHandle?.unmount();
-  state.scoreboardHandle = null;
-  state.k?.quit();
-  state.canvas?.remove();
-  state.k = null;
-  state.canvas = null;
+  teardownGameInstance(state);
   renderSplash(state);
+}
+
+function setKaplayPaused(state, paused) {
+  // Kaplay 3001 exposes `paused` as a writable property on the instance.
+  // Wrapped in try/catch so we degrade gracefully if a future Kaplay
+  // version changes the surface.
+  if (!state.k) return;
+  try {
+    state.k.paused = paused;
+  } catch (err) {
+    console.warn("[game-modal] could not toggle Kaplay paused", err);
+  }
+}
+
+function dismissQuitConfirm(state) {
+  if (!state.quitConfirmOpen) return;
+  state.body?.querySelector(".game-modal-confirm")?.remove();
+  state.quitConfirmOpen = false;
+  setKaplayPaused(state, false);
+  refreshFocusables(state);
 }
 
 function renderQuitConfirm(state, opener) {
   state.body.querySelector(".game-modal-confirm")?.remove();
+  state.quitConfirmOpen = true;
+  setKaplayPaused(state, true);
 
   const confirm = document.createElement("div");
   confirm.className = "game-modal-confirm";
@@ -369,19 +423,65 @@ function renderQuitConfirm(state, opener) {
   quit.className = "game-modal-confirm-quit";
   quit.type = "button";
   quit.textContent = "Yes, quit";
-  quit.addEventListener("click", () => closeModal(state, opener, { force: true }));
+  quit.addEventListener("click", () => {
+    state.quitConfirmOpen = false;
+    closeModal(state, opener, { force: true });
+  });
 
   const keepPlaying = document.createElement("button");
   keepPlaying.className = "game-modal-confirm-keep";
   keepPlaying.type = "button";
   keepPlaying.textContent = "No, keep playing";
   keepPlaying.addEventListener("click", () => {
-    confirm.remove();
-    refreshFocusables(state);
+    dismissQuitConfirm(state);
     state.canvas?.focus();
   });
 
   actions.append(quit, keepPlaying);
+  confirm.append(message, actions);
+  state.body.append(confirm);
+  refreshFocusables(state);
+  keepPlaying.focus();
+}
+
+function renderChangePlayerConfirm(state, opener) {
+  state.body.querySelector(".game-modal-confirm")?.remove();
+  state.quitConfirmOpen = true;
+  setKaplayPaused(state, true);
+
+  const confirm = document.createElement("div");
+  confirm.className = "game-modal-confirm";
+  confirm.setAttribute("role", "alertdialog");
+
+  const message = document.createElement("p");
+  message.textContent = "Change player now? You'll lose this round's score.";
+
+  const actions = document.createElement("div");
+  actions.className = "game-modal-confirm-actions";
+
+  const change = document.createElement("button");
+  change.className = "game-modal-confirm-quit";
+  change.type = "button";
+  change.textContent = "Yes, change";
+  change.addEventListener("click", async () => {
+    state.quitConfirmOpen = false;
+    confirm.remove();
+    teardownGameInstance(state);
+    state.player = await showPicker(state.body);
+    updatePlayerBadge(state);
+    renderSplash(state);
+  });
+
+  const keepPlaying = document.createElement("button");
+  keepPlaying.className = "game-modal-confirm-keep";
+  keepPlaying.type = "button";
+  keepPlaying.textContent = "No, keep playing";
+  keepPlaying.addEventListener("click", () => {
+    dismissQuitConfirm(state);
+    state.canvas?.focus();
+  });
+
+  actions.append(change, keepPlaying);
   confirm.append(message, actions);
   state.body.append(confirm);
   refreshFocusables(state);

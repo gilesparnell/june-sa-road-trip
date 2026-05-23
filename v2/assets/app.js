@@ -507,16 +507,31 @@
     }
   }
 
+  // In-flight guard: prevents a double-tap during the cold dynamic-import
+  // window from opening two stacked modals. The audience is shared-iPad
+  // kids; tap-again-to-make-it-work is exactly the pattern that triggers
+  // the race without this.
+  var gameModalOpening = false;
   document.addEventListener('click', async function (event) {
     var launcher = event.target.closest('.game-launcher');
     if (!launcher) return;
 
     event.preventDefault();
-    var modal = await import('/v2/games/lib/game-modal.js');
-    modal.openGameModal({
-      gameId: launcher.dataset.gameId,
-      title: launcher.dataset.gameTitle,
-    });
+    if (gameModalOpening) return;
+    gameModalOpening = true;
+    launcher.disabled = true;
+    try {
+      var modal = await import('/v2/games/lib/game-modal.js');
+      await modal.openGameModal({
+        gameId: launcher.dataset.gameId,
+        title: launcher.dataset.gameTitle,
+      });
+    } catch (err) {
+      console.error('[launcher] openGameModal failed', err);
+    } finally {
+      gameModalOpening = false;
+      launcher.disabled = false;
+    }
   });
 
   // ---------------------------------------------------------------------
@@ -531,4 +546,15 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);
   } else { boot(); }
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/v2/sw.js', { scope: '/v2/' })
+        .catch(function (err) { console.warn('[sw] register failed', err); });
+    });
+
+    window.addEventListener('online', function () {
+      navigator.serviceWorker?.controller?.postMessage({ type: 'flush-queue' });
+    });
+  }
 })();

@@ -191,3 +191,17 @@ await loadSounds(k, {
 ```
 
 → See `docs/games/foundation/F6-sound.md` for full design.
+
+## Offline (F7)
+
+Offline caching and the score-submit queue live in `/v2/sw.js`. The hub registers the worker from `v2/assets/app.js` with scope `/v2/`.
+
+The worker precaches the page shells, shared arcade library modules, Kaplay, and the hello-world demo. Runtime cache-first handling also picks up later `/v2/games/`, `/v2/assets/`, and `/v2/day/*.html` requests after the first successful network load.
+
+Score submits still call `/api/actions` through F3. When a `POST` with `action: "submit-score"` fails because the network is unavailable, the worker stores the payload in IndexedDB under `tripArcade.submitQueue` and returns an HTTP 202 empty-state response so the game flow can continue. The queue flushes when the browser comes back online and the page posts `{ type: "flush-queue" }` to the worker.
+
+Bust offline caches by bumping `VERSION` in `/v2/sw.js`. Activation deletes older `arcade-v*` caches and rebuilds from the new manifest.
+
+Verify the worker in browser devtools under Application → Service Workers. `/v2/sw.js` should show as activated and running after the first hub load.
+
+→ See `docs/games/foundation/F7-service-worker.md` for full design.

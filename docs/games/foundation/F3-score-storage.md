@@ -4,6 +4,12 @@ Foundation unit F3 of the Trip Game Arcade. See the plan at
 `docs/plans/2026-05-16-001-feat-trip-game-arcade-wave-1-plan.md` for phase
 context. This document is the spec codex implements against.
 
+> **Roster updated 2026-05-23.** Examples in this doc use the original
+> 4-player roster (`twin-a`, `twin-b`, `matti`, `adult`). The shipped
+> roster is 6 players — see **`v2/games/lib/player.js` PLAYERS** and
+> **`api/actions.js` CANONICAL_PLAYER_IDS** for the canonical list.
+> Code is authoritative.
+
 **Phase 0 effort estimate:** ~4h total (design + impl). Design is this doc;
 impl is codex-delegated. Higher than F1/F2 because there's serverside +
 clientside + an existing endpoint to extend safely.

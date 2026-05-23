@@ -4,7 +4,11 @@ Foundation unit F4 of the Trip Game Arcade. See the plan at
 `docs/plans/2026-05-16-001-feat-trip-game-arcade-wave-1-plan.md` for phase
 context. This document is the spec codex implements against.
 
-**Phase 0 effort estimate:** ~3h total (design + impl).
+> **Roster updated 2026-05-23.** Acceptance criteria below describe a
+> 4-row / 4-section layout from the original roster (`twin-a`, `twin-b`,
+> `matti`, `adult`). The shipped roster is 6 players — the widget now
+> renders 6 rows / 6 sections per `v2/games/lib/player.js` PLAYERS.
+> Code is authoritative.
 
 ---
 

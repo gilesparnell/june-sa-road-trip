@@ -114,19 +114,21 @@ async function readState() {
 }
 
 async function writeState(state) {
-  await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+  const r = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
     method: 'PATCH',
     headers: gistHeaders,
     body: JSON.stringify({ files: { [FILE_NAME]: { content: JSON.stringify(state) } } }),
   });
+  if (!r.ok) throw new Error(`Gist actions.json write failed: ${r.status}`);
 }
 
 async function writeScores(scoresState) {
-  await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+  const r = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
     method: 'PATCH',
     headers: gistHeaders,
     body: JSON.stringify({ files: { [SCORES_FILE_NAME]: { content: JSON.stringify(scoresState) } } }),
   });
+  if (!r.ok) throw new Error(`Gist scores.json write failed: ${r.status}`);
 }
 
 function makeId(text) {

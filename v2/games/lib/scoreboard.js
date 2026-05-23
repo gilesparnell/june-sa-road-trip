@@ -133,6 +133,8 @@ async function postScore(payload) {
 }
 
 export async function submitScore(input) {
+  // F7's service worker queues offline submits in IndexedDB and returns 202;
+  // this local fallback still covers browsers where the worker is unavailable.
   const payload = validateScoreInput(input || {});
 
   for (let attempt = 0; attempt < 2; attempt += 1) {

@@ -5,6 +5,127 @@ Per `~/.claude/CLAUDE.md` → Plan Execution Continuity rule.
 
 ---
 
+## 2026-05-23 AEST — Phase 0 F7 + ultrareview round-1 fixes
+
+Runner: Claude (design + orchestration + review fixes) → codex-cli (F7 impl) → Claude (review + commit).
+
+**F7 (Service worker) landed.** Design at
+`docs/games/foundation/F7-service-worker.md`. Implementation: new
+`v2/sw.js` (~190 lines), vanilla SW, scope `/v2/`, IndexedDB submit
+queue, no external dependencies.
+
+- Precache manifest: page shells, F1-F6 lib modules, hello-world demo,
+  Kaplay 3001 framework from unpkg
+- Versioned cache (`arcade-v1.0.0`); old caches deleted on activate
+- Routing:
+  - `/api/actions` POST submit-score: network → on failure enqueue in
+    IDB + return synthetic 202
+  - `/api/actions` GET: network-first with stale-while-revalidate
+  - `/v2/games/**`, `/v2/assets/**`, `/v2/day/**.html`, `/v2/`,
+    unpkg kaplay: cache-first
+  - Everything else: passthrough (no SW interference)
+- IDB queue: `tripArcade.submitQueue` object store, auto-incrementing
+  keys, 5-attempt cap before drop
+- Flush triggered by `online` event AND postMessage from page;
+  `flushing` flag prevents double-flush
+- F3 client unchanged — gets transparent 202 with empty-default body
+  on offline submits, updates its cache cleanly; one-line comment
+  added documenting the F7 interception
+
+**Plus 7 ultrareview round-1 findings folded in same commit:**
+
+1. **bug_017 (normal)** — `api/actions.js`: both `writeState` and
+   `writeScores` now check `response.ok` and throw on non-2xx Gist
+   API responses. Previously silent failures looked like successful
+   writes; the next cache refresh would reveal scores never persisted.
+
+2. **bug_001 (normal)** — `v2/games/_template/game.js` + `index.html`:
+   refactored to the F5 contract. Template now exports `{ meta,
+   startGame(canvas, ctx) }` and uses `ctx.k` instead of calling
+   `mount()` itself. The QA harness mounts Kaplay once via the loader
+   and supplies its own ctx callbacks. Previous template would have
+   double-mounted Kaplay on the same canvas when launched via F5 — the
+   exact failure F5's design was constructed to prevent.
+
+3. **bug_007 (nit)** — `v2/games/lib/scoreboard-widget.js`: removed
+   the hardcoded `CANONICAL_GAME_IDS` gate. The server validates gameIds
+   on submit; an unknown gameId in the widget naturally renders the
+   empty-state ("No scores yet"). No more silent score masking when
+   wave-2 games ship.
+
+4. **merged_bug_003 (normal)** — `v2/games/lib/game-modal.js`: the
+   in-modal `[change]` handler had three latent issues:
+   - Mid-round it showed the *quit* confirm with no path to the picker.
+     Fixed with a new `renderChangePlayerConfirm` (Yes leads to picker).
+   - During the splash-tap mount window it could call `showPicker`
+     which would detach the canvas mid-mount. Fixed with a
+     `state.mounting` flag set in a try/finally around
+     `startFromSplashTap`.
+   - Post-round it called `showPicker` without `k.quit()` /
+     `canvas.remove()`, leaking the previous Kaplay instance. Exact
+     iOS-OOM-after-10-opens pattern F5 design was guarding against.
+     Fixed with a new `teardownGameInstance(state)` helper called
+     before the picker.
+
+5. **bug_016 (normal)** — `v2/games/lib/game-modal.js`: quit-confirm
+   dialogue no longer leaves the game's `onUpdate` loop running
+   underneath. New `setKaplayPaused(state, paused)` toggles
+   `state.k.paused` on confirm open + restore on dismiss. Plus
+   `handleRoundEnd` calls `dismissQuitConfirm` (defence in depth)
+   so a timer that expires while the dialogue is up doesn't produce
+   stacked overlays.
+
+6. **bug_019 (normal)** — `v2/assets/app.js`: launcher click handler
+   gained an in-flight guard (`gameModalOpening` flag + button
+   `disabled = true`) to prevent double-tap-during-cold-import from
+   opening two stacked modals. Folded in with the F7 changes to the
+   same file.
+
+7. **bug_020 (nit)** — `docs/games/foundation/F2-player-picker.md`,
+   `F3-score-storage.md`, `F4-scoreboard.md`: added a "Roster updated
+   2026-05-23" superseded-marker pointing at `v2/games/lib/player.js`
+   PLAYERS as the canonical source. The 4-player tables and `adult`
+   references in the docs are historical artefacts of the original
+   spec; code is authoritative.
+
+Static verification: `node --check` passes on all touched JS;
+ESM imports load cleanly under Node for all 6 lib modules; all
+target greps confirm the fixes are in place.
+
+### Phase 0 status
+
+| Unit | Status |
+|---|---|
+| F1 Kaplay bootstrap | ✅ verified |
+| F2 Player identity picker | ✅ verified |
+| F3 Backend score storage | ✅ verified end-to-end via curl |
+| F4 Scoreboard widget | ✅ shipped |
+| F5 Game modal | ✅ verified + ultrareview fixes |
+| F6 Sound infrastructure | ✅ shipped |
+| F7 Service worker | ✅ just landed; needs browser verification |
+| F8 FPS HUD | ⏳ next, ~2h |
+
+**Phase 0 is 7/8 units complete.** F8 is the last foundation unit
+(simple FPS overlay), then Phase 1 (the actual 4 wave-1 games) begins.
+
+### Gotchas
+
+- F7 browser verification owed by Giles. Open the v2 hub in Chrome
+  devtools, Application → Service Workers should show `/v2/sw.js`
+  active. Network → Offline, reload `/v2/games/hello-world/`, play
+  through. Submit returns 202. IndexedDB → tripArcade → submitQueue
+  shows the entry. Come back online — within a few seconds the
+  queue should drain and the score should be visible in the Gist.
+- F4 widget visual gap: 6-player roster now shows 6 rows in compact
+  view + 6 sections in full view. The doc's 4-player examples are
+  superseded but visual layout might want a quick QA pass to confirm
+  no awkward wrapping.
+- bug_019 launcher guard depends on F5's openGameModal returning a
+  promise that resolves on modal close — verified that it does
+  (game-modal.js line 49: `state.resolve = resolve`).
+
+---
+
 ## 2026-05-23 AEST — Phase 0 F6 complete (sound extraction)
 
 Runner: Claude (design + orchestration) → codex-cli (F6 impl) → Claude (review + commit).

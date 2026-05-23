@@ -2,14 +2,9 @@ import { getScores, getTopByGame } from "./scoreboard.js";
 import { getCurrentPlayer, PLAYERS } from "./player.js";
 
 const STYLE_ID = "scoreboard-widget-styles";
-const CANONICAL_GAME_IDS = [
-  "hello-world",
-  "long-tom",
-  "gold-pan",
-  "hairpin-drift",
-  "camera-safari-bushveld",
-  "camera-safari-kruger",
-];
+// Game-id validation is the server's job (api/actions.js CANONICAL_GAME_IDS).
+// The widget renders the natural "no scores yet" state for any unknown id,
+// which means we don't have to keep this file's list in sync as new games ship.
 const VIEWS = new Set(["compact", "full"]);
 const numberFormatter = new Intl.NumberFormat("en-AU");
 const mountedContainers = new WeakMap();
@@ -33,8 +28,8 @@ export function mountScoreboard(container, options = {}) {
   };
   mountedContainers.set(container, state);
 
-  if (!CANONICAL_GAME_IDS.includes(state.gameId)) {
-    console.error(`[scoreboard-widget] Unknown gameId: ${state.gameId || "(missing)"}`);
+  if (!state.gameId) {
+    console.error("[scoreboard-widget] gameId is required");
     renderEmpty(state);
     return createHandle(state);
   }
