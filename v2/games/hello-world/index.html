@@ -29,8 +29,10 @@
       }
 
       canvas {
-        width: 800px;
-        height: 450px;
+        width: min(800px, 100vw);
+        max-width: 100%;
+        aspect-ratio: 800 / 450;
+        height: auto;
         border: 1px solid rgba(255, 255, 255, 0.24);
         background: #000;
       }
