@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Standalone QA harness — hello-world</title>
+    <style>
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        background: #101820;
+        color: #f7f7f7;
+        font-family: system-ui, sans-serif;
+      }
+
+      main {
+        display: grid;
+        gap: 16px;
+        justify-items: center;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      canvas {
+        width: 800px;
+        height: 450px;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        background: #000;
+      }
+
+      button {
+        font: inherit;
+        padding: 8px 12px;
+        touch-action: manipulation;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Standalone QA harness — hello-world</h1>
+      <canvas id="game" width="800" height="450"></canvas>
+      <div class="controls">
+        <button id="pick-player" type="button">Pick player</button>
+        <button id="unmount" type="button">Unmount</button>
+      </div>
+      <div id="scoreboard-mount" class="qa-scoreboard"></div>
+    </main>
+
+    <script type="module">
+      import { ensurePlayerForGame, showPicker } from "../lib/player.js";
+      import { mount, unmount } from "../lib/kaplay-loader.js";
+      import { mountScoreboard } from "../lib/scoreboard-widget.js";
+      import { submitScore } from "../lib/scoreboard.js";
+      import { startGame, meta } from "./game.js";
+
+      const main = document.querySelector("main");
+      const heading = document.querySelector("h1");
+      const canvas = document.querySelector("#game");
+      const controls = document.querySelector(".controls");
+      const scoreboardMount = document.querySelector("#scoreboard-mount");
+      const pickPlayerButton = document.querySelector("#pick-player");
+      const unmountButton = document.querySelector("#unmount");
+
+      function renderHeading(player) {
+        heading.textContent = `Standalone QA harness — hello-world (Playing as ${player.displayName})`;
+      }
+
+      let player = await ensurePlayerForGame(main);
+      console.log("player", player);
+      renderHeading(player);
+
+      main.append(heading, canvas, controls, scoreboardMount);
+
+      let scoreboardHandle = mountScoreboard(scoreboardMount, {
+        gameId: "hello-world",
+        view: "compact",
+        highlightId: player.id,
+        title: meta.title,
+      });
+
+      const k = await mount(canvas);
+
+      const ctx = {
+        player,
+        k,
+        onRoundEnd: async ({ score }) => {
+          console.log("[harness] round end", score);
+          try {
+            await submitScore({ gameId: "hello-world", playerId: player.id, score });
+          } catch (err) {
+            console.error("[harness] submitScore", err);
+          }
+          scoreboardHandle.refresh();
+        },
+        onAudioUnlock: () => {},
+      };
+
+      await startGame(canvas, ctx);
+
+      pickPlayerButton.addEventListener("click", async () => {
+        player = await showPicker(main);
+        ctx.player = player;
+        console.log("player", player);
+        renderHeading(player);
+        main.append(heading, canvas, controls, scoreboardMount);
+        scoreboardHandle.unmount();
+        scoreboardHandle = mountScoreboard(scoreboardMount, {
+          gameId: "hello-world",
+          view: "compact",
+          highlightId: player.id,
+          title: meta.title,
+        });
+      });
+
+      unmountButton.addEventListener("click", () => {
+        scoreboardHandle.unmount();
+        unmount(k, canvas);
+        unmountButton.disabled = true;
+      });
+    </script>
+  </body>
+</html>

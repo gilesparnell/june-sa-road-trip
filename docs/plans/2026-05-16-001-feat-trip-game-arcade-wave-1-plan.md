@@ -209,7 +209,7 @@ Bricks-not-walls work. Each game depends on every Phase 0 unit shipping.
 | F6 | Sound infrastructure + mute toggle | codex-delegate | 2h | `localStorage.muted` toggle. Kaplay's `volume(0|1)` global. Autoplay-restriction handling: sound starts on first user input (tap), not on modal open. |
 | F7 | Service worker (offline cache) | claude (design) → codex-delegate (impl) | 4h | Precache: game JS, sprite atlases, sound files, page shells, Kaplay framework. Network-first for `/api/actions` with stale-while-revalidate fallback. Offline score-submit queue in IndexedDB, flush on `online` event. Cache-busting on version bump via versioned cache name. (Resolves origin Q5.) |
 
-**Phase 0 acceptance gate:** A throwaway "Hello world" Kaplay game embedded on a day page can be played, scores a winning interaction, submits to the backend, appears on the scoreboard. (Offline-after-first-load only if the F7 service-worker tension resolves toward "keep".)
+**Phase 0 acceptance gate:** A throwaway "Hello world" Kaplay game embedded on a day page can be played, scores a winning interaction, submits to the backend, appears on the scoreboard. Offline-after-first-load works (F7 = Keep, confirmed 2026-05-23).
 
 ##### Foundation research insights
 
@@ -241,7 +241,7 @@ const k = kaplay({
 
 **F6 — Audio format + preload:** Convert all Freesound CC0 SFX to `.m4a` (AAC ~96kbps mono) — iOS Safari's native sweet spot, ~30–50KB per clip vs 200–500KB WAV. Preload + decode during modal-open lazy-load phase, not on first-play (otherwise audible jank on first sound). Use Kaplay's `loadSound()` synchronously in init.
 
-**F7 — Service worker decision (FLAGGED):** Two reviewers disagree. See "Tensions" in Enhancement Summary. My lean: drop F7 entirely. Browser HTTP cache on first play covers most real offline cases (hotspot dropout in EC). Saves ~4h. If kept: use Workbox via CDN for precache routes, custom code only for IndexedDB submit queue. Don't roll vanilla SW from scratch.
+**F7 — Service worker decision (RESOLVED 2026-05-23 = KEEP):** Confirmed by user — boys may genuinely play offline during in-car Eastern Cape stretches. Build per F7 spec above (vanilla SW, IndexedDB submit queue). Deepen-pass note for the implementer: Workbox via CDN is a reasonable simplification for the precache routes if it shortens delivery; custom code is only needed for the IndexedDB submit queue. Don't roll vanilla SW from scratch unless there's a reason.
 
 **F8 (NEW) — FPS HUD + perf baseline doc:** ~2h, codex-delegate. Add a `?debug=1` query-string toggle that overlays a rolling-60-frame FPS counter on every game. Phase 2 P2 spec extends to capture min/p5/median FPS per game on a real iPhone 13 in Safari Web Inspector → Timelines, log to `docs/games/perf-baseline.md`. Without this, "feels snappy" is the only ship gate.
 
@@ -539,17 +539,23 @@ Backwards compatible — existing action-items widget unaffected. Documented in 
 
 ### Wave 2 / Wave 3 (deferred)
 
-Remaining day-position games, build order based on wave-1 play data:
+Remaining day-position games, build order based on wave-1 play data.
+(Day numbers below mostly reflect the pre-schedule-shift numbering — the
+canonical-day-number sweep is a separate housekeeping task before wave 2
+build starts.)
 
 - Day 1: R67 Roadtripper (driving template reused)
 - Day 3: Lesotho Smuggler (runner template)
 - Day 4: Maize Maze (puzzle template)
 - Day 6: Bourke's Luck Pothole Hopper (platformer)
+- Day 7: **Bush Pilot** — Cessna pilot, Arathusa shuttle from HDS to Sabi Sand (side-scroller; new template — keep altitude through crosswinds + thermals, land at the airstrip)
+- Days 8–10: **Sunrise Balloon** — hot-air balloon drift over the Lowveld at dawn (new template — vertical altitude control via tap, photograph animals from above before sunrise window closes)
+- Days 8–10: **Bateleur** — soaring raptor hunting prey across the bushveld (new template — eagle soar mechanic, dive on tap, score per kill; honours the real raptors at HESC + Moholoholo)
 - Day 8: HDS Connector (logistics puzzle — pickup/drop game)
 - Day 10: Transfer Time-Attack (driving template reused)
 - Day 14: Long-haul N4 (rhythm — toll-plaza pacing)
 
-Decision gate: wave 2 build sequence chosen by which mechanic family wave-1 boys play most.
+Decision gate: wave 2 build sequence chosen by which mechanic family wave-1 boys play most. The three flying-game additions (Bush Pilot, Sunrise Balloon, Bateleur) all need a new shared "altitude-and-drift" template — bundle their templating cost into the first one built.
 
 ### v1.1 polish
 

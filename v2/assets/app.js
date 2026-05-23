@@ -507,6 +507,18 @@
     }
   }
 
+  document.addEventListener('click', async function (event) {
+    var launcher = event.target.closest('.game-launcher');
+    if (!launcher) return;
+
+    event.preventDefault();
+    var modal = await import('/v2/games/lib/game-modal.js');
+    modal.openGameModal({
+      gameId: launcher.dataset.gameId,
+      title: launcher.dataset.gameTitle,
+    });
+  });
+
   // ---------------------------------------------------------------------
   // 6. Boot
   // ---------------------------------------------------------------------
