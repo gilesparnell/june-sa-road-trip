@@ -59,6 +59,7 @@
       import { mountScoreboard } from "../lib/scoreboard-widget.js";
       import { submitScore } from "../lib/scoreboard.js";
       import { unlockAudio } from "../lib/sound.js";
+      import { attachFpsHud } from "../lib/fps-hud.js";
       import { startGame, meta } from "./game.js";
 
       const main = document.querySelector("main");
@@ -88,6 +89,7 @@
 
       const k = await mount(canvas);
       unlockAudio(k);
+      const fpsHud = attachFpsHud(k);
 
       const ctx = {
         player,
@@ -123,6 +125,7 @@
 
       unmountButton.addEventListener("click", () => {
         scoreboardHandle.unmount();
+        fpsHud.stop();
         unmount(k, canvas);
         unmountButton.disabled = true;
       });

@@ -5,6 +5,105 @@ Per `~/.claude/CLAUDE.md` → Plan Execution Continuity rule.
 
 ---
 
+## 2026-05-24 AEST — Phase 0 F8 complete + Phase 0 done
+
+Runner: Claude (orchestration) → codex-cli (F8 impl) → Claude (review + commit).
+
+**F8 (FPS HUD) landed.** New module `v2/games/lib/fps-hud.js` exporting
+`isDebugEnabled()` + `attachFpsHud(k)`. Behaviour:
+
+- `?debug=1` in the URL turns the HUD on; absent → `attachFpsHud` returns
+  a no-op handle and renders nothing (zero cost in normal play)
+- Rolling 60-frame `k.dt()` window → fps = `60 / sum(deltas)`, rounded
+- Top-right corner overlay using Kaplay scene primitives (text + rect +
+  `k.fixed()` + `k.z(1000)`) — no DOM mutations, no extra layout
+- WeakSet-tracked idempotency so a double-attach no-ops
+- `stop()` cancels the Kaplay `KEventController` (codex verified the API
+  against the Kaplay docs — `onUpdate(...).cancel()` not a bare function)
+  and destroys the HUD scene objects; safe to call twice
+
+F5 integration: `state.fpsHud` added to modal state, `attachFpsHud(state.k)`
+called once after `startGame` resolves (covers both probe-k and
+returned-k paths), `state.fpsHud?.stop()` called inside
+`teardownGameInstance` before `k.quit()`. The standalone hello-world
+harness wires it the same way around mount/unmount.
+
+SW bumped to `arcade-v1.1.0` and `/v2/games/lib/fps-hud.js` added to
+PRECACHE_URLS. Auto-installs on next page load — no manual "Clear site
+data" needed.
+
+New doc `docs/games/perf-baseline.md` provides the iPhone 13 capture
+procedure (Safari Web Inspector Timelines, target p5 ≥ 45 fps) and a
+6-row baseline table to fill in pre-Phase-1.
+
+Verification: `node --check` passes on all touched JS; 2 expected
+exports load under Node; no `window.*`, no top-level await, no
+innerHTML; F8 module loads idempotently; PRECACHE_URLS includes
+`fps-hud.js`; VERSION bumped.
+
+### Phase 0 status — COMPLETE
+
+| Unit | Status |
+|---|---|
+| F1 Kaplay bootstrap | ✅ verified |
+| F2 Player identity picker | ✅ verified |
+| F3 Backend score storage | ✅ verified end-to-end via curl |
+| F4 Scoreboard widget | ✅ shipped + resilience hardened |
+| F5 Game modal | ✅ verified + ultrareview fixes |
+| F6 Sound infrastructure | ✅ shipped |
+| F7 Service worker | ✅ verified offline play live on Vercel |
+| F8 FPS HUD | ✅ just landed |
+
+Phase 0 acceptance gate fully closed:
+- Kaplay game embedded in the v2 hub
+- Player identity flow (picker + 10-min confirm + change affordance)
+- Score submit + offline IDB queue + auto-flush on reconnect
+- Scoreboard widget renders 6-player results
+- Modal lifecycle handles open/close/change-player/teardown cleanly
+- Mute toggle persists, audio unlocks on iOS user gesture
+- Service worker caches the arcade for offline play
+- FPS HUD ready for Phase 1 perf budgeting
+
+### Next: Phase 1 begins
+
+**G1 (Long Tom: Aim & Fire)** — Day 5 game, physics. First wave-1 game.
+
+- G1.1 Design + level data — `claude`, ~3h. Physics constants (gravity,
+  wind), 3 levels of target placements, scoring formula, sound list,
+  visual frame + escarpment background concept.
+- G1.2 Implementation — `codex-delegate`, ~5h. Drag-to-aim + release-to-fire,
+  projectile arcs under Kaplay gravity, hit-detection, score submit
+  via F3.
+- G1.3 Polish + sound + level transitions — `claude`, ~3h. Source SFX
+  from Freesound, particles on hit, screen-shake, level-transition feel.
+
+Build sequence rationale (from the plan): Long Tom first because the
+cannon physics validates Kaplay's physics + the Phase-0 integration is
+known good for one game before we commit to the others.
+
+### Gotchas / open items
+
+- Browser-verified offline arcade is working (commit `5f3720c` resilience
+  fixes prevent the F4 widget from hanging on Loading if a refresh
+  rejects). Live cache version is `arcade-v1.0.1`. Next browser visit
+  will auto-upgrade to `arcade-v1.1.0` (with fps-hud.js included).
+- F8 visual verification owed: open
+  `https://june-sa-road-trip.vercel.app/v2/games/hello-world/?debug=1`
+  and confirm the FPS overlay appears in the top-right of the canvas
+  during play.
+- F4 design doc has a "Roster updated" superseded marker (added in
+  the F7 ultrareview round). Acceptance criterion "Confirm 4 rows"
+  is historical — 6 rows is the current visual.
+- Phase 0 took longer than budgeted because the foundation surface
+  area was larger than the plan estimated: F2 player picker also had
+  to be rebuilt for the 6-player roster mid-stream, F5 had a
+  `k.audioCtx` API drift bug, and F7 had two install/cache issues
+  that took several rounds to debug live. Net: 7 ultrareview fixes
+  + 2 F7 corrections landed alongside the foundation work, all on
+  `main`. Phase 0 surface is solid going into Phase 1.
+
+---
+
 ## 2026-05-23 AEST — Phase 0 F7 + ultrareview round-1 fixes
 
 Runner: Claude (design + orchestration + review fixes) → codex-cli (F7 impl) → Claude (review + commit).

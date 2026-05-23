@@ -205,3 +205,15 @@ Bust offline caches by bumping `VERSION` in `/v2/sw.js`. Activation deletes olde
 Verify the worker in browser devtools under Application → Service Workers. `/v2/sw.js` should show as activated and running after the first hub load.
 
 → See `docs/games/foundation/F7-service-worker.md` for full design.
+
+## FPS HUD (F8)
+
+Debug FPS instrumentation lives in `lib/fps-hud.js`.
+
+Enable it by appending `?debug=1` to any v2 URL. F5 auto-attaches the HUD to the active Kaplay instance when the flag is present, and leaves it fully off otherwise.
+
+Public API:
+
+- `attachFpsHud(k)` — attaches a rolling 60-frame FPS overlay and returns a `{ stop() }` handle. Call `stop()` before quitting the Kaplay instance.
+
+→ See `docs/games/perf-baseline.md` for capture procedure.

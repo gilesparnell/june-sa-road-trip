@@ -1,4 +1,4 @@
-const VERSION = "1.0.1";
+const VERSION = "1.1.0";
 const CACHE_NAME = `arcade-v${VERSION}`;
 const API_PATH = "/api/actions";
 const DB_NAME = "tripArcade";
@@ -18,6 +18,7 @@ const PRECACHE_URLS = [
   "/v2/games/lib/scoreboard-widget.js",
   "/v2/games/lib/game-modal.js",
   "/v2/games/lib/sound.js",
+  "/v2/games/lib/fps-hud.js",
   // Hello-world demo
   "/v2/games/hello-world/game.js",
   "/v2/games/hello-world/index.html",

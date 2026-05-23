@@ -3,6 +3,7 @@ import { ensurePlayerForGame, showPicker } from "./player.js";
 import { submitScore } from "./scoreboard.js";
 import { mountScoreboard } from "./scoreboard-widget.js";
 import { isMuted, setMuted, applyMute, unlockAudio } from "./sound.js";
+import { attachFpsHud } from "./fps-hud.js";
 
 const STYLE_ID = "game-modal-styles";
 const DEFAULT_WIDTH = 800;
@@ -30,6 +31,7 @@ export async function openGameModal({ gameId, title, gameModule } = {}) {
     player: null,
     k: null,
     canvas: null,
+    fpsHud: null,
     scoreboardHandle: null,
     modal: null,
     body: null,
@@ -291,6 +293,8 @@ async function startFromSplashTap(state) {
       state.k = gameK;
       applyMute(state.k);
     }
+
+    state.fpsHud = attachFpsHud(state.k);
     state.roundInProgress = true;
   } finally {
     state.mounting = false;
@@ -302,6 +306,7 @@ async function startFromSplashTap(state) {
 function teardownGameInstance(state) {
   state.scoreboardHandle?.unmount();
   state.scoreboardHandle = null;
+  stopFpsHud(state);
   state.k?.quit();
   state.canvas?.remove();
   state.k = null;
@@ -512,6 +517,8 @@ function closeModal(state, opener) {
   document.removeEventListener("keydown", state.onKeyDown);
   state.modal?.removeEventListener("click", state.onClick);
 
+  stopFpsHud(state);
+
   if (state.k) {
     state.k.quit();
   }
@@ -539,6 +546,11 @@ function closeModal(state, opener) {
     state.resolved = true;
     state.resolve();
   }
+}
+
+function stopFpsHud(state) {
+  state.fpsHud?.stop();
+  state.fpsHud = null;
 }
 
 function failModal(state, err) {
