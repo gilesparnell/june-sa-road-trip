@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Standalone QA harness — _template</title>
+    <style>
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        background: #101820;
+        color: #f7f7f7;
+        font-family: system-ui, sans-serif;
+      }
+
+      main {
+        display: grid;
+        gap: 16px;
+        justify-items: center;
+      }
+
+      canvas {
+        width: 800px;
+        height: 450px;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        background: #000;
+      }
+
+      button {
+        font: inherit;
+        padding: 8px 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Standalone QA harness — _template</h1>
+      <canvas id="game" width="800" height="450"></canvas>
+      <button id="unmount" type="button">Unmount</button>
+    </main>
+
+    <script type="module">
+      import { unmount } from "../lib/kaplay-loader.js";
+      import { startGame } from "./game.js";
+
+      const canvas = document.querySelector("#game");
+      const button = document.querySelector("#unmount");
+      let k = await startGame(canvas);
+
+      button.addEventListener("click", () => {
+        unmount(k, canvas);
+        k = null;
+        button.disabled = true;
+      });
+    </script>
+  </body>
+</html>
