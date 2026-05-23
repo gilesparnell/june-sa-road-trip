@@ -6,7 +6,7 @@ export const PLAYERS = [
   { id: "twin-a", displayName: "Griff", emoji: "🦓" },
   { id: "twin-b", displayName: "Connor", emoji: "🐘" },
   { id: "matti", displayName: "Matti", emoji: "🦁" },
-  { id: "gilo", displayName: "Gilo", emoji: "🦘" },
+  { id: "gilo", displayName: "GiloPants", emoji: "🦘" },
   { id: "vonnies", displayName: "Vonnies", emoji: "🐨" },
   { id: "julz", displayName: "Julz", emoji: "🦒" },
 ];
