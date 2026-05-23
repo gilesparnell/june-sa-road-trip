@@ -3,8 +3,8 @@
 // Canonical IDs: twin-a, twin-b, matti, gilo, vonnies, julz.
 // `adult` retired 2026-05-23 — replaced by named grown-up identities.
 export const PLAYERS = [
-  { id: "twin-a", displayName: "Griff", emoji: "🦓" },
-  { id: "twin-b", displayName: "Connor", emoji: "🐘" },
+  { id: "twin-a", displayName: "GriffBiff", emoji: "🦓" },
+  { id: "twin-b", displayName: "ConBon", emoji: "🐘" },
   { id: "matti", displayName: "Matti", emoji: "🦁" },
   { id: "gilo", displayName: "GiloPants", emoji: "🦘" },
   { id: "vonnies", displayName: "Vonnies", emoji: "🐨" },
