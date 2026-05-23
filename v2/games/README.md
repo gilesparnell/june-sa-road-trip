@@ -61,3 +61,27 @@ const player = await ensurePlayerForGame(modalRoot);
 ```
 
 → See `docs/games/foundation/F2-player-picker.md` for full design.
+
+## Scoreboard (F3)
+
+Score submission and score reads live in `lib/scoreboard.js`.
+
+Public API:
+
+- `submitScore({ gameId, playerId, score })` — submits a completed round and returns the updated scores blob.
+- `getScores({ force })` — fetches the full scores blob, using a short in-memory cache unless `force` is true.
+- `getPersonalBest(gameId, playerId)` — returns the saved personal best for one player in one game, or `0`.
+- `getTopByGame(gameId)` — returns all canonical players sorted by personal best for one game.
+
+Game authors should submit scores when a round ends:
+
+```js
+import { submitScore } from "/v2/games/lib/scoreboard.js";
+import { getCurrentPlayer } from "/v2/games/lib/player.js";
+
+// on round end:
+const player = getCurrentPlayer();
+if (player) await submitScore({ gameId: "my-game-id", playerId: player.id, score });
+```
+
+→ See `docs/games/foundation/F3-score-storage.md` for full design.

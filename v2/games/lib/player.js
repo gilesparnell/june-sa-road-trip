@@ -1,3 +1,6 @@
+// Keep these in sync with api/actions.js CANONICAL_PLAYER_IDS.
+// If you add an ID here, add it there too.
+// Canonical IDs: twin-a, twin-b, matti, adult.
 export const PLAYERS = [
   { id: "twin-a", displayName: "Griff", emoji: "🦓" },
   { id: "twin-b", displayName: "Connor", emoji: "🐘" },

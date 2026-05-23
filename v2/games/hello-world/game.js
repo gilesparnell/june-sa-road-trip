@@ -1,4 +1,6 @@
 import { mount } from "../lib/kaplay-loader.js";
+import { getCurrentPlayer } from "../lib/player.js";
+import { submitScore } from "../lib/scoreboard.js";
 
 const GAME_ID = "hello-world";
 const ROUND_SECONDS = 30;
@@ -88,7 +90,12 @@ export async function startGame(canvas) {
     target.paused = true;
     helpLabel.hidden = true;
 
-    console.log({ game: GAME_ID, score });
+    const player = getCurrentPlayer();
+    if (player) {
+      submitScore({ gameId: GAME_ID, playerId: player.id, score })
+        .then(() => console.log(`[hello-world] submitted score ${score} for ${player.id}`))
+        .catch((err) => console.error("[hello-world] submitScore failed", err));
+    }
 
     finalScoreLabel = k.add([
       k.text(`Final score: ${score}`, { size: 36 }),

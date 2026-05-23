@@ -5,6 +5,80 @@ Per `~/.claude/CLAUDE.md` → Plan Execution Continuity rule.
 
 ---
 
+## 2026-05-23 AEST — Phase 0 F3 complete + F1/F2 visually verified
+
+Runner: Claude (design + orchestration) → codex-cli (F3 impl) → Claude (review + commit).
+
+**F1 + F2 visually verified.** Giles ran `python3 -m http.server 8765`
+(8000 was held by an unrelated FastAPI service) and opened
+`http://localhost:8765/v2/games/hello-world/`. Picker rendered, player
+selection persisted, game loaded with player name in heading. Click-target
+loop, 30s timer, "Pick player" change-affordance all worked. F1 and F2
+gates closed.
+
+**F3 (Backend score storage) landed.** Design at
+`docs/games/foundation/F3-score-storage.md`. Resolved the plan's
+co-locate-vs-split-file tension as **split-file** — every score submit
+would have rewritten the action items list otherwise, and Gist PATCH
+supports per-file updates so we get the benefit at no infra cost.
+
+Server side (`api/actions.js`):
+- New `scores.json` file in the same Gist (lazy-init on first submit)
+- Canonical ID lists for gameIds + playerIds with "keep in sync with
+  v2/games/lib/player.js" comment
+- New `submit-score` action with validation (unknown id → 400, invalid
+  score → 400, score rounded to integer)
+- `readBothFiles()` parses both files in one Gist fetch; `writeScores()`
+  PATCHes only `scores.json`; existing `writeState()` still PATCHes
+  only `actions.json` — existing action handlers untouched
+- Per-player top-10 history (FIFO truncate) + `personalBest`
+  denormalised for cheap in-game ghost reads
+- Last-write-wins (no ETag retry), per plan's tensions-resolved section
+
+Client side (`v2/games/lib/scoreboard.js`, new ESM module):
+- `submitScore`, `getScores`, `getPersonalBest`, `getTopByGame`
+- 30s cache TTL on the scores blob
+- `AbortController` 5s timeout + retry-once at 250ms backoff
+- 4xx → throw typed `ScoreSubmitError`; 5xx/network → fall back to
+  local optimistic estimate (forward-compatible with F7's eventual
+  IndexedDB offline queue)
+- `getTopByGame` always returns all 4 canonical players even if score 0
+
+Hello-world demo wired through: `game.js` now imports `submitScore` and
+`getCurrentPlayer`, fires `submitScore` at round end. Real Phase 0
+acceptance gate — Kaplay game + identity + storage — clicks together.
+F4 (scoreboard widget) will close the loop with "appears on scoreboard"
+visual side.
+
+Static checks: 6 exports load under Node, `node --check api/actions.js`
+passes, server mock submit-score logic passes, client retry/fallback
+mock passes. Visual verification of the full hello-world → submit flow
+needs Giles to (a) ensure Gist `scores.json` initialises on first submit
+and (b) check Vercel logs / GitHub Gist to confirm a real submitted
+score lands.
+
+### Next
+
+**F4 (Family scoreboard widget)** — `claude (design) → codex-delegate (impl)`,
+~3h. Renders per-game leaderboards reading from `getScores()` + `getTopByGame()`.
+Two embedding contexts: inside each game modal, and inline on day pages.
+
+### Gotchas for next session
+
+- F3 server logic depends on env vars `GITHUB_TOKEN` and `GIST_ID`
+  already set on Vercel. The existing `/api/actions` works in prod, so
+  these are already wired — but if a future fresh-clone tries to test
+  locally, they'll need `vercel env pull`.
+- F3 visual smoke from Giles: open hello-world, play a round, submit
+  fires automatically. Check Vercel function logs for the submit, then
+  open the Gist on github.com to confirm `scores.json` was created and
+  contains the entry.
+- Schema migration is forward-only. If the schema ever bumps from
+  v1, the F3 server will need to handle the upgrade. Document this
+  before F4 if the schema changes.
+
+---
+
 ## 2026-05-23 AEST — Phase 0 F2 complete + remaining spreadsheet tabs swept
 
 Runner: Claude (design + orchestration) → codex-cli (F2 impl) → Claude (review + commit).

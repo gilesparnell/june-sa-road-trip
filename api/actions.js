@@ -1,6 +1,24 @@
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GIST_ID = process.env.GIST_ID;
 const FILE_NAME = 'actions.json';
+const SCORES_FILE_NAME = 'scores.json';
+
+// Keep these in sync with v2/games/lib/player.js PLAYERS.
+// If you add an ID here, add it there too.
+const CANONICAL_PLAYER_IDS = ['twin-a', 'twin-b', 'matti', 'adult'];
+
+// Wave 1 game ids. Includes 'hello-world' for the Phase 0 acceptance gate.
+const CANONICAL_GAME_IDS = [
+  'hello-world',
+  'long-tom',
+  'gold-pan',
+  'hairpin-drift',
+  'camera-safari-bushveld',
+  'camera-safari-kruger',
+];
+
+const HISTORY_LIMIT = 10;
+const SCORES_SCHEMA_VERSION = 1;
 
 const DEFAULT_ITEMS = [
   { id: 'act-car', text: 'Book car hire' },
@@ -49,16 +67,49 @@ function normalise(raw) {
   return { items: DEFAULT_ITEMS.map((s) => ({ ...s, done: false, owner: '' })) };
 }
 
-async function readState() {
+function defaultScoresState() {
+  return { version: SCORES_SCHEMA_VERSION, scores: {}, dailySeed: null };
+}
+
+function normaliseScores(raw) {
+  if (!raw || typeof raw !== 'object' || !raw.scores || typeof raw.scores !== 'object' || Array.isArray(raw.scores)) {
+    return defaultScoresState();
+  }
+
+  return {
+    version: SCORES_SCHEMA_VERSION,
+    scores: raw.scores,
+    dailySeed: Object.prototype.hasOwnProperty.call(raw, 'dailySeed') ? raw.dailySeed : null,
+  };
+}
+
+async function readBothFiles() {
   const r = await fetch(`https://api.github.com/gists/${GIST_ID}`, { headers: gistHeaders });
   const gist = await r.json();
-  let raw = {};
+  let rawItems = {};
+  let rawScores = null;
+
   try {
-    raw = JSON.parse(gist.files[FILE_NAME].content);
+    rawItems = JSON.parse(gist.files[FILE_NAME].content);
   } catch (_) {
-    raw = {};
+    rawItems = {};
   }
-  return normalise(raw);
+
+  try {
+    rawScores = JSON.parse(gist.files[SCORES_FILE_NAME].content);
+  } catch (_) {
+    rawScores = null;
+  }
+
+  return {
+    items: normalise(rawItems).items,
+    scores: normaliseScores(rawScores),
+  };
+}
+
+async function readState() {
+  const state = await readBothFiles();
+  return { items: state.items };
 }
 
 async function writeState(state) {
@@ -66,6 +117,14 @@ async function writeState(state) {
     method: 'PATCH',
     headers: gistHeaders,
     body: JSON.stringify({ files: { [FILE_NAME]: { content: JSON.stringify(state) } } }),
+  });
+}
+
+async function writeScores(scoresState) {
+  await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+    method: 'PATCH',
+    headers: gistHeaders,
+    body: JSON.stringify({ files: { [SCORES_FILE_NAME]: { content: JSON.stringify(scoresState) } } }),
   });
 }
 
@@ -87,13 +146,44 @@ module.exports = async (req, res) => {
 
   try {
     if (req.method === 'GET') {
-      const state = await readState();
+      const state = await readBothFiles();
       return res.json(state);
     }
 
     if (req.method === 'POST') {
       const body = req.body || {};
       const action = body.action;
+
+      if (action === 'submit-score') {
+        const gameId = String(body.gameId || '');
+        const playerId = String(body.playerId || '');
+        const rawScore = Number(body.score);
+
+        if (!CANONICAL_GAME_IDS.includes(gameId)) return res.status(400).json({ error: 'unknown gameId' });
+        if (!CANONICAL_PLAYER_IDS.includes(playerId)) return res.status(400).json({ error: 'unknown playerId' });
+        if (!Number.isFinite(rawScore) || rawScore < 0) return res.status(400).json({ error: 'invalid score' });
+
+        const score = Math.round(rawScore);
+        const state = await readBothFiles();
+        const scoresState = state.scores;
+        if (!scoresState.scores[gameId] || typeof scoresState.scores[gameId] !== 'object') {
+          scoresState.scores[gameId] = {};
+        }
+
+        if (!scoresState.scores[gameId][playerId] || typeof scoresState.scores[gameId][playerId] !== 'object') {
+          scoresState.scores[gameId][playerId] = { personalBest: 0, history: [] };
+        }
+
+        const playerScores = scoresState.scores[gameId][playerId];
+        const existingBest = Number.isFinite(playerScores.personalBest) ? playerScores.personalBest : 0;
+        const existingHistory = Array.isArray(playerScores.history) ? playerScores.history : [];
+        playerScores.history = [{ score, ts: Date.now() }, ...existingHistory].slice(0, HISTORY_LIMIT);
+        playerScores.personalBest = Math.max(existingBest, score);
+
+        await writeScores(scoresState);
+        return res.json({ items: state.items, scores: scoresState });
+      }
+
       const state = await readState();
 
       if (action === 'add') {
