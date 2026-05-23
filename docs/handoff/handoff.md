@@ -5,6 +5,110 @@ Per `~/.claude/CLAUDE.md` → Plan Execution Continuity rule.
 
 ---
 
+## 2026-05-23 AEST — Phase 0 F5 complete + roster expanded to 6 named players
+
+Runner: Claude (design + orchestration) → codex-cli (F5 impl) → Claude (review + commit).
+
+**Player roster expanded.** Earlier in the session: added Gilo / Vonnies /
+Julz as named adult players; retired the generic `adult` catch-all.
+Subsequent display-name renames: Griff → GriffBiff, Connor → ConBon,
+Gilo → GiloPants, Julie → Julz. Final 6-player line-up:
+
+  twin-a  → GriffBiff 🦓
+  twin-b  → ConBon    🐘
+  matti   → Matti     🦁
+  gilo    → GiloPants 🦘
+  vonnies → Vonnies   🐨
+  julz    → Julz      🦒
+
+IDs stayed stable through the renames (F3 storage uses IDs as foreign keys
+— never change once shipped). `scoreboard.js` now derives
+CANONICAL_PLAYER_IDS from F2's PLAYERS constant — single source of truth
+on the client. Server-side mirror in `api/actions.js` stays hardcoded
+with sync warning.
+
+Clarification: Vonnies IS Jackie (Jackie Vanessa Nash, the partner's
+nickname is Vonnies). Originally I treated them as separate; one player
+covers both.
+
+**F5 (Game modal infrastructure) landed.** Design at
+`docs/games/foundation/F5-game-modal.md`. Implementation: single ESM
+module at `v2/games/lib/game-modal.js` exporting `openGameModal`.
+
+Lifecycle codex implemented:
+1. Launcher tap → dynamic-import game-modal → openGameModal called
+2. Modal DOM mounts, styles inject, focus trap starts
+3. F2 player flow runs in modal body (picker or confirm-stale or
+   skip-if-fresh)
+4. F5 paints chrome (title, player badge with [change], sound toggle,
+   close button)
+5. "Tap to play" splash renders
+6. Splash tap: SYNC canvas creation + DOM swap → await mount(canvas)
+   → audioCtx().resume() + silent burp() → load game module → call
+   startGame(canvas, ctx)
+7. Game plays. Round-in-progress flag set true.
+8. Game emits ctx.onRoundEnd({ score })
+9. F5 submits via F3, mounts F4 scoreboard (full view, current player
+   highlighted), shows Play again + Close
+10. Close mid-round: inline "Quit now?" confirm. Close post-round:
+    teardown immediately.
+11. Teardown: k.quit() → canvas.remove() → null refs → scoreboard
+    unmount → modal DOM remove → focus restore → promise resolve.
+
+**Breaking change to game module interface** — hello-world/game.js
+refactored. Games now export `{ meta, startGame(canvas, ctx) }`. F5
+owns the kaplay instance lifecycle (Pattern A); game modules receive
+`ctx.k` and do NOT call `mount()` themselves. Games emit `onRoundEnd`
+instead of directly calling `submitScore`. Phase 1 games will follow
+this interface.
+
+Standalone QA harness at `hello-world/index.html` updated to provide its
+own ctx callbacks — keeps the no-modal verification path alive.
+
+Launcher button added to the v2 hub (`v2/index.html`) with prominent
+inline CSS. Click delegation in `v2/assets/app.js` (non-module IIFE)
+dynamic-imports game-modal so the modal code is lazy-loaded.
+
+Static checks all clean: single export, no innerHTML on dynamic
+content, no top-level await, no window globals, hello-world no longer
+imports submitScore/getCurrentPlayer directly.
+
+### Phase 0 status
+
+| Unit | Status |
+|---|---|
+| F1 Kaplay bootstrap | ✅ verified |
+| F2 Player identity picker | ✅ verified |
+| F3 Backend score storage | ✅ verified end-to-end via curl |
+| F4 Scoreboard widget | ✅ shipped |
+| F5 Game modal | ✅ just landed; needs visual verification |
+| F6 Sound infrastructure | ⏳ next (mostly polish on F5's mute) |
+| F7 Service worker | ⏳ |
+| F8 FPS HUD | ⏳ |
+
+### Next
+
+**F6 (Sound infrastructure + mute toggle)** — `codex-delegate`, ~2h.
+F5 already implements localStorage mute state. F6 may be a small
+extraction into its own module + polish + audio-asset preload helpers.
+Worth a tight design pass before kicking off codex.
+
+### Gotchas for next session
+
+- F5 visual verification owed: open
+  `https://june-sa-road-trip.vercel.app/v2/` and tap the "▶ Play Hello
+  World (demo)" launcher. Picker → splash → game → scoreboard → close
+  flow should complete. Open/close 10× consecutively for the memory
+  leak check.
+- The standalone QA harness at
+  `https://june-sa-road-trip.vercel.app/v2/games/hello-world/` still
+  works as a non-modal verification path.
+- F5 design doc and impl shipped as two commits — `e315e93` (design
+  only, unpushed initially for /ultrareview) + the impl commit. Verify
+  both reached origin/main.
+
+---
+
 ## 2026-05-23 AEST — Phase 0 F4 complete + 3 flying games added to wave 2/3
 
 Runner: Claude (design + orchestration) → codex-cli (F4 impl) → Claude (review + commit).

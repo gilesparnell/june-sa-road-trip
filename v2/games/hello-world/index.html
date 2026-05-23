@@ -55,9 +55,10 @@
 
     <script type="module">
       import { ensurePlayerForGame, showPicker } from "../lib/player.js";
-      import { unmount } from "../lib/kaplay-loader.js";
+      import { mount, unmount } from "../lib/kaplay-loader.js";
       import { mountScoreboard } from "../lib/scoreboard-widget.js";
-      import { startGame } from "./game.js";
+      import { submitScore } from "../lib/scoreboard.js";
+      import { startGame, meta } from "./game.js";
 
       const main = document.querySelector("main");
       const heading = document.querySelector("h1");
@@ -71,37 +72,56 @@
         heading.textContent = `Standalone QA harness — hello-world (Playing as ${player.displayName})`;
       }
 
-      const player = await ensurePlayerForGame(main);
+      let player = await ensurePlayerForGame(main);
       console.log("player", player);
       renderHeading(player);
 
       main.append(heading, canvas, controls, scoreboardMount);
 
-      const scoreboardHandle = mountScoreboard(scoreboardMount, {
+      let scoreboardHandle = mountScoreboard(scoreboardMount, {
         gameId: "hello-world",
         view: "compact",
         highlightId: player.id,
+        title: meta.title,
       });
 
-      // QA polling: refresh every 5s so the harness shows fresh scores after each round-end submit.
-      // This is throwaway QA wiring — real F5 will refresh on the actual post-submit callback.
-      const refreshInterval = setInterval(() => scoreboardHandle.refresh(), 5000);
-      window.addEventListener("beforeunload", () => clearInterval(refreshInterval));
+      const k = await mount(canvas);
 
-      let k = await startGame(canvas);
+      const ctx = {
+        player,
+        k,
+        onRoundEnd: async ({ score }) => {
+          console.log("[harness] round end", score);
+          try {
+            await submitScore({ gameId: "hello-world", playerId: player.id, score });
+          } catch (err) {
+            console.error("[harness] submitScore", err);
+          }
+          scoreboardHandle.refresh();
+        },
+        onAudioUnlock: () => {},
+      };
+
+      await startGame(canvas, ctx);
 
       pickPlayerButton.addEventListener("click", async () => {
-        const nextPlayer = await showPicker(main);
-        console.log("player", nextPlayer);
-        renderHeading(nextPlayer);
+        player = await showPicker(main);
+        ctx.player = player;
+        console.log("player", player);
+        renderHeading(player);
         main.append(heading, canvas, controls, scoreboardMount);
+        scoreboardHandle.unmount();
+        scoreboardHandle = mountScoreboard(scoreboardMount, {
+          gameId: "hello-world",
+          view: "compact",
+          highlightId: player.id,
+          title: meta.title,
+        });
       });
 
       unmountButton.addEventListener("click", () => {
         scoreboardHandle.unmount();
-        clearInterval(refreshInterval);
         unmount(k, canvas);
-        k = null;
         unmountButton.disabled = true;
       });
     </script>

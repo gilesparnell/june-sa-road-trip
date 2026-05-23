@@ -12,21 +12,21 @@ Each game lives at:
 
 Keep every game at the shared canvas invariant: `800x450` pixels, 16:9. Do not change the size per game.
 
-To add a game, copy `_template/`, rename it to the new game id, then edit `game.js`. Keep Kaplay init out of game files; use the loader:
+To add a game, copy `_template/`, rename it to the new game id, then edit `game.js`. Keep Kaplay init out of game files when the game runs inside the modal; F5 passes the mounted Kaplay instance as `ctx.k`.
 
 ```js
-import { mount, unmount } from "/v2/games/lib/kaplay-loader.js";
+export const meta = { title: "My game", width: 800, height: 450 };
 
-let k = await mount(canvas);
-
-// On close:
-unmount(k, canvas);
-k = null;
+export async function startGame(canvas, ctx) {
+  const k = ctx.k;
+  // Build the scene with k.add(...), k.onClick(...), and friends.
+  return k;
+}
 ```
 
 F5 owns the modal mount/unmount flow. It also owns the iOS audio unlock: the first user tap inside the modal calls `k.audioCtx().resume()` plus a silent `burp`.
 
-F3 owns real score submit. For now games log final scores with `console.log`.
+F3 owns real score submit. Games emit completed rounds with `ctx.onRoundEnd({ score })`; the modal submits and refreshes the scoreboard.
 
 For local QA, each game has an `index.html` that mounts directly onto a canvas without the modal. From the repo root:
 
@@ -114,3 +114,52 @@ handle.unmount();
 ```
 
 → See `docs/games/foundation/F4-scoreboard.md` for full design.
+
+## Game modal (F5)
+
+Game launch modal infrastructure lives in `lib/game-modal.js`.
+
+Public API:
+
+```js
+import { openGameModal } from "/v2/games/lib/game-modal.js";
+
+await openGameModal({ gameId: "hello-world", title: "Hello World" });
+```
+
+`openGameModal({ gameId, title, gameModule })` opens the player-aware arcade modal and resolves when the modal closes. `gameId` is required, `title` is optional, and `gameModule` can be passed by tests to avoid a dynamic import.
+
+Game modules export:
+
+```js
+export const meta = {
+  title: "Hello World demo",
+  width: 800,
+  height: 450,
+};
+
+export async function startGame(canvas, ctx) {
+  const k = ctx.k;
+  ctx.onRoundEnd({ score: 10 });
+  return k;
+}
+```
+
+`ctx` contains:
+
+- `player` — the confirmed F2 player object for this session.
+- `k` — the Kaplay instance mounted by F5. Game modules must use this instance and must not call `mount()` themselves.
+- `onRoundEnd({ score })` — call when a round finishes; F5 submits through F3 and shows the F4 full scoreboard.
+- `onAudioUnlock()` — optional callback for game code that needs to nudge the audio context after F5 has already unlocked it.
+
+Day pages and the hub integrate by rendering a launcher button:
+
+```html
+<button class="game-launcher" data-game-id="hello-world" data-game-title="Hello World">
+  ▶ Play Hello World (demo)
+</button>
+```
+
+`v2/assets/app.js` delegates clicks on `.game-launcher`, dynamically imports `lib/game-modal.js`, and calls `openGameModal(...)` so the hub does not load modal code until the first game launch.
+
+→ See `docs/games/foundation/F5-game-modal.md` for full design.

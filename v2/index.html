@@ -5,6 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>June SA Road Trip — Kenton to Hoedspruit Airport (v2)</title>
 <link rel="stylesheet" href="/v2/assets/styles.css">
+<style>
+  .game-launcher {
+    min-height: 88px;
+    margin-top: 1.5rem;
+    padding: 1rem 1.35rem;
+    border: 1px solid rgba(170, 68, 0, 0.35);
+    border-radius: 14px;
+    background: #aa4400;
+    color: #ffffff;
+    box-shadow: 0 10px 30px rgba(170, 68, 0, 0.16);
+    font: 800 1.05rem/1.2 system-ui, -apple-system, "Segoe UI", sans-serif;
+    touch-action: manipulation;
+    cursor: pointer;
+  }
+
+  .game-launcher:hover,
+  .game-launcher:focus-visible {
+    background: #8f3900;
+  }
+</style>
 </head>
 <body>
 
@@ -35,6 +55,9 @@
       <span class="meta-dot"></span>
       <span>3 nights Kruger Park Lodge</span>
     </div>
+    <button class="game-launcher" data-game-id="hello-world" data-game-title="Hello World" type="button">
+      ▶ Play Hello World (demo)
+    </button>
   </div>
 </header>
 

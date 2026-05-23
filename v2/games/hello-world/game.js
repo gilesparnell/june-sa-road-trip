@@ -1,15 +1,18 @@
-import { mount } from "../lib/kaplay-loader.js";
-import { getCurrentPlayer } from "../lib/player.js";
-import { submitScore } from "../lib/scoreboard.js";
+import { mount, unmount } from "../lib/kaplay-loader.js";
 
-const GAME_ID = "hello-world";
 const ROUND_SECONDS = 30;
 const TARGET_SIZE = 40;
 const WIDTH = 800;
 const HEIGHT = 450;
 
-export async function startGame(canvas) {
-  const k = await mount(canvas);
+export const meta = {
+  title: "Hello World demo",
+  width: WIDTH,
+  height: HEIGHT,
+};
+
+export async function startGame(canvas, ctx) {
+  const k = ctx.k;
 
   k.add([
     k.rect(WIDTH, HEIGHT),
@@ -89,13 +92,7 @@ export async function startGame(canvas) {
     target.hidden = true;
     target.paused = true;
     helpLabel.hidden = true;
-
-    const player = getCurrentPlayer();
-    if (player) {
-      submitScore({ gameId: GAME_ID, playerId: player.id, score })
-        .then(() => console.log(`[hello-world] submitted score ${score} for ${player.id}`))
-        .catch((err) => console.error("[hello-world] submitScore failed", err));
-    }
+    ctx.onRoundEnd({ score });
 
     finalScoreLabel = k.add([
       k.text(`Final score: ${score}`, { size: 36 }),
