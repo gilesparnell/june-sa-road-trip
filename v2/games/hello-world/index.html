@@ -21,6 +21,13 @@
         justify-items: center;
       }
 
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+      }
+
       canvas {
         width: 800px;
         height: 450px;
@@ -31,6 +38,7 @@
       button {
         font: inherit;
         padding: 8px 12px;
+        touch-action: manipulation;
       }
     </style>
   </head>
@@ -38,21 +46,47 @@
     <main>
       <h1>Standalone QA harness — hello-world</h1>
       <canvas id="game" width="800" height="450"></canvas>
-      <button id="unmount" type="button">Unmount</button>
+      <div class="controls">
+        <button id="pick-player" type="button">Pick player</button>
+        <button id="unmount" type="button">Unmount</button>
+      </div>
     </main>
 
     <script type="module">
+      import { ensurePlayerForGame, showPicker } from "../lib/player.js";
       import { unmount } from "../lib/kaplay-loader.js";
       import { startGame } from "./game.js";
 
+      const main = document.querySelector("main");
+      const heading = document.querySelector("h1");
       const canvas = document.querySelector("#game");
-      const button = document.querySelector("#unmount");
+      const controls = document.querySelector(".controls");
+      const pickPlayerButton = document.querySelector("#pick-player");
+      const unmountButton = document.querySelector("#unmount");
+
+      function renderHeading(player) {
+        heading.textContent = `Standalone QA harness — hello-world (Playing as ${player.displayName})`;
+      }
+
+      const player = await ensurePlayerForGame(main);
+      console.log("player", player);
+      renderHeading(player);
+
+      main.append(heading, canvas, controls);
+
       let k = await startGame(canvas);
 
-      button.addEventListener("click", () => {
+      pickPlayerButton.addEventListener("click", async () => {
+        const nextPlayer = await showPicker(main);
+        console.log("player", nextPlayer);
+        renderHeading(nextPlayer);
+        main.append(heading, canvas, controls);
+      });
+
+      unmountButton.addEventListener("click", () => {
         unmount(k, canvas);
         k = null;
-        button.disabled = true;
+        unmountButton.disabled = true;
       });
     </script>
   </body>
