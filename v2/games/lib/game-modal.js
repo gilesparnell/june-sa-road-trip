@@ -247,7 +247,9 @@ async function startFromSplashTap(state) {
 
   state.k = k;
 
-  const audioCtx = k.audioCtx();
+  // Kaplay 3001: audioCtx is a property (AudioContext), not a function.
+  // The plan's research recommended audioCtx() — stale; fixed 2026-05-23.
+  const audioCtx = k.audioCtx;
   if (audioCtx && typeof audioCtx.resume === "function") {
     audioCtx.resume();
   }
@@ -266,7 +268,7 @@ async function startFromSplashTap(state) {
     k,
     onRoundEnd: ({ score }) => handleRoundEnd(state, score),
     onAudioUnlock: () => {
-      const ctx = state.k?.audioCtx();
+      const ctx = state.k?.audioCtx;
       if (ctx && typeof ctx.resume === "function") {
         return ctx.resume();
       }
