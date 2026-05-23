@@ -59,12 +59,17 @@ function normaliseHighlightId(playerId) {
 }
 
 function loadScores(state) {
-  if (state.view === "compact") {
-    getCompactData(state.gameId).then((data) => renderFromData(state, data.scores, data.topRows));
-    return;
-  }
+  // F3's getScores swallows network errors and returns a cached/default
+  // shape, but we still belt-and-brace here — a thrown promise would
+  // leave the widget stuck on its "Loading…" placeholder forever.
+  const promise = state.view === "compact"
+    ? getCompactData(state.gameId).then((data) => renderFromData(state, data.scores, data.topRows))
+    : getScores().then((scores) => renderFromData(state, scores));
 
-  getScores().then((scores) => renderFromData(state, scores));
+  promise.catch((err) => {
+    console.warn("[scoreboard-widget] loadScores failed; rendering empty state", err);
+    if (state.mounted) renderEmpty(state);
+  });
 }
 
 async function getCompactData(gameId) {
@@ -85,6 +90,9 @@ function refresh(state) {
   state.refreshPromise = getScores({ force: true })
     .then((scores) => {
       renderFromData(state, scores);
+    })
+    .catch((err) => {
+      console.warn("[scoreboard-widget] refresh failed; keeping previous render", err);
     })
     .finally(() => {
       state.refreshPromise = null;

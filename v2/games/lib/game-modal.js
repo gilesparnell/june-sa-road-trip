@@ -374,7 +374,12 @@ function renderScoreboard(state) {
     highlightId: state.player.id,
     title: "Family scoreboard",
   });
-  state.scoreboardHandle.refresh();
+  // Fire-and-forget; the widget already swallows its own failures, but
+  // catch here so any future regression doesn't surface as an unhandled
+  // promise rejection.
+  state.scoreboardHandle.refresh().catch((err) => {
+    console.warn("[game-modal] scoreboard refresh failed", err);
+  });
   refreshFocusables(state);
   again.focus();
 }
