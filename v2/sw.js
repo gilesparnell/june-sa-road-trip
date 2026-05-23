@@ -36,7 +36,17 @@ let flushing = false;
 let hasWarnedIDB = false;
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS)));
+  event.waitUntil(
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => cache.addAll(PRECACHE_URLS))
+      .catch((err) => {
+        // cache.addAll is atomic — one failed URL aborts the whole install.
+        // Log so the next person debugging knows which manifest entry blew up.
+        console.error("[sw] precache install failed", err);
+        throw err;
+      }),
+  );
 });
 
 self.addEventListener("activate", (event) => {
