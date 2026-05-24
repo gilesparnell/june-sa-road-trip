@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Demo — June SA Road Trip arcade</title>
+<link rel="stylesheet" href="/v2/assets/styles.css">
+<style>
+  .demo-shell {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: clamp(1.5rem, 5vw, 3rem) 1.25rem 4rem;
+  }
+
+  .demo-shell h1 {
+    margin: 0 0 0.5rem;
+  }
+
+  .demo-shell p {
+    color: var(--ink-soft, #4a4a4a);
+    line-height: 1.55;
+  }
+
+  .demo-grid {
+    display: grid;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .game-launcher {
+    width: 100%;
+    min-height: 88px;
+    padding: 1rem 1.35rem;
+    border: 1px solid rgba(170, 68, 0, 0.35);
+    border-radius: 14px;
+    background: #aa4400;
+    color: #ffffff;
+    box-shadow: 0 10px 30px rgba(170, 68, 0, 0.16);
+    font: 800 1.05rem/1.2 system-ui, -apple-system, "Segoe UI", sans-serif;
+    touch-action: manipulation;
+    cursor: pointer;
+  }
+
+  .game-launcher:hover,
+  .game-launcher:focus-visible {
+    background: #8f3900;
+  }
+
+  .game-launcher .sub {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.85rem;
+    font-weight: 400;
+    opacity: 0.85;
+  }
+
+  .demo-back {
+    display: inline-block;
+    margin-top: 2.5rem;
+    color: var(--rust, #aa4400);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .demo-back:hover {
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="container row">
+    <a class="brand" href="/v2/">SA Road Trip</a>
+    <div class="spacer"></div>
+    <a href="/v2/#days">Days</a>
+    <a href="/v2/#actions">Actions</a>
+    <a href="/v2/#links">Links</a>
+  </div>
+</nav>
+
+<main class="demo-shell">
+  <span class="eyebrow">Arcade · demo bench</span>
+  <h1 class="display">Game demos</h1>
+  <p>Sandbox for iterating on the trip arcade. The launchers below open
+    the full game modal exactly as it will appear in real day pages
+    once the games go live. This page is intentionally noisy — it's a
+    dev surface, not a family-facing page.</p>
+
+  <div class="demo-grid">
+    <button class="game-launcher" data-game-id="hello-world" data-game-title="Hello World" type="button">
+      ▶ Play Hello World (demo)
+      <span class="sub">F1–F8 foundation acceptance gate</span>
+    </button>
+    <button class="game-launcher" data-game-id="long-tom" data-game-title="Long Tom: Aim & Fire" type="button">
+      ▶ Long Tom: Aim &amp; Fire
+      <span class="sub">G1 — Day 5 cannon stop · unpolished, no SFX yet</span>
+    </button>
+  </div>
+
+  <a class="demo-back" href="/v2/">← back to the trip</a>
+</main>
+
+<script src="/v2/assets/app.js"></script>
+</body>
+</html>

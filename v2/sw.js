@@ -1,4 +1,4 @@
-const VERSION = "1.1.0";
+const VERSION = "1.2.0";
 const CACHE_NAME = `arcade-v${VERSION}`;
 const API_PATH = "/api/actions";
 const DB_NAME = "tripArcade";
@@ -11,6 +11,9 @@ const PRECACHE_URLS = [
   // Hub page essentials — without these the page can't bootstrap offline
   "/v2/assets/styles.css",
   "/v2/assets/app.js",
+  // Dev demo bench (Phase 0/1 game launchers, not family-facing)
+  "/v2/gameDemo/",
+  "/v2/gameDemo/index.html",
   // Arcade library (F1-F6)
   "/v2/games/lib/kaplay-loader.js",
   "/v2/games/lib/player.js",
@@ -22,6 +25,9 @@ const PRECACHE_URLS = [
   // Hello-world demo
   "/v2/games/hello-world/game.js",
   "/v2/games/hello-world/index.html",
+  // G1 — Long Tom (Day 5 cannon)
+  "/v2/games/long-tom/game.js",
+  "/v2/games/long-tom/index.html",
   // Kaplay framework
   "https://unpkg.com/kaplay@3001.0.19/dist/kaplay.mjs",
 ];
