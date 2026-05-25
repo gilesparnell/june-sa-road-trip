@@ -46,7 +46,29 @@ export function applyMute(k) {
 }
 
 export async function loadSounds(k, manifest) {
-  const loads = Object.entries(manifest ?? {}).map(([id, url]) => (
+  const entries = Object.entries(manifest ?? {});
+
+  // HEAD-probe first so Kaplay's internal asset queue never sees a URL
+  // that 404s — a rejected k.loadSound() promise gets stored in the queue
+  // un-catchable from outside and prevents Kaplay's scene from ever
+  // entering the "loaded" state, leaving the canvas blank.
+  const probed = await Promise.all(
+    entries.map(async ([id, url]) => {
+      try {
+        const head = await fetch(url, { method: "HEAD" });
+        if (!head.ok) {
+          console.warn(`[sound] skipping "${id}" — ${head.status} for ${url}`);
+          return null;
+        }
+        return [id, url];
+      } catch (err) {
+        console.warn(`[sound] skipping "${id}" — HEAD failed`, err);
+        return null;
+      }
+    }),
+  );
+
+  const loads = probed.filter(Boolean).map(([id, url]) => (
     Promise.resolve()
       .then(() => k.loadSound(id, url))
       .catch((err) => {
