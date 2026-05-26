@@ -1,4 +1,4 @@
-const VERSION = "1.2.1";
+const VERSION = "1.2.2";
 const CACHE_NAME = `arcade-v${VERSION}`;
 const API_PATH = "/api/actions";
 const DB_NAME = "tripArcade";

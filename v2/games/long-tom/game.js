@@ -47,13 +47,17 @@ export const meta = {
 export async function startGame(canvas, ctx) {
   const k = ctx.k;
 
-  await loadSounds(k, {
-    aim: "/v2/games/long-tom/assets/audio/aim.m4a",
-    fire: "/v2/games/long-tom/assets/audio/fire.m4a",
-    hit: "/v2/games/long-tom/assets/audio/hit.m4a",
-    miss: "/v2/games/long-tom/assets/audio/miss.m4a",
-    fanfare: "/v2/games/long-tom/assets/audio/fanfare.m4a",
-  });
+  // G1.3 polish will source 5 CC0 SFX from Freesound (aim, fire, hit,
+  // miss, fanfare) and drop them at the paths below. Until then we
+  // skip loadSounds entirely so the game runs silent without polluting
+  // Kaplay's asset queue with 404s.
+  // await loadSounds(k, {
+  //   aim: "/v2/games/long-tom/assets/audio/aim.m4a",
+  //   fire: "/v2/games/long-tom/assets/audio/fire.m4a",
+  //   hit: "/v2/games/long-tom/assets/audio/hit.m4a",
+  //   miss: "/v2/games/long-tom/assets/audio/miss.m4a",
+  //   fanfare: "/v2/games/long-tom/assets/audio/fanfare.m4a",
+  // });
 
   const cannonPos = k.vec2(90, 382);
   const state = {
