@@ -17,6 +17,18 @@ const MAX_ANGLE = 85;
 const GROUND_Y = 415;
 const DIRECT_HIT_GROUND_Y = 410;
 
+// G1.3 placeholder SFX: uses Kaplay's built-in burp() with per-event
+// detune values. Silly but functional. Real Freesound CC0 audio files
+// land in G1.3b, at which point the SFX table maps to play("<id>") and
+// the loadSounds call in startGame() gets uncommented.
+const SFX = {
+  aim: { volume: 0.25, detune: 600 },
+  fire: { volume: 0.9, detune: -700 },
+  hit: { volume: 0.7, detune: 300 },
+  miss: { volume: 0.5, detune: -300 },
+  fanfare: { volume: 0.8, detune: 900 },
+};
+
 const LEVELS = [
   {
     name: "Sighting in",
@@ -83,6 +95,7 @@ export async function startGame(canvas, ctx) {
 
   const activeTargets = [];
   const previewDots = [];
+  const activeCards = [];
   let barrel;
   let windLabel;
   let levelLabel;
@@ -116,7 +129,7 @@ export async function startGame(canvas, ctx) {
     updateBarrel();
     drawPreview();
     aimLabel.hidden = false;
-    k.play("aim");
+    sfx(k, "aim");
   });
 
   k.onMouseMove(() => {
@@ -151,8 +164,12 @@ export async function startGame(canvas, ctx) {
       return;
     }
 
-    clearCards();
-    loadLevel(state.levelIndex + 1);
+    state.phase = "transition";
+    fadeCardsOut(() => {
+      k.wait(0.1, () => {
+        loadLevel(state.levelIndex + 1);
+      });
+    });
   });
 
   k.onClick("play-again", () => {
@@ -326,7 +343,7 @@ export async function startGame(canvas, ctx) {
     state.inCooldown = true;
     state.shellsFired += 1;
     updateHud();
-    k.play("fire");
+    sfx(k, "fire");
 
     const shell = k.add([
       k.circle(SHELL_RADIUS),
@@ -342,6 +359,7 @@ export async function startGame(canvas, ctx) {
         resolved: false,
       },
     ]);
+    k.shake(8);
 
     shell.onUpdate(() => {
       if (k.paused || shell.resolved) {
@@ -390,10 +408,11 @@ export async function startGame(canvas, ctx) {
         state.directHits += 1;
       }
 
-      k.play("hit");
+      sfx(k, "hit");
+      spawnDebris(k, hitTarget.center);
       k.destroy(hitTarget.obj);
     } else {
-      k.play("miss");
+      sfx(k, "miss");
       addCrater(shell.pos.x);
     }
 
@@ -427,7 +446,7 @@ export async function startGame(canvas, ctx) {
     state.totalScore += levelScore;
     state.phase = "level-complete";
     updateHud();
-    k.play("fanfare");
+    sfx(k, "fanfare");
 
     if (state.levelIndex >= LEVELS.length - 1) {
       showFinalSummary("Campaign cleared", levelScore);
@@ -467,6 +486,8 @@ export async function startGame(canvas, ctx) {
       label: "Play again",
       tag: "play-again",
       y: 318,
+    }, {
+      fadeIn: true,
     });
 
     endRoundOnce(finalScore);
@@ -577,62 +598,135 @@ export async function startGame(canvas, ctx) {
     ]);
   }
 
-  function addOverlayCard(lines, button = null) {
-    k.add([
+  function addOverlayCard(lines, button = null, options = {}) {
+    clearCards();
+    const initialOpacity = options.fadeIn ? 0 : 1;
+
+    trackCard(k.add([
       k.rect(WIDTH, HEIGHT),
       k.pos(0, 0),
       k.color(0, 0, 0),
-      k.opacity(0.48),
+      k.opacity(0.48 * initialOpacity),
       k.fixed(),
       "ui-card",
-    ]);
+      { baseOpacity: 0.48 },
+    ]));
 
-    k.add([
+    trackCard(k.add([
       k.rect(480, 250, { radius: 8 }),
       k.pos(WIDTH / 2, HEIGHT / 2),
       k.anchor("center"),
       k.color(20, 29, 38),
       k.outline(2, k.WHITE),
+      k.opacity(initialOpacity),
       k.fixed(),
       "ui-card",
-    ]);
+      { baseOpacity: 1 },
+    ]));
 
     for (const line of lines) {
-      k.add([
+      trackCard(k.add([
         k.text(line.text, { size: line.size }),
         k.pos(WIDTH / 2, line.y),
         k.anchor("center"),
         k.color(255, 255, 255),
+        k.opacity(initialOpacity),
         k.fixed(),
         "ui-card",
-      ]);
+        { baseOpacity: 1 },
+      ]));
     }
 
     if (!button) {
+      fadeCardsInIfNeeded(options);
       return;
     }
 
-    const buttonObj = k.add([
+    const buttonObj = trackCard(k.add([
       k.rect(180, 48, { radius: 6 }),
       k.pos(WIDTH / 2, button.y),
       k.anchor("center"),
       k.area(),
       k.color(56, 191, 160),
+      k.opacity(initialOpacity),
       k.fixed(),
       button.tag,
       "ui-card",
-    ]);
+      { baseOpacity: 1 },
+    ]));
 
-    buttonObj.add([
+    trackCard(buttonObj.add([
       k.text(button.label, { size: 21 }),
       k.anchor("center"),
       k.color(0, 0, 0),
+      k.opacity(initialOpacity),
       k.fixed(),
-    ]);
+      { baseOpacity: 1 },
+    ]));
+
+    fadeCardsInIfNeeded(options);
   }
 
   function clearCards() {
+    activeCards.length = 0;
     k.destroyAll("ui-card");
+  }
+
+  function trackCard(card) {
+    activeCards.push(card);
+    return card;
+  }
+
+  function fadeCardsInIfNeeded(options) {
+    if (!options.fadeIn) {
+      return;
+    }
+
+    tweenCardOpacity(1, 0.2);
+  }
+
+  function fadeCardsOut(onComplete) {
+    tweenCardOpacity(0, 0.25, () => {
+      clearCards();
+      onComplete?.();
+    });
+  }
+
+  function tweenCardOpacity(targetOpacity, duration, onComplete = null) {
+    const cards = activeCards.slice();
+    const starts = cards.map((card) => Number(card.opacity ?? 1));
+
+    if (typeof k.tween === "function") {
+      cards.forEach((card, index) => {
+        const baseOpacity = Number(card.baseOpacity ?? 1);
+        k.tween(starts[index], targetOpacity * baseOpacity, duration, (value) => {
+          card.opacity = value;
+        }, k.easings?.linear);
+      });
+      k.wait(duration, () => onComplete?.());
+      return;
+    }
+
+    let elapsed = 0;
+    const stop = k.onUpdate(() => {
+      if (k.paused) {
+        return;
+      }
+
+      elapsed += k.dt();
+      const progress = clamp(elapsed / duration, 0, 1);
+
+      cards.forEach((card, index) => {
+        const baseOpacity = Number(card.baseOpacity ?? 1);
+        const end = targetOpacity * baseOpacity;
+        card.opacity = starts[index] + ((end - starts[index]) * progress);
+      });
+
+      if (progress >= 1) {
+        stop.cancel();
+        onComplete?.();
+      }
+    });
   }
 
   function clearLevelObjects() {
@@ -676,5 +770,41 @@ export async function startGame(canvas, ctx) {
 
   function radToDeg(radians) {
     return radians * (180 / Math.PI);
+  }
+}
+
+function sfx(k, id) {
+  const opts = SFX[id];
+  if (!opts) {
+    return;
+  }
+
+  k.burp(opts);
+}
+
+function spawnDebris(k, pos) {
+  for (let i = 0; i < 12; i += 1) {
+    const angle = (Math.PI * 2 * i) / 12;
+    const speed = 120 + (Math.random() * 80);
+    const debris = k.add([
+      k.rect(4, 4),
+      k.pos(pos),
+      k.color(197, 117, 90),
+      k.anchor("center"),
+      k.opacity(1),
+      k.lifespan(0.5, { fade: 0.3 }),
+      { vx: Math.cos(angle) * speed, vy: (Math.sin(angle) * speed) - 60 },
+    ]);
+
+    debris.onUpdate(() => {
+      if (k.paused) {
+        return;
+      }
+
+      const dt = k.dt();
+      debris.vy += 600 * dt;
+      debris.pos.x += debris.vx * dt;
+      debris.pos.y += debris.vy * dt;
+    });
   }
 }

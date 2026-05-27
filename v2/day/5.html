@@ -5,6 +5,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Day 5 — Dullstroom → Graskop · June SA Road Trip</title>
 <link rel="stylesheet" href="/v2/assets/styles.css">
+<style>
+  .day-launcher {
+    width: 100%;
+    margin: 1.25rem 0 0;
+    padding: 1rem 1.35rem;
+    min-height: 88px;
+    border: 1px solid rgba(170, 68, 0, 0.35);
+    border-radius: 14px;
+    background: #aa4400;
+    color: #ffffff;
+    box-shadow: 0 10px 30px rgba(170, 68, 0, 0.16);
+    font: 700 1rem/1.2 system-ui, -apple-system, "Segoe UI", sans-serif;
+    text-align: left;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .day-launcher:hover,
+  .day-launcher:focus-visible {
+    background: #8f3900;
+  }
+
+  .day-launcher .sub {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.85rem;
+    font-weight: 400;
+    opacity: 0.9;
+  }
+</style>
 </head>
 <body>
 
@@ -152,6 +182,10 @@
             <p class="fun-fact-headline">The Boers dragged a 38kg-shell cannon up this mountain to escape the British</p>
             <p class="fun-fact-body">In September 1900 General Louis Botha retreated here with two French-made Creusot siege guns — 155mm monsters that could hurl a 38kg shell 10km. Rather than surrender the guns, Botha's men dragged both cannons up the near-vertical face of Mauchsberg before the British could capture them. The British had nicknamed them the "Long Toms." The pass is named after this retreat.</p>
           </div>
+          <button class="game-launcher day-launcher" data-game-id="long-tom" data-game-title="Long Tom: Aim &amp; Fire" type="button">
+            🎯 Play Long Tom: Aim &amp; Fire
+            <span class="sub">Beat the boys' score · 3 levels of cannon physics</span>
+          </button>
         </div>
       </div>
 
